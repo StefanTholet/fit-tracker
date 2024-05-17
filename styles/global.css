@@ -1,0 +1,16 @@
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-primary-2 {
+  background-color: #1eb854;
+}
+
+.bg-primary-focus {
+  background-color: #188c40;
+}
+
+.bg-neutral-focus {
+  background-color: #060404;
+}
