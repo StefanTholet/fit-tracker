@@ -19,7 +19,13 @@ const config: Config = {
   daisyui: {
     themes: ['emerald', 'forest']
   },
-  purge: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
-  plugins: [require('daisyui')]
+  purge: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+  plugins: [require('daisyui')],
+  'tailwindCSS.includeLanguages': {
+    javascript: 'javascript',
+    javascriptreact: 'javascriptreact',
+    typescript: 'typescript',
+    typescriptreact: 'typescriptreact'
+  }
 }
 export default config

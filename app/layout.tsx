@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Header from '@/components/header'
 import Hero from '@/components/hero'
+import Footer from '@/components/footer'
 import '../styles/global.css'
 
 export const metadata: Metadata = {
@@ -19,11 +20,9 @@ export default function RootLayout({
         <div className="bg-gray-100">
           <Header />
           <Hero />
-          <div className="container mx-auto px-4 py-8">
-            <p>Learn more about our services...</p>
-          </div>
         </div>
         {children}
+        <Footer />
       </body>
     </html>
   )

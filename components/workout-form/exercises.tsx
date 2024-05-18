@@ -1,7 +1,7 @@
 import React from 'react'
 import { Exercise } from './workout-form'
 
-interface FormBodyProps {
+interface ExercisesProps {
   index: number
   exercise: Exercise
   handleExerciseChange: (
@@ -11,7 +11,7 @@ interface FormBodyProps {
   removeExercise: (index: number) => void
 }
 
-const FormBody: React.FC<FormBodyProps> = ({
+const Exercises: React.FC<ExercisesProps> = ({
   exercise,
   handleExerciseChange,
   removeExercise,
@@ -64,4 +64,4 @@ const FormBody: React.FC<FormBodyProps> = ({
   )
 }
 
-export default FormBody
+export default Exercises

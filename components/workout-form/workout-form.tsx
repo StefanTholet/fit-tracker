@@ -1,56 +1,30 @@
 'use client'
-import React, { useState, ChangeEvent, FormEvent } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import useExerciseForm from '@/hooks/useExerciseForm'
 import FormHeader from './form-header'
-import FormBody from './form-body'
+import Exercises from './exercises'
+
+interface WorkoutFormProps {
+  removeWorkoutForm: () => void
+}
 
 export interface Exercise {
   name: string
   sets: string
   reps: string
   weight: string
+  id: string
 }
 
-const EXERCISE_INITIAL_STATE = { name: '', sets: '', reps: '', weight: '' }
-
-const WorkoutForm: React.FC = () => {
-  const [workoutName, setWorkoutName] = useState('')
-  const [exercises, setExercises] = useState<Exercise[]>([
-    EXERCISE_INITIAL_STATE
-  ])
-
-  const handleWorkoutNameChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
-    setWorkoutName(event.target.value)
-  }
-
-  const handleExerciseChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ): void => {
-    const { target } = e
-    const { value, name } = target
-
-    setExercises(
-      exercises.map((exercise, i) => {
-        return i === index ? { ...exercise, [name]: value } : exercise
-      })
-    )
-  }
-
-  const addExercise = (): void => {
-    setExercises([...exercises, EXERCISE_INITIAL_STATE])
-  }
-
-  const removeExercise = (index: number): void => {
-    setExercises((state) => state.slice(0, index))
-  }
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
-    event.preventDefault()
-    console.log({ workoutName, exercises })
-  }
+const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
+  const {
+    workoutName,
+    exercises,
+    handleWorkoutNameChange,
+    handleExerciseChange,
+    addExercise,
+    removeExercise,
+    handleSubmit
+  } = useExerciseForm()
 
   return (
     <form
@@ -60,17 +34,20 @@ const WorkoutForm: React.FC = () => {
       <FormHeader
         handleWorkoutNameChange={handleWorkoutNameChange}
         workoutName={workoutName}
+        removeWorkoutForm={removeWorkoutForm}
       />
 
-      {exercises.map((exercise, index) => (
-        <FormBody
-          index={index}
-          // key={uuidv4()}
-          exercise={exercise}
-          removeExercise={removeExercise}
-          handleExerciseChange={handleExerciseChange}
-        />
-      ))}
+      {exercises.map((exercise, index) => {
+        return (
+          <Exercises
+            index={index}
+            key={exercise.id}
+            exercise={exercise}
+            removeExercise={() => removeExercise(exercise.id)}
+            handleExerciseChange={(e) => handleExerciseChange(e, exercise.id)}
+          />
+        )
+      })}
 
       <div className="flex justify-between mb-4">
         <button

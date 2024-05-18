@@ -1,15 +1,22 @@
 import React, { ChangeEvent } from 'react'
+import Button from '../button'
+import CloseIcon from '../close-icon'
 interface FormHeaderProps {
   workoutName: string
   handleWorkoutNameChange: (event: ChangeEvent<HTMLInputElement>) => void
+  removeWorkoutForm: () => void
 }
 
 const FormHeader: React.FC<FormHeaderProps> = ({
   workoutName,
-  handleWorkoutNameChange
+  handleWorkoutNameChange,
+  removeWorkoutForm
 }: FormHeaderProps) => {
   return (
     <>
+      <button className="block ml-auto">
+        <CloseIcon onClick={removeWorkoutForm} />
+      </button>
       <h2 className="text-2xl font-bold mb-4">Create Workout</h2>
       <div className="mb-4">
         <label
