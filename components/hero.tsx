@@ -3,7 +3,7 @@ import Image from 'next/image'
 import hero from '../assets/images/hero.jpg'
 const Hero = () => {
   return (
-    <div className="hero min-h-96 bg-neutral-focus">
+    <div className="hero min-h-96 bg-neutral-focus-2">
       <div className="hero-content flex-col lg:flex-row-reverse">
         <Image
           src={hero}
