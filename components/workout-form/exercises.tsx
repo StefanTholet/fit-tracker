@@ -54,7 +54,7 @@ const Exercises: React.FC<ExercisesProps> = ({
         />
         <button
           type="button"
-          onClick={(e) => removeExercise(index)}
+          onClick={() => removeExercise(index)}
           className="text-red-600 hover:text-red-800 font-medium"
         >
           Remove

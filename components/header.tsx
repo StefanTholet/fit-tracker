@@ -29,16 +29,6 @@ const Header = () => {
                 Add Workouts
               </Link>
             </li>
-            <li>
-              <a href="#" className="text-gray-600 hover:text-gray-800">
-                Services
-              </a>
-            </li>
-            <li>
-              <a href="#" className="text-gray-600 hover:text-gray-800">
-                Contact
-              </a>
-            </li>
           </ul>
         </nav>
       </div>

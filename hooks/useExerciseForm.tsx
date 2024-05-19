@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Exercise } from '@/components/workout-form/workout-form'
+import { Exercise } from '@/interfaces/exercise'
 const EXERCISE_INITIAL_STATE = {
   name: '',
   sets: '',

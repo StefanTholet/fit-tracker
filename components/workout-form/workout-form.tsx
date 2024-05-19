@@ -2,17 +2,9 @@
 import useExerciseForm from '@/hooks/useExerciseForm'
 import FormHeader from './form-header'
 import Exercises from './exercises'
-
+import { isExerciseValid } from '@/utils/exercise'
 interface WorkoutFormProps {
   removeWorkoutForm: () => void
-}
-
-export interface Exercise {
-  name: string
-  sets: string
-  reps: string
-  weight: string
-  id: string
 }
 
 const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
@@ -25,6 +17,11 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
     removeExercise,
     handleSubmit
   } = useExerciseForm()
+
+  const disableCreateAndAddWorkoutBtns = () =>
+    !workoutName ||
+    exercises.length === 0 ||
+    (exercises.length === 1 && !isExerciseValid(exercises[0]))
 
   return (
     <form
@@ -49,7 +46,7 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
         )
       })}
 
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between gap-6 mb-4">
         <button
           type="button"
           onClick={addExercise}
@@ -58,6 +55,7 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
           Add Exercise
         </button>
         <button
+          disabled={disableCreateAndAddWorkoutBtns()}
           type="submit"
           className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
         >
