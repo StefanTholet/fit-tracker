@@ -7,10 +7,33 @@
   background-color: #1eb854;
 }
 
-.bg-primary-focus {
+.bg-primary-focus-2 {
   background-color: #188c40;
 }
 
-.bg-neutral-focus {
+.bg-neutral-2 {
+  background-color: #110e0e;
+}
+
+.bg-neutral-focus-2 {
   background-color: #060404;
+}
+.bg-accent-2 {
+  background-color: #d99330;
+}
+.bg-accent-focus-2 {
+  background-color: #b57721;
+}
+
+.bg-info-2 {
+  background-color: #66c7ff;
+}
+.bg-success-2 {
+  background-color: #87cf3a;
+}
+.bg-warning-2 {
+  background-color: #e1d460;
+}
+.bg-error-2 {
+  background-color: #ff6b6b;
 }

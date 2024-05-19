@@ -14,7 +14,7 @@ const AddWorkouts = () => {
           removeWorkoutForm={() => removeWorkoutForm(workout.id)}
         />
       ))}
-      <Button className="self-center mt-8" onClick={addWorkout}>
+      <Button className="self-center mt-8" type="primary" onClick={addWorkout}>
         Add Workout
       </Button>
     </div>

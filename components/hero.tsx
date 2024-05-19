@@ -1,3 +1,4 @@
+import Button from './button'
 import Image from 'next/image'
 import hero from '../assets/images/hero.jpg'
 const Hero = () => {
@@ -12,10 +13,12 @@ const Hero = () => {
         <div>
           <h1 className="text-5xl text-white font-bold">Fit Tracker</h1>
           <p className="py-6 text-white">Where history is written...</p>
-          <button className="btn bg-primary-focus text-white ">Register</button>
-          <button className="ml-3 btn bg-primary-focus text-white">
+          <Button className=" text-white" type="primary">
+            Register
+          </Button>
+          <Button className="ml-3 btn  text-white" type="primary-2">
             Login
-          </button>
+          </Button>
         </div>
       </div>
     </div>
