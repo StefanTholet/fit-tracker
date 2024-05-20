@@ -1,5 +1,5 @@
 import React from 'react'
-import { Exercise } from './workout-form'
+import { Exercise } from '@/interfaces/exercise'
 
 interface ExercisesProps {
   index: number
