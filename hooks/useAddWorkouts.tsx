@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Exercise } from '@/components/workout-form/workout-form'
+import { Exercise } from '@/interfaces/exercise'
 import { v4 as uuidv4 } from 'uuid'
 
 interface Workout {
