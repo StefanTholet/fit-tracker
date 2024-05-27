@@ -1,5 +1,6 @@
 import Button from './button'
 import Image from 'next/image'
+import Link from 'next/link'
 import hero from '../assets/images/hero.jpg'
 const Hero = () => {
   return (
@@ -14,10 +15,10 @@ const Hero = () => {
           <h1 className="text-5xl text-white font-bold">Fit Tracker</h1>
           <p className="py-6 text-white">Where history is written...</p>
           <Button className=" text-white" type="primary">
-            Register
+            <Link href="/register">Register</Link>
           </Button>
           <Button className="ml-3 btn  text-white" type="primary-2">
-            Login
+            <Link href="/login">Login</Link>
           </Button>
         </div>
       </div>
