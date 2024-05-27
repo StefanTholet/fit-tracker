@@ -1,10 +1,10 @@
-// import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 
-// export default async function handler(request, response) => {
-//   const client = await db.connect()
-//   try {
-//     await client.sql(`CREATE TABLE Pets (Name varchar(255))`)
-//   } catch (error) {
-
-//   }
-// }
+export const getWorkouts = async () => {
+  try {
+    const workouts = await sql`select * from workout`
+    return workouts.rows
+  } catch (error) {
+    console.log(error)
+  }
+}
