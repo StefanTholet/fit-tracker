@@ -5,6 +5,7 @@ import { signup } from '@/actions/auth-actions'
 
 export default function Register() {
   const [formData, setFormData] = useState({ email: '', password: '' })
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { target } = e
     const { name, value } = target
@@ -14,9 +15,7 @@ export default function Register() {
     e.preventDefault()
     try {
       signup(formData)
-    } catch (error) {
-      // console.log(error)
-    }
+    } catch (error) {}
   }
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

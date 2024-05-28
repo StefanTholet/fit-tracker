@@ -8,6 +8,7 @@ const Hero = () => {
       <div className="hero-content flex-col lg:flex-row-reverse">
         <Image
           src={hero}
+          sizes="30vw"
           className="w-full max-w-sm  rounded-lg shadow-2xl"
           alt="person lifting weights"
         />

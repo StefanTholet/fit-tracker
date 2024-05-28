@@ -6,13 +6,13 @@ const EXERCISE_INITIAL_STATE = {
   sets: '',
   reps: '',
   weight: '',
-  id: uuidv4()
+  id: uuidv4(),
 }
 
 const useExerciseForm = () => {
   const [workoutName, setWorkoutName] = useState('')
   const [exercises, setExercises] = useState<Exercise[]>([
-    EXERCISE_INITIAL_STATE
+    EXERCISE_INITIAL_STATE,
   ])
 
   const handleWorkoutNameChange = (
@@ -46,7 +46,7 @@ const useExerciseForm = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault()
-    console.log({ workoutName, exercises })
+    // console.log({ workoutName, exercises })
   }
 
   return {
@@ -56,7 +56,7 @@ const useExerciseForm = () => {
     handleExerciseChange,
     addExercise,
     removeExercise,
-    handleSubmit
+    handleSubmit,
   }
 }
 
