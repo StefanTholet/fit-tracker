@@ -4,7 +4,7 @@ import {
   SessionData,
   defaultSession,
   getUser,
-  createUser,
+  createUser
 } from '@/lib/auth'
 
 import { hashUserPassword, verifyPassword } from '@/lib/hash'
@@ -16,17 +16,19 @@ interface SignupInterface {
   email: string
   password: string
 }
-export const signup = async (formData: SignupInterface) => {
-  try {
-    const { email, password } = formData
-    if (email && password) {
-      const hashedPassword = hashUserPassword(password)
-      const result = await createUser(email, hashedPassword)
-      return result
-    }
-  } catch (error) {
-    return error
-  }
+
+interface User {
+  email: string
+  user_id: string
+}
+
+const updateSession = async (user: User) => {
+  const session = await getSession()
+  session.email = user?.email
+  session.isLoggedIn = true
+  session.userId = user?.user_id
+  await session.save()
+  return session
 }
 
 export const getSession = async () => {
@@ -38,35 +40,59 @@ export const getSession = async () => {
 
   return session
 }
-export const login = async (formData: SignupInterface) => {
-  try {
-    const { email, password } = formData
 
-    const user = await getUser(email)
-    const userPassword = user?.password
-    if (!userPassword) {
-      return
-    }
-    const isValid = verifyPassword(userPassword, password)
-    if (!isValid) {
-      return
-    }
-    const session = await getSession()
+export const signup = async (
+  prevState: { error: undefined | string },
+  formData: FormData
+) => {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
 
-    session.isLoggedIn = true
-    session.userId = user?.user_id
-    session.email = email
-    console.log('login', session)
-    await session.save()
-    return true
-  } catch (error) {
-    console.log(error)
+  if (!email || !password) {
+    return { error: 'All fields are required' }
   }
+
+  const hashedPassword = hashUserPassword(password)
+  const user = await createUser(email, hashedPassword)
+
+  if (!user) {
+    return {
+      error:
+        'Registration unsuccessful. Please try again using different credentials.'
+    }
+  }
+  await updateSession(user as User)
+  redirect('/add-workouts')
 }
+
+export const login = async (
+  prevState: { error: undefined | string },
+  formData: FormData
+) => {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+
+  if (!email || !password) {
+    return { error: 'All fields are required' }
+  }
+
+  const user = await getUser(email)
+  if (!user) {
+    return { error: 'Wrong credentials' }
+  }
+
+  const userPassword = user.password
+  const isValid = verifyPassword(userPassword, password)
+  if (!isValid) {
+    return { error: 'Wrong credentials' }
+  }
+
+  await updateSession(user as User)
+  redirect('/dashboard')
+}
+
 export const logout = async () => {
   const session = await getSession()
-  console.log(session)
-
   session.destroy()
   redirect('/')
 }

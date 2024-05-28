@@ -4,7 +4,7 @@ import NoPlan from '@/assets/svg/no-plan'
 import { getWorkouts } from '../../lib/data'
 const Dashboard = async () => {
   const workouts = await getWorkouts()
-  console.log(workouts[0]?.exercises)
+
   return (
     <div className="flex flex-col items-center justify-center mt-10 gap-5">
       <div className="flex flex-col gap-5 align-middle">

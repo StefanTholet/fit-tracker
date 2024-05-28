@@ -1,44 +1,21 @@
 'use client'
-import React, { MouseEvent, useEffect } from 'react'
-import useForm from '@/hooks/useForm'
+
+import { useFormState } from 'react-dom'
 import { login } from '@/actions/auth-actions'
-import { redirect } from 'next/navigation'
-
-interface FormData {
-  email: string
-  password: string
-}
-
-const initialData: FormData = { password: '', email: '' }
 
 const LoginForm = () => {
-  const { handleChange, formData, isSubmitted, setIsSubmitted } =
-    useForm(initialData)
-
-  const onSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-
-    const result = await login(formData as FormData)
-
-    if (result) {
-      setIsSubmitted(true)
-    }
-  }
-
-  useEffect(() => {
-    if (isSubmitted) {
-      redirect('/dashboard')
-    }
-  }, [isSubmitted])
+  const [state, formAction] = useFormState<any, FormData>(login, undefined)
 
   return (
-    <form className="space-y-6">
+    <form className="space-y-6" action={formAction}>
+      {state && state.error && (
+        <p className="text-red-800 text-center">{state.error}</p>
+      )}
       <div className="form-control">
         <label className="label">
           <span className="label-text">Email</span>
         </label>
         <input
-          onChange={handleChange}
           name="email"
           type="email"
           className="input input-bordered w-full"
@@ -50,7 +27,6 @@ const LoginForm = () => {
           <span className="label-text">Password</span>
         </label>
         <input
-          onChange={handleChange}
           name="password"
           type="password"
           className="input input-bordered w-full"
@@ -58,9 +34,7 @@ const LoginForm = () => {
         />
       </div>
       <div className="form-control mt-6">
-        <button onClick={onSubmit} className="btn btn-primary w-full">
-          Login
-        </button>
+        <button className="btn btn-primary w-full">Login</button>
       </div>
     </form>
   )
