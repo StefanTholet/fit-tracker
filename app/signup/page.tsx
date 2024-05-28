@@ -1,6 +1,7 @@
 'use client'
 import { ChangeEvent, MouseEvent, useState } from 'react'
 import Link from 'next/link'
+import Container from '@/components/container'
 import { signup } from '@/actions/auth-actions'
 
 export default function Signup() {
@@ -18,8 +19,8 @@ export default function Signup() {
     } catch (error) {}
   }
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-3 rounded-xl bg-white shadow-lg">
+    <Container>
+      <div className="w-full max-w-md p-8 space-y-3 rounded-xl bg-white shadow-lg self-baseline">
         <h1 className="text-2xl font-bold text-center">Register</h1>
         <form className="space-y-6">
           <div className="form-control">
@@ -56,6 +57,6 @@ export default function Signup() {
           Already have an account? <Link href="/login">Login</Link>
         </p>
       </div>
-    </div>
+    </Container>
   )
 }
