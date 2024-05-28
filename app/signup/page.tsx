@@ -3,7 +3,7 @@ import { ChangeEvent, MouseEvent, useState } from 'react'
 import Link from 'next/link'
 import { signup } from '@/actions/auth-actions'
 
-export default function Register() {
+export default function Signup() {
   const [formData, setFormData] = useState({ email: '', password: '' })
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
