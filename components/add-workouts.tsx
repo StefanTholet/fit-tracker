@@ -15,6 +15,7 @@ const AddWorkouts = ({ userId }: AddWorkoutsProps) => {
         <WorkoutForm
           key={workout.id}
           removeWorkoutForm={() => removeWorkoutForm(workout.id)}
+          userId={userId}
         />
       ))}
       <Button className="self-center mt-8" type="primary" onClick={addWorkout}>

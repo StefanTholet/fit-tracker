@@ -1,9 +1,11 @@
 import React from 'react'
 import Link from 'next/link'
 import NoPlan from '@/assets/svg/no-plan'
-import { getWorkouts } from '../../lib/data'
+import { getUserWorkouts, getWorkouts } from '../../lib/data'
+import { getSession } from '../../actions/auth-actions'
 const Dashboard = async () => {
-  const workouts = await getWorkouts()
+  const session = await getSession()
+  const workouts = await getUserWorkouts(session.userId)
 
   return (
     <div className="flex flex-col items-center justify-center mt-10 gap-5">

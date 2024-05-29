@@ -1,7 +1,7 @@
 import { getSession } from '@/actions/auth-actions'
 import AddWorkouts from '@/components/add-workouts'
-import { redirect } from 'next/navigation'
 import Login from '../login/page'
+
 const AddWorkout = async () => {
   const session = await getSession()
   const { userId } = session || {}

@@ -1,13 +1,16 @@
-'use client'
-import useExerciseForm from '@/hooks/useExerciseForm'
+import { FormEvent } from 'react'
+import useWorkoutForm from '@/hooks/useWorkoutForm'
 import FormHeader from './form-header'
 import Exercises from './exercises'
 import { isExerciseValid } from '@/utils/exercise'
+import { addWorkout } from '@/lib/data'
+
 interface WorkoutFormProps {
   removeWorkoutForm: () => void
+  userId: string
 }
 
-const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
+const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
   const {
     workoutName,
     exercises,
@@ -19,17 +22,19 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
     addSet,
     removeSet,
     handleSubmit,
-  } = useExerciseForm()
+  } = useWorkoutForm({ submitHandler: addWorkout })
 
   const disableCreateAndAddWorkoutBtns = () =>
     !workoutName ||
     exercises.length === 0 ||
     (exercises.length === 1 && !isExerciseValid(exercises[0]))
 
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => handleSubmit(e, userId)
+
   return (
     <form
-      onSubmit={handleSubmit}
       className="w-full mx-auto mt-8 bg-white p-6 rounded-lg shadow-md"
+      onSubmit={onSubmit}
     >
       <FormHeader
         handleWorkoutNameChange={handleWorkoutNameChange}
@@ -37,20 +42,18 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
         removeWorkoutForm={removeWorkoutForm}
       />
 
-      {exercises.map((exercise, index) => {
-        return (
-          <Exercises
-            index={index}
-            key={exercise.id}
-            exercise={exercise}
-            removeExercise={() => removeExercise(exercise.id)}
-            handleExerciseChange={(e) => handleExerciseChange(e, exercise.id)}
-            handleSetChange={handleSetChange}
-            addSet={addSet}
-            removeSet={removeSet}
-          />
-        )
-      })}
+      {exercises.map((exercise, index) => (
+        <Exercises
+          index={index}
+          key={exercise.id}
+          exercise={exercise}
+          removeExercise={() => removeExercise(exercise.id)}
+          handleExerciseChange={(e) => handleExerciseChange(e, exercise.id)}
+          handleSetChange={handleSetChange}
+          addSet={addSet}
+          removeSet={removeSet}
+        />
+      ))}
 
       <div className="flex justify-between gap-6 mb-4">
         <button
