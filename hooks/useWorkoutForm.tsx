@@ -3,14 +3,14 @@ import {
   Exercise,
   QueryResponseMessage,
   Set,
-  Workout,
+  Workout
 } from '@/interfaces/workout'
 import { v4 as uuidv4 } from 'uuid'
 
 const EXERCISE_INITIAL_STATE: Exercise = {
   id: uuidv4(),
   name: '',
-  sets: [{ id: uuidv4(), reps: '1', weight: '0' }],
+  sets: [{ id: uuidv4(), reps: '1', weight: '0' }]
 }
 
 interface UseWorkoutFormProps {
@@ -19,7 +19,7 @@ interface UseWorkoutFormProps {
   submitHandler: (
     workout: Workout,
     userId: string
-  ) => Promise<QueryResponseMessage>
+  ) => Promise<QueryResponseMessage> // Adjusted return type
 }
 
 interface UseWorkoutFormState {
@@ -45,11 +45,11 @@ interface UseWorkoutFormState {
 const useWorkoutForm = ({
   initialState,
   workoutNameInitialState = '',
-  submitHandler,
+  submitHandler
 }: UseWorkoutFormProps): UseWorkoutFormState => {
   const [workoutName, setWorkoutName] = useState(workoutNameInitialState)
   const [exercises, setExercises] = useState<Exercise[]>([
-    initialState || EXERCISE_INITIAL_STATE,
+    initialState || EXERCISE_INITIAL_STATE
   ])
 
   const handleWorkoutNameChange = (
@@ -83,7 +83,7 @@ const useWorkoutForm = ({
             ...exercise,
             sets: exercise.sets.map((set) =>
               set.id === setId ? { ...set, [name]: value } : set
-            ),
+            )
           }
         }
         return exercise
@@ -107,9 +107,9 @@ const useWorkoutForm = ({
               {
                 id: uuidv4(),
                 reps: getPreviousSetValues(exercise.sets, 'reps'),
-                weight: getPreviousSetValues(exercise.sets, 'weight'),
-              },
-            ],
+                weight: getPreviousSetValues(exercise.sets, 'weight')
+              }
+            ]
           }
         }
         return exercise
@@ -123,7 +123,7 @@ const useWorkoutForm = ({
         if (exercise.id === exerciseId) {
           return {
             ...exercise,
-            sets: exercise.sets.filter((set) => set.id !== setId),
+            sets: exercise.sets.filter((set) => set.id !== setId)
           }
         }
         return exercise
@@ -146,7 +146,7 @@ const useWorkoutForm = ({
     event.preventDefault()
     const workout: Workout = {
       name: workoutName,
-      exercises,
+      exercises
     }
     try {
       const response = await submitHandler(workout, userId)
@@ -167,7 +167,7 @@ const useWorkoutForm = ({
     handleSetChange,
     addSet,
     removeSet,
-    handleSubmit,
+    handleSubmit
   }
 }
 

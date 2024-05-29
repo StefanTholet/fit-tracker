@@ -1,9 +1,8 @@
 import React, { ChangeEvent } from 'react'
-import Button from '../button'
 import CloseIcon from '../close-icon'
 interface FormHeaderProps {
   workoutName: string
-  handleWorkoutNameChange: (event: ChangeEvent<HTMLInputElement>) => void
+  handleWorkoutNameChange?: (event: ChangeEvent<HTMLInputElement>) => void
   removeWorkoutForm: () => void
 }
 
@@ -30,6 +29,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({
           id="workoutName"
           value={workoutName}
           onChange={handleWorkoutNameChange}
+          disabled={!handleWorkoutNameChange}
           placeholder="Enter workout name"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-200"
           required

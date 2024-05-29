@@ -2,6 +2,8 @@ import { FormEvent } from 'react'
 import useWorkoutForm from '@/hooks/useWorkoutForm'
 import FormHeader from './form-header'
 import Exercises from './exercises'
+import Form from './form'
+import CloseIcon from '../close-icon'
 import { isExerciseValid } from '@/utils/exercise'
 import { addWorkout } from '@/lib/data'
 
@@ -21,7 +23,7 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
     handleSetChange,
     addSet,
     removeSet,
-    handleSubmit,
+    handleSubmit
   } = useWorkoutForm({ submitHandler: addWorkout })
 
   const disableCreateAndAddWorkoutBtns = () =>
@@ -32,27 +34,66 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => handleSubmit(e, userId)
 
   return (
-    <form
-      className="w-full mx-auto mt-8 bg-white p-6 rounded-lg shadow-md"
-      onSubmit={onSubmit}
-    >
+    <Form onSubmit={onSubmit}>
       <FormHeader
         handleWorkoutNameChange={handleWorkoutNameChange}
         workoutName={workoutName}
         removeWorkoutForm={removeWorkoutForm}
       />
 
-      {exercises.map((exercise, index) => (
-        <Exercises
-          index={index}
-          key={exercise.id}
-          exercise={exercise}
-          removeExercise={() => removeExercise(exercise.id)}
-          handleExerciseChange={(e) => handleExerciseChange(e, exercise.id)}
-          handleSetChange={handleSetChange}
-          addSet={addSet}
-          removeSet={removeSet}
-        />
+      {exercises.map((exercise) => (
+        <Exercises key={exercise.id}>
+          <CloseIcon
+            onClick={() => removeExercise(exercise.id)}
+            className="ml-auto mb-2"
+          />
+          <Exercises.Input
+            type="text"
+            exerciseId={exercise.id}
+            placeholder="Exercise Name"
+            name="name"
+            value={exercise.name}
+            onChange={(e) => handleExerciseChange(e, exercise.id)}
+          />
+          <Exercises.Container>
+            {exercise.sets.map((set, index) => (
+              <Exercises.SetsContainer key={set.id}>
+                <Exercises.SetsHeader
+                  exerciseId={exercise.id}
+                  setNumber={index + 1}
+                  setId={set.id}
+                  removeSet={removeSet}
+                />
+                <Exercises.Input
+                  id={`reps-${index.toString()}`}
+                  label="Reps"
+                  name="reps"
+                  value={set.reps}
+                  exerciseId={exercise.id}
+                  onChange={(e) => handleSetChange(e, exercise.id, set.id)}
+                  placeholder="Reps"
+                  type="number"
+                />
+                <Exercises.Input
+                  id={`weight-${index.toString()}`}
+                  type="number"
+                  placeholder="Weight"
+                  name="weight"
+                  value={set.weight}
+                  exerciseId={exercise.id}
+                  onChange={(e) => handleSetChange(e, exercise.id, set.id)}
+                />
+              </Exercises.SetsContainer>
+            ))}
+          </Exercises.Container>
+          <button
+            type="button"
+            onClick={() => addSet(exercise.id)}
+            className="mt-4 text-green-600 hover:text-green-800 font-medium"
+          >
+            Add set
+          </button>
+        </Exercises>
       ))}
 
       <div className="flex justify-between gap-6 mb-4">
@@ -64,14 +105,14 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
           Add Exercise
         </button>
         <button
-          disabled={disableCreateAndAddWorkoutBtns()}
+          // disabled={disableCreateAndAddWorkoutBtns()}
           type="submit"
           className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
         >
           Create Workout
         </button>
       </div>
-    </form>
+    </Form>
   )
 }
 
