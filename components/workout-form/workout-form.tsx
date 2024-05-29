@@ -15,7 +15,10 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
     handleExerciseChange,
     addExercise,
     removeExercise,
-    handleSubmit
+    handleSetChange,
+    addSet,
+    removeSet,
+    handleSubmit,
   } = useExerciseForm()
 
   const disableCreateAndAddWorkoutBtns = () =>
@@ -26,7 +29,7 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto mt-8 bg-white p-6 rounded-lg shadow-md"
+      className="w-full mx-auto mt-8 bg-white p-6 rounded-lg shadow-md"
     >
       <FormHeader
         handleWorkoutNameChange={handleWorkoutNameChange}
@@ -42,6 +45,9 @@ const WorkoutForm = ({ removeWorkoutForm }: WorkoutFormProps) => {
             exercise={exercise}
             removeExercise={() => removeExercise(exercise.id)}
             handleExerciseChange={(e) => handleExerciseChange(e, exercise.id)}
+            handleSetChange={handleSetChange}
+            addSet={addSet}
+            removeSet={removeSet}
           />
         )
       })}

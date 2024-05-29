@@ -3,9 +3,12 @@ import React from 'react'
 import Button from '@/components/button'
 import WorkoutForm from '@/components/workout-form/workout-form'
 import useAddWorkouts from '@/hooks/useAddWorkouts'
-
-const AddWorkouts = () => {
+interface AddWorkoutsProps {
+  userId: string
+}
+const AddWorkouts = ({ userId }: AddWorkoutsProps) => {
   const { workouts, removeWorkoutForm, addWorkout } = useAddWorkouts()
+
   return (
     <div className="flex flex-col gap-8">
       {workouts.map((workout) => (
