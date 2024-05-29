@@ -43,10 +43,12 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
 
       {exercises.map((exercise) => (
         <Exercises key={exercise.id}>
-          <CloseIcon
-            onClick={() => removeExercise(exercise.id)}
-            className="ml-auto mb-2"
-          />
+          {exercises.length > 1 && (
+            <CloseIcon
+              onClick={() => removeExercise(exercise.id)}
+              className="ml-auto mb-2"
+            />
+          )}
           <Exercises.Input
             type="text"
             exerciseId={exercise.id}
@@ -62,7 +64,7 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
                   exerciseId={exercise.id}
                   setNumber={index + 1}
                   setId={set.id}
-                  removeSet={removeSet}
+                  removeSet={exercise.sets.length === 1 ? undefined : removeSet}
                 />
                 <Exercises.Input
                   id={`reps-${index.toString()}`}
