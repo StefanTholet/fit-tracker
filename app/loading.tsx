@@ -1,4 +1,4 @@
-import Loader from '@/components/loader'
+import Loader from '@/components/layout-components/loader'
 
 import React from 'react'
 

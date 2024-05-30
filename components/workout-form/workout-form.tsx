@@ -5,7 +5,7 @@ import Exercises from './exercises'
 import Form from './form'
 import CloseIcon from '../close-icon'
 import { isExerciseValid } from '@/utils/exercise'
-import { addWorkout } from '@/lib/data'
+import { addWorkout } from '@/server-actions/workout-actions'
 
 interface WorkoutFormProps {
   removeWorkoutForm: () => void
@@ -23,7 +23,7 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
     handleSetChange,
     addSet,
     removeSet,
-    handleSubmit
+    handleSubmit,
   } = useWorkoutForm({ submitHandler: addWorkout })
 
   const disableCreateAndAddWorkoutBtns = () =>

@@ -1,4 +1,4 @@
-import { getSession } from '@/actions/auth-actions'
+import { getSession } from '@/server-actions/auth-actions'
 import AddWorkouts from '@/components/add-workouts'
 import Login from '../login/page'
 

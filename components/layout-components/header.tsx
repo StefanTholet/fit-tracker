@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
-import LogoutForm from './logout-form/logout-form'
-import { getSession } from '@/actions/auth-actions'
+import LogoutForm from '@/components/auth-forms/logout-form/logout-form'
+import { getSession } from '@/server-actions/auth-actions'
 
 type LinkType = {
   href: string

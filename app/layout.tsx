@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import Header from '@/components/header'
-import Hero from '@/components/hero'
-import Footer from '@/components/footer'
+import Header from '@/components/layout-components/header'
+import Hero from '@/components/layout-components/hero'
+import Footer from '@/components/layout-components/footer'
 import '../styles/global.css'
 
 export const metadata: Metadata = {

@@ -2,14 +2,9 @@
 
 import { sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  Exercise,
-  QueryResponseMessage,
-  Set,
-  Workout,
-} from '@/interfaces/workout'
+import { Exercise, Set } from '@/interfaces/workout'
 
-const insertExercisesAndSets = async (
+export const insertExercisesAndSets = async (
   workoutId: number,
   userId: string,
   exercises: Exercise[]
@@ -31,7 +26,11 @@ const insertExercisesAndSets = async (
   )
 }
 
-const insertSets = async (exerciseId: string, userId: string, sets: Set[]) => {
+export const insertSets = async (
+  exerciseId: string,
+  userId: string,
+  sets: Set[]
+) => {
   await Promise.all(
     sets.map(async (set) => {
       // Generate UUID for set
@@ -46,7 +45,10 @@ const insertSets = async (exerciseId: string, userId: string, sets: Set[]) => {
   )
 }
 
-const insertWorkout = async (userId: string, name: string): Promise<number> => {
+export const insertWorkout = async (
+  userId: string,
+  name: string
+): Promise<number> => {
   const workout = await sql`
     INSERT INTO workouts (user_id, name, created_on) 
     VALUES (${userId}, ${name}, NOW()) 
@@ -55,23 +57,7 @@ const insertWorkout = async (userId: string, name: string): Promise<number> => {
   return workout.rows[0].workout_id
 }
 
-export const addWorkout = async (
-  workout: Workout,
-  userId: string
-): Promise<QueryResponseMessage> => {
-  try {
-    // Insert workout and get workout_id
-    const workoutId = await insertWorkout(userId, workout.name)
-
-    await insertExercisesAndSets(workoutId, userId, workout.exercises)
-    return { success: 'Workout successfully added' }
-  } catch (error) {
-    console.error('Error adding workout and exercises:', error)
-    throw new Error('Failed to add workout and exercises.')
-  }
-}
-
-export const getUserWorkouts = async (userId: string) => {
+export const selectUserWorkouts = async (userId: string) => {
   const workoutsResponse = await sql`WITH exercise_sets AS (
     SELECT
         exercises.exercise_id,

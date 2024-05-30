@@ -2,7 +2,7 @@
 import { useFormState } from 'react-dom'
 import Link from 'next/link'
 import Container from '@/components/container'
-import { signup } from '@/actions/auth-actions'
+import { signup } from '@/server-actions/auth-actions'
 
 export default function Signup() {
   const [state, formAction] = useFormState<any, FormData>(signup, undefined)

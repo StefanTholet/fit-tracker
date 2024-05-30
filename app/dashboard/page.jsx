@@ -2,8 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import NoPlan from '@/assets/svg/no-plan'
 import WorkoutTable from '@/components/workout-table/workout-table'
-import { getUserWorkouts } from '../../lib/data'
-import { getSession } from '../../actions/auth-actions'
+import { getUserWorkouts } from '@/server-actions/workout-actions'
+import { getSession } from '../../server-actions/auth-actions'
 const Dashboard = async () => {
   const session = await getSession()
   const workouts = await getUserWorkouts(session.userId)

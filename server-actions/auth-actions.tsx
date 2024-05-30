@@ -4,18 +4,13 @@ import {
   SessionData,
   defaultSession,
   getUser,
-  createUser
+  createUser,
 } from '@/lib/auth'
 
 import { hashUserPassword, verifyPassword } from '@/lib/hash'
 import { getIronSession } from 'iron-session'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-
-interface SignupInterface {
-  email: string
-  password: string
-}
 
 interface User {
   email: string
@@ -58,7 +53,7 @@ export const signup = async (
   if (!user) {
     return {
       error:
-        'Registration unsuccessful. Please try again using different credentials.'
+        'Registration unsuccessful. Please try again using different credentials.',
     }
   }
   await updateSession(user as User)

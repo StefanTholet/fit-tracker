@@ -1,7 +1,7 @@
 'use client'
 
 import { useFormState } from 'react-dom'
-import { login } from '@/actions/auth-actions'
+import { login } from '@/server-actions/auth-actions'
 
 const LoginForm = () => {
   const [state, formAction] = useFormState<any, FormData>(login, undefined)

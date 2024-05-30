@@ -1,7 +1,7 @@
-import Button from './button'
+import Button from '../button'
 import Image from 'next/image'
 import Link from 'next/link'
-import hero from '../assets/images/hero.jpg'
+import hero from '@/assets/images/hero.jpg'
 const Hero = () => {
   return (
     <div className="hero min-h-96 bg-neutral mb-14">
