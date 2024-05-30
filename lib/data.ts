@@ -6,7 +6,7 @@ import {
   Exercise,
   QueryResponseMessage,
   Set,
-  Workout
+  Workout,
 } from '@/interfaces/workout'
 
 const insertExercisesAndSets = async (
@@ -62,7 +62,7 @@ export const addWorkout = async (
   try {
     // Insert workout and get workout_id
     const workoutId = await insertWorkout(userId, workout.name)
-    // // Insert exercises and sets
+
     await insertExercisesAndSets(workoutId, userId, workout.exercises)
     return { success: 'Workout successfully added' }
   } catch (error) {
@@ -123,9 +123,7 @@ WHERE
         WHERE user_id = ${userId}
     )`
   const userWorkouts = workoutsResponse.rows
-  // get all exercises related to all workouts and then all sets related to the exercises
-  // console.log(userWorkouts[0].exercises)
-  // console.log(userWorkouts[0].exercises[0].sets)
+
   console.log(userWorkouts[0])
   return userWorkouts
 }

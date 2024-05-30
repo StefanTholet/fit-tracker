@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Exercise } from '@/interfaces/exercise'
+import { Exercise } from '@/interfaces/workout'
 import { v4 as uuidv4 } from 'uuid'
 
 interface Workout {
@@ -9,7 +9,7 @@ interface Workout {
 
 const useAddWorkouts = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([
-    { id: uuidv4(), exercises: [] }
+    { id: uuidv4(), exercises: [] },
   ])
 
   const addWorkouts = (id: string, exercises: Exercise[]) => {
