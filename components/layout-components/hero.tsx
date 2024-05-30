@@ -7,6 +7,7 @@ const Hero = () => {
     <div className="hero min-h-96 bg-neutral mb-14">
       <div className="hero-content flex-col lg:flex-row-reverse">
         <Image
+          priority
           src={hero}
           sizes="30vw"
           className="w-full max-w-sm  rounded-lg shadow-2xl"

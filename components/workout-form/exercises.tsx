@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import Input from '../input'
+import Input from '../form/input'
 import CloseIcon from '../close-icon'
 
 type handleExerciseChangeType = (
@@ -45,7 +45,7 @@ const ExerciseInput: React.FC<NameInputProps> = ({
   placeholder,
   id,
   label,
-  exerciseId
+  exerciseId,
 }) => {
   return (
     <>
@@ -89,7 +89,7 @@ const SetsHeader: React.FC<SetsHeaderProps> = ({
   setNumber,
   removeSet,
   exerciseId,
-  setId
+  setId,
 }) => {
   return (
     <div className="flex justify-between">

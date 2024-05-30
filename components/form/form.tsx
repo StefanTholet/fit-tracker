@@ -3,7 +3,7 @@ import Input from './input'
 
 interface FormProps {
   className?: string
-  action?: () => FormData
+  action: (state: any, formData: FormData) => void | Promise<void>
   onSubmit?: () => Promise<void> | void | React.FormEvent<HTMLFormElement>
   children?: ReactNode
 }
@@ -15,17 +15,34 @@ const Form = ({ className = '', action, onSubmit, children }: FormProps) => {
       await onSubmit()
     }
   }
+  const props = action ? { action: action } : { onSubmit: handleSubmit }
   return (
-    <form
-      className={`space-y-6 ${className ? className : ''}`}
-      action={action}
-      onSubmit={handleSubmit}
-    >
+    <form className={`space-y-6 ${className ? className : ''}`} {...props}>
       {children}
     </form>
   )
 }
 
+interface FormControlProps {
+  label?: string
+  className?: string
+  children: ReactNode
+}
+
+const FormControl = ({ label, className, children }: FormControlProps) => {
+  return (
+    <div className={`form-control ${className ? className : ''}`}>
+      {label && (
+        <label className="label">
+          <span className="label-text">{label}</span>
+        </label>
+      )}
+      {children}
+    </div>
+  )
+}
+
 Form.Input = Input
+Form.FormControl = FormControl
 
 export default Form

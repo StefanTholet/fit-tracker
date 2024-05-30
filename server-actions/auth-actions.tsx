@@ -37,9 +37,9 @@ export const getSession = async () => {
 }
 
 export const signup = async (
-  prevState: { error: undefined | string },
+  prevState: any,
   formData: FormData
-) => {
+): Promise<void | { error: string }> => {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
@@ -56,14 +56,15 @@ export const signup = async (
         'Registration unsuccessful. Please try again using different credentials.',
     }
   }
+
   await updateSession(user as User)
   redirect('/add-workouts')
 }
 
 export const login = async (
-  prevState: { error: undefined | string },
+  prevState: any,
   formData: FormData
-) => {
+): Promise<void | { error: string }> => {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 

@@ -7,7 +7,7 @@ interface InputProps {
   disabled?: boolean
   placeholder: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
-  value: string
+  value?: string
   className?: string
   children?: ReactNode
 }
@@ -18,10 +18,10 @@ const Input = ({
   id = '',
   placeholder = '',
   onChange,
-  value = '',
+  value,
   className = '',
   disabled,
-  children
+  children,
 }: InputProps) => {
   return (
     <input

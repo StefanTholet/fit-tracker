@@ -25,9 +25,7 @@ const TableActions = ({ workoutId }: TableActionsProps) => {
         className="btn btn-sm"
         title="Start Training"
         onClick={() => startTrainingSession(workoutId)}
-      >
-        <Barbell />
-      </button>
+      ></button>
     </>
   )
 }
