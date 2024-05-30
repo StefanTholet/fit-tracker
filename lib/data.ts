@@ -97,8 +97,8 @@ workout_exercises AS (
         workouts.created_on,
         json_agg(
             json_build_object(
-                'exercise_id', exercise_sets.exercise_id,
-                'exercise_name', exercise_sets.exercise_name,
+                'id', exercise_sets.exercise_id,
+                'name', exercise_sets.exercise_name,
                 'sets', exercise_sets.sets
             )
         ) AS exercises
@@ -124,6 +124,5 @@ WHERE
     )`
   const userWorkouts = workoutsResponse.rows
 
-  console.log(userWorkouts[0])
   return userWorkouts
 }

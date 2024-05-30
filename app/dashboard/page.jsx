@@ -1,8 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import NoPlan from '@/assets/svg/no-plan'
-import Form from '@/components/workout-form/form'
-import FormHeader from '@/components/workout-form/form-header'
+import WorkoutTable from '@/components/workout-table/workout-table'
 import { getUserWorkouts } from '../../lib/data'
 import { getSession } from '../../actions/auth-actions'
 const Dashboard = async () => {
@@ -11,13 +10,8 @@ const Dashboard = async () => {
 
   return (
     <div className="flex flex-col items-center justify-center mt-10 gap-5">
-      {workouts && workouts.length > 0
-        ? workouts.map((workout) => (
-            <Form key={workout.workout_name}>
-              <FormHeader workoutName={workout.workout_name} />
-            </Form>
-          ))
-        : null}
+      <WorkoutTable workouts={workouts} />
+
       {!workouts ? (
         <div className="flex flex-col gap-5 align-middle">
           <h1 className="text-2xl font-bold mb-4">
