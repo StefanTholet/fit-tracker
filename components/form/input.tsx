@@ -10,6 +10,7 @@ interface InputProps {
   value?: string
   className?: string
   children?: ReactNode
+  rest?: any
 }
 
 const Input = ({
@@ -22,6 +23,7 @@ const Input = ({
   className = '',
   disabled,
   children,
+  rest = {},
 }: InputProps) => {
   return (
     <input
@@ -33,6 +35,7 @@ const Input = ({
       value={value}
       onChange={onChange}
       className={`input input-bordered w-full ${className ? className : ''}`}
+      {...rest}
     >
       {children}
     </input>
