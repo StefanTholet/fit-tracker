@@ -1,16 +1,24 @@
+'use client'
 import useWorkoutForm from '@/hooks/useWorkoutForm'
-
 import Form from '../form/form'
 import CloseIcon from '../close-icon'
 import { isExerciseValid } from '@/utils/exercise'
 import { addWorkout } from '@/server-actions/workout-actions'
+import { AddWorkoutInitialStateType } from '@/interfaces/workout'
 
 interface WorkoutFormProps {
-  removeWorkoutForm: () => void
-  userId: string
+  removeWorkoutForm?: () => void
+  title: string
+  initialState?: AddWorkoutInitialStateType
+  userId?: string
 }
 
-const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
+const WorkoutForm = ({
+  removeWorkoutForm,
+  userId,
+  initialState,
+  title,
+}: WorkoutFormProps) => {
   const {
     workoutName,
     exercises,
@@ -22,7 +30,7 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
     addSet,
     removeSet,
     handleSubmit,
-  } = useWorkoutForm({ submitHandler: addWorkout })
+  } = useWorkoutForm({ initialState, submitHandler: addWorkout })
 
   const disableCreateAndAddWorkoutBtns = () =>
     !workoutName ||
@@ -32,7 +40,7 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
   return (
     <>
       <Form onSubmit={() => handleSubmit(userId)}>
-        <Form.Header title="Create workout" closeForm={removeWorkoutForm}>
+        <Form.Header title={title} closeForm={removeWorkoutForm}>
           <Form.FormControl label="Workout name">
             <Form.Input
               type="text"
@@ -64,35 +72,43 @@ const WorkoutForm = ({ removeWorkoutForm, userId }: WorkoutFormProps) => {
             </Form.FormControl>
 
             <Form.Container>
-              {exercise.sets.map((set, index) => (
-                <Form.Row key={set.id}>
-                  <Form.SubHeader subTitle={`Set ${index + 1}`}>
-                    <CloseIcon onClick={() => removeSet(exercise.id, set.id)} />{' '}
-                  </Form.SubHeader>
-                  <Form.FormControl label="Reps">
-                    <Form.Input
-                      rest={{ min: '1' }}
-                      id={`reps-${index.toString()}`}
-                      name="reps"
-                      value={set.reps}
-                      onChange={(e) => handleSetChange(e, exercise.id, set.id)}
-                      placeholder="Reps"
-                      type="number"
-                    />
-                  </Form.FormControl>
-                  <Form.FormControl label="weight">
-                    <Form.Input
-                      rest={{ min: '1' }}
-                      id={`weight-${index.toString()}`}
-                      type="number"
-                      placeholder="Weight"
-                      name="weight"
-                      value={set.weight}
-                      onChange={(e) => handleSetChange(e, exercise.id, set.id)}
-                    />
-                  </Form.FormControl>
-                </Form.Row>
-              ))}
+              {exercise.sets.map((set, index) => {
+                return (
+                  <Form.Row key={set.id}>
+                    <Form.SubHeader subTitle={`Set ${index + 1}`}>
+                      <CloseIcon
+                        onClick={() => removeSet(exercise.id, set.id)}
+                      />{' '}
+                    </Form.SubHeader>
+                    <Form.FormControl label="Reps">
+                      <Form.Input
+                        rest={{ min: '1' }}
+                        id={`reps-${index.toString()}`}
+                        name="reps"
+                        value={set.reps}
+                        onChange={(e) =>
+                          handleSetChange(e, exercise.id, set.id)
+                        }
+                        placeholder="Reps"
+                        type="number"
+                      />
+                    </Form.FormControl>
+                    <Form.FormControl label="weight">
+                      <Form.Input
+                        rest={{ min: '1' }}
+                        id={`weight-${index.toString()}`}
+                        type="number"
+                        placeholder="Weight"
+                        name="weight"
+                        value={set.weight}
+                        onChange={(e) =>
+                          handleSetChange(e, exercise.id, set.id)
+                        }
+                      />
+                    </Form.FormControl>
+                  </Form.Row>
+                )
+              })}
             </Form.Container>
             <button
               type="button"

@@ -5,7 +5,11 @@ import {
   insertExercisesAndSets,
   selectUserWorkouts,
 } from '@/lib/workouts'
-import { Workout, QueryResponseMessage } from '@/interfaces/workout'
+import {
+  Workout,
+  QueryResponseMessage,
+  SelectUserWorkoutsInterface,
+} from '@/interfaces/workout'
 
 export const addWorkout = async (
   workout: Workout,
@@ -22,7 +26,10 @@ export const addWorkout = async (
   }
 }
 
-export const getUserWorkouts = async (userId: string) => {
+export const getUserWorkouts = async (userId: string | undefined) => {
+  if (!userId) {
+    return []
+  }
   const userWorkouts = await selectUserWorkouts(userId)
   return userWorkouts
 }

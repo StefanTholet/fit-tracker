@@ -1,6 +1,6 @@
 'use server'
-
-import { sql } from '@vercel/postgres'
+import { SelectUserWorkoutsInterface } from './../interfaces/workout'
+import { QueryResultRow, sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
 import { Exercise, Set } from '@/interfaces/workout'
 
@@ -58,6 +58,8 @@ export const insertWorkout = async (
 }
 
 export const selectUserWorkouts = async (userId: string) => {
+  // const workoutsResponse = await sql<
+  //   SelectUserWorkoutsInterface[]
   const workoutsResponse = await sql`WITH exercise_sets AS (
     SELECT
         exercises.exercise_id,
@@ -65,7 +67,8 @@ export const selectUserWorkouts = async (userId: string) => {
         exercises.name AS exercise_name,
         json_agg(
             json_build_object(
-                'reps', sets.reps,
+                'id', sets.set_id,
+                 'reps', sets.reps,
                 'weight', sets.weight
             )
         ) AS sets
@@ -108,7 +111,7 @@ WHERE
         FROM workouts
         WHERE user_id = ${userId}
     )`
-  const userWorkouts = workoutsResponse.rows
+  const userWorkouts: QueryResultRow = workoutsResponse.rows
 
   return userWorkouts
 }

@@ -1,5 +1,5 @@
 import { getSession } from '@/server-actions/auth-actions'
-import AddWorkouts from '@/components/add-workouts'
+import AddWorkouts from './add-workouts'
 import Login from '../login/page'
 
 const AddWorkout = async () => {

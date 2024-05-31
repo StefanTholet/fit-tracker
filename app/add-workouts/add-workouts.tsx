@@ -3,6 +3,7 @@ import React from 'react'
 import Button from '@/components/button'
 import WorkoutForm from '@/components/workout-form/workout-form'
 import useAddWorkouts from '@/hooks/useAddWorkouts'
+
 interface AddWorkoutsProps {
   userId: string
 }
@@ -13,6 +14,7 @@ const AddWorkouts = ({ userId }: AddWorkoutsProps) => {
     <div className="flex flex-col gap-8">
       {workouts.map((workout) => (
         <WorkoutForm
+          title="Create workout"
           key={workout.id}
           removeWorkoutForm={() => removeWorkoutForm(workout.id)}
           userId={userId}

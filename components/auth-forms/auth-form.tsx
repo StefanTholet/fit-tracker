@@ -13,7 +13,7 @@ interface AuthFormProps {
 }
 const AuthForm = ({ SubmitButton, action, children }: AuthFormProps) => {
   const [state, formAction] = useFormState<any, FormData>(action, undefined)
-  console.log(formAction)
+
   return (
     <Form action={formAction}>
       {state?.error && (

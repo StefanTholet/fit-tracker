@@ -1,21 +1,24 @@
+'use client'
 import { useState, ChangeEvent } from 'react'
 import {
   Exercise,
   QueryResponseMessage,
   Set,
   Workout,
+  AddWorkoutInitialStateType,
 } from '@/interfaces/workout'
 import { v4 as uuidv4 } from 'uuid'
 
-const EXERCISE_INITIAL_STATE: Exercise = {
-  id: uuidv4(),
-  name: '',
-  sets: [{ id: uuidv4(), reps: '1', weight: '10' }],
-}
+const EXERCISE_INITIAL_STATE: Exercise[] = [
+  {
+    id: uuidv4(),
+    name: '',
+    sets: [{ id: uuidv4(), reps: '1', weight: '10' }],
+  },
+]
 
 interface UseWorkoutFormProps {
-  initialState?: Exercise
-  workoutNameInitialState?: string
+  initialState?: AddWorkoutInitialStateType
   submitHandler: (
     workout: Workout,
     userId: string
@@ -41,13 +44,14 @@ interface UseWorkoutFormState {
 
 const useWorkoutForm = ({
   initialState,
-  workoutNameInitialState = '',
   submitHandler,
 }: UseWorkoutFormProps): UseWorkoutFormState => {
-  const [workoutName, setWorkoutName] = useState(workoutNameInitialState)
-  const [exercises, setExercises] = useState<Exercise[]>([
-    initialState || EXERCISE_INITIAL_STATE,
-  ])
+  const [workoutName, setWorkoutName] = useState(
+    initialState?.workout_name || ''
+  )
+  const [exercises, setExercises] = useState<Exercise[]>(
+    initialState?.exercises || EXERCISE_INITIAL_STATE
+  )
 
   const handleWorkoutNameChange = (
     event: ChangeEvent<HTMLInputElement>
@@ -129,7 +133,7 @@ const useWorkoutForm = ({
   }
 
   const addExercise = (): void => {
-    setExercises([...exercises, { ...EXERCISE_INITIAL_STATE, id: uuidv4() }])
+    setExercises([...exercises, { ...EXERCISE_INITIAL_STATE[0], id: uuidv4() }])
   }
 
   const removeExercise = (id: string): void => {
