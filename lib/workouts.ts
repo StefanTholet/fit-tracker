@@ -35,7 +35,12 @@ export const insertWorkout = async (
 
 export const selectPlannedUserWorkouts = async (userId: string) => {
   const workoutsResponse = await sql`
-  SELECT * from workouts 
+  SELECT 
+  workouts.workout_id, workouts.name AS workout_name,
+  exercises.name AS exercise_name, exercises.reps, 
+  exercises.weight, exercises.exercise_id, ${userId} AS userId,
+  workouts.created_on as created_on
+   from workouts 
   INNER JOIN exercises 
   ON workouts.workout_id = exercises.workout_id 
   WHERE workouts.user_id = ${userId} AND exercises.performed = 0

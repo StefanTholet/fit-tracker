@@ -57,4 +57,15 @@ export interface Workouts {
   exercises: Exercise[]
 }
 
+export interface FlatWorkout {
+  workout_id: number
+  workout_name: string
+  exercise_name: string
+  reps: number
+  weight: number
+  exercise_id: string
+  userid: string
+  created_on: string
+}
+
 export type QueryResponseMessage = SuccessResponse | ErrorResponse

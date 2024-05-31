@@ -3,7 +3,7 @@
 import {
   insertWorkout,
   insertWorkoutExercises,
-  selectPlannedUserWorkouts,
+  selectPlannedUserWorkouts
 } from '@/lib/workouts'
 import { Workout, QueryResponseMessage, Exercise } from '@/interfaces/workout'
 import { flattenExercises } from '@/utils/exercise'
@@ -29,8 +29,6 @@ export const getUserWorkouts = async (userId: string | undefined) => {
     return []
   }
   const userWorkouts = await selectPlannedUserWorkouts(userId)
-  //TODO reverse data structure to look like Exercises interface and return it
-  console.log(userWorkouts)
 
-  // return userWorkouts
+  return userWorkouts
 }
