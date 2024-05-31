@@ -2,7 +2,7 @@
 import useWorkoutForm from '@/hooks/useWorkoutForm'
 import Form from '../form/form'
 import CloseIcon from '../close-icon'
-import { isExerciseValid } from '@/utils/exercise'
+
 import { addWorkout } from '@/server-actions/workout-actions'
 import { AddWorkoutInitialStateType } from '@/interfaces/workout'
 
@@ -10,7 +10,7 @@ interface WorkoutFormProps {
   removeWorkoutForm?: () => void
   title: string
   initialState?: AddWorkoutInitialStateType
-  userId?: string
+  userId: string
 }
 
 const WorkoutForm = ({
@@ -31,11 +31,6 @@ const WorkoutForm = ({
     removeSet,
     handleSubmit,
   } = useWorkoutForm({ initialState, submitHandler: addWorkout })
-
-  const disableCreateAndAddWorkoutBtns = () =>
-    !workoutName ||
-    exercises.length === 0 ||
-    (exercises.length === 1 && !isExerciseValid(exercises[0]))
 
   return (
     <>

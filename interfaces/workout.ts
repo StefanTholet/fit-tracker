@@ -12,6 +12,13 @@ export interface Exercise {
   sets: Set[]
 }
 
+export interface InsertExerciseInterface {
+  id: string
+  name: string
+  reps: string
+  weight: string
+}
+
 export interface Workout {
   exercises: Exercise[]
   name: string
@@ -29,17 +36,6 @@ export type AddWorkoutInitialStateType = {
   exercises: Exercise[]
   workout_name: string
 }
-
-// type GetWorkoutSets = {
-//   reps: number
-//   weight: number
-// }
-
-// type GetWorkoutExercise = {
-//   id: string
-//   name: string
-//   sets: GetWorkoutSets[]
-// }
 
 export interface SelectUserWorkoutsInterface extends QueryResultRow {
   workout_name?: string
@@ -60,16 +56,5 @@ export interface Workouts {
   created_on: string
   exercises: Exercise[]
 }
-
-interface WorkoutTableProps {
-  workouts: Workouts[]
-}
-
-// export interface GetWorkoutsResponseInterface {
-//   workout_name: string
-//   workout_id: number
-//   created_on: string
-//   exercises: Exercise[]
-// }
 
 export type QueryResponseMessage = SuccessResponse | ErrorResponse

@@ -2,14 +2,11 @@
 
 import {
   insertWorkout,
-  insertExercisesAndSets,
-  selectUserWorkouts,
+  insertWorkoutExercises,
+  selectPlannedUserWorkouts,
 } from '@/lib/workouts'
-import {
-  Workout,
-  QueryResponseMessage,
-  SelectUserWorkoutsInterface,
-} from '@/interfaces/workout'
+import { Workout, QueryResponseMessage, Exercise } from '@/interfaces/workout'
+import { flattenExercises } from '@/utils/exercise'
 
 export const addWorkout = async (
   workout: Workout,
@@ -17,8 +14,9 @@ export const addWorkout = async (
 ): Promise<QueryResponseMessage> => {
   try {
     const workoutId = await insertWorkout(userId, workout.name)
+    const flattenedExercises = flattenExercises(workout.exercises)
 
-    await insertExercisesAndSets(workoutId, userId, workout.exercises)
+    await insertWorkoutExercises(workoutId, userId, flattenedExercises)
     return { success: 'Workout successfully added' }
   } catch (error) {
     console.error('Error adding workout and exercises:', error)
@@ -30,6 +28,9 @@ export const getUserWorkouts = async (userId: string | undefined) => {
   if (!userId) {
     return []
   }
-  const userWorkouts = await selectUserWorkouts(userId)
-  return userWorkouts
+  const userWorkouts = await selectPlannedUserWorkouts(userId)
+  //TODO reverse data structure to look like Exercises interface and return it
+  console.log(userWorkouts)
+
+  // return userWorkouts
 }
