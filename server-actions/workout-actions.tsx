@@ -26,7 +26,7 @@ export const addWorkout = async (
 
 export const getUserWorkouts = async (userId: string | undefined) => {
   if (!userId) {
-    return []
+    return
   }
   const userWorkouts = await selectPlannedUserWorkouts(userId)
 

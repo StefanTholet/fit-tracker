@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import WorkoutList from './workout-list/workout-list'
 import NoPlan from '@/assets/svg/no-plan'
-import { Workouts } from '@/interfaces/workout'
+import { FlatWorkout, Workouts } from '@/interfaces/workout'
 import { getUserWorkouts } from '@/server-actions/workout-actions'
 import { getSession } from '../../server-actions/auth-actions'
 
@@ -10,7 +10,7 @@ const Dashboard = async () => {
   const session = await getSession()
   const userId = session?.userId
 
-  const workouts: Workouts[] = await getUserWorkouts(userId)
+  const workouts = (await getUserWorkouts(userId)) as FlatWorkout[]
 
   return (
     <div className="flex flex-col items-center justify-center  gap-5">
