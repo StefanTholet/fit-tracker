@@ -5,7 +5,7 @@ import CloseIcon from '../close-icon'
 
 interface FormProps {
   className?: string
-  action?: (state: any, formData: FormData) => void | Promise<void>
+  action?: any //(state: any, formData: FormData) => void | Promise<void>
   onSubmit?: (
     ...args: any
   ) =>
@@ -52,7 +52,7 @@ const FormControl = ({ label, className, children }: FormControlProps) => {
 
 const Container = ({
   className,
-  children,
+  children
 }: {
   className?: string
   children: ReactNode
@@ -66,7 +66,7 @@ const Container = ({
 
 const Row = ({
   className,
-  children,
+  children
 }: {
   className?: string
   children: ReactNode
@@ -85,7 +85,7 @@ const Row = ({
 const FormHeader = ({
   title,
   children,
-  closeForm,
+  closeForm
 }: {
   title: string
   children?: ReactNode
@@ -107,7 +107,7 @@ const FormHeader = ({
 const SubHeader = ({
   className,
   subTitle,
-  children,
+  children
 }: {
   className?: string
   subTitle: string

@@ -68,4 +68,19 @@ export interface FlatWorkout {
   created_on: string
 }
 
+export interface GroupedExerciseSet {
+  reps: number
+  weight: number
+}
+export interface GroupedExercise {
+  name: string
+  sets: GroupedExerciseSet[]
+}
+export interface GroupedWorkout {
+  name: string
+  createdOn: string
+  [key: string]: any
+  exercises: GroupedExercise
+}
+
 export type QueryResponseMessage = SuccessResponse | ErrorResponse
