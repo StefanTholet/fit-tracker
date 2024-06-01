@@ -5,7 +5,7 @@ import CloseIcon from '../close-icon'
 
 interface FormProps {
   className?: string
-  action?: any //(state: any, formData: FormData) => void | Promise<void>
+  action?: any
   onSubmit?: (
     ...args: any
   ) =>

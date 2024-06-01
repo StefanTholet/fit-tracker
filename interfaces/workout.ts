@@ -75,6 +75,7 @@ export interface GroupedExerciseSet {
 export interface GroupedExercise {
   name: string
   sets: GroupedExerciseSet[]
+  [key: string]: any
 }
 export interface GroupedWorkout {
   name: string
