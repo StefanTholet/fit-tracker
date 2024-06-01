@@ -3,7 +3,8 @@
 import {
   insertWorkout,
   insertWorkoutExercises,
-  selectPlannedUserWorkouts
+  selectPlannedUserWorkouts,
+  selectWorkout
 } from '@/lib/workouts'
 import { Workout, QueryResponseMessage, Exercise } from '@/interfaces/workout'
 import { flattenExercises } from '@/utils/exercise'
@@ -31,4 +32,9 @@ export const getUserWorkouts = async (userId: string | undefined) => {
   const userWorkouts = await selectPlannedUserWorkouts(userId)
 
   return userWorkouts
+}
+
+export const getWorkout = async (workoutId: string) => {
+  const workout = await selectWorkout(workoutId)
+  return workout
 }

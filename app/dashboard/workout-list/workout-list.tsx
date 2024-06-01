@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
-import { groupWorkouts } from './utils'
+import Link from 'next/link'
+import { groupWorkouts } from '@/utils/exercise'
 import Workout from '@/components/workout/workout'
 import { FlatWorkout } from '@/interfaces/workout'
 interface WorkoutComponentProps {
@@ -35,11 +36,21 @@ const WorkoutList: React.FC<WorkoutComponentProps> = ({ workouts }) => {
       <h2 className="text-2xl font-bold mb-4 text-center">Your Workouts</h2>
       {workoutList.map((workout, index) => (
         <Workout
+          workoutId={workout.workoutId}
           name={workout.name}
           createdOn={workout.createdOn}
           exercises={workout.exercises}
           key={index}
-        />
+        >
+          <div className="mt-4 flex justify-center">
+            <Link
+              className="btn btn-primary btn-sm"
+              href={`/workouts/${workout.workoutId}/train`}
+            >
+              Begin workout
+            </Link>
+          </div>
+        </Workout>
       ))}
     </div>
   )

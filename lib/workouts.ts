@@ -10,12 +10,12 @@ export const insertWorkoutExercises = async (
   exercises: InsertExerciseInterface[]
 ) => {
   return await Promise.all(
-    exercises.map(async (exercise) => {
+    exercises.map(async (exercise, i) => {
       await sql`
-      INSERT INTO exercises (exercise_id, user_id, workout_id, name, reps, weight) 
+      INSERT INTO exercises (exercise_id, user_id, workout_id, name, reps, weight, exercise_order) 
       VALUES (${uuidv4()}, ${userId}, ${workoutId}, ${exercise.name}, ${
         exercise.reps
-      }, ${exercise.weight})
+      }, ${exercise.weight}, ${i + 1})
     `
     })
   )
@@ -36,16 +36,35 @@ export const insertWorkout = async (
 export const selectPlannedUserWorkouts = async (userId: string) => {
   const workoutsResponse = await sql`
   SELECT 
-  workouts.workout_id, workouts.name AS workout_name,
-  exercises.name AS exercise_name, exercises.reps, 
-  exercises.weight, exercises.exercise_id, ${userId} AS userId,
+  workouts.workout_id as workout_id, 
+  workouts.name AS workout_name,
+  exercises.name AS exercise_name, 
+  exercise_order,
+  exercises.reps, 
+  exercises.weight, 
+  exercises.exercise_id, 
+  ${userId} AS userId,
   workouts.created_on as created_on
-   from workouts 
-  INNER JOIN exercises 
-  ON workouts.workout_id = exercises.workout_id 
-  WHERE workouts.user_id = ${userId} AND exercises.performed = 0
+FROM workouts 
+INNER JOIN exercises 
+ON workouts.workout_id = exercises.workout_id 
+WHERE workouts.user_id = ${userId} AND exercises.performed = 0
+ORDER BY exercises.exercise_order;
    `
   const userWorkouts: QueryResultRow = workoutsResponse.rows
 
   return userWorkouts
+}
+
+export const selectWorkout = async (workoutId: string) => {
+  const workout: QueryResultRow = await sql`SELECT 
+    workouts.workout_id, workouts.created_on, workouts.name AS workout_name, 
+  exercises.name AS exercise_name, exercises.reps, exercises.weight, exercises.exercise_order
+FROM workouts 
+INNER JOIN exercises 
+ON workouts.workout_id = exercises.workout_id 
+WHERE workouts.workout_id = ${workoutId}
+ORDER BY exercises.exercise_order;`
+
+  return workout.rows
 }

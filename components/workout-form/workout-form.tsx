@@ -4,7 +4,7 @@ import Form from '../form/form'
 import CloseIcon from '../close-icon'
 
 import { addWorkout } from '@/server-actions/workout-actions'
-import { AddWorkoutInitialStateType } from '@/interfaces/workout'
+import { AddWorkoutInitialStateType, Workout } from '@/interfaces/workout'
 
 interface WorkoutFormProps {
   removeWorkoutForm?: () => void
@@ -17,7 +17,7 @@ const WorkoutForm = ({
   removeWorkoutForm,
   userId,
   initialState,
-  title,
+  title
 }: WorkoutFormProps) => {
   const {
     workoutName,
@@ -28,9 +28,22 @@ const WorkoutForm = ({
     removeExercise,
     handleSetChange,
     addSet,
-    removeSet,
-    handleSubmit,
-  } = useWorkoutForm({ initialState, submitHandler: addWorkout })
+    removeSet
+  } = useWorkoutForm(initialState)
+
+  const handleSubmit = async (userId: string) => {
+    const workout: Workout = {
+      name: workoutName,
+      exercises
+    }
+    try {
+      const response = await addWorkout(workout, userId)
+      return response
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
 
   return (
     <>
