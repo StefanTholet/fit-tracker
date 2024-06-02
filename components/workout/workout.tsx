@@ -28,9 +28,11 @@ const Workout = ({
       }`}
     >
       <h3 className="text-xl font-semibold text-center">{name}</h3>
-      <p className="text-gray-500 text-center mt-3">
-        Created on: {new Date(createdOn).toLocaleDateString()}
-      </p>
+      {createdOn && (
+        <p className="text-gray-500 text-center mt-3">
+          Created on: {new Date(createdOn).toLocaleDateString()}
+        </p>
+      )}
       {exerciseList.map((exercise) => (
         <ExerciseList key={exercise.name}>
           <ExerciseList.Item name={exercise.name}>

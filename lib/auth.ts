@@ -7,7 +7,7 @@ export interface AuthData {
 }
 
 export interface SessionData {
-  userId?: string
+  userId?: number
   email?: string
   isLoggedIn: boolean
 }
@@ -23,12 +23,12 @@ export const sessionOptions: SessionOptions = {
   cookieName: 'user-session',
   cookieOptions: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-  },
+    secure: process.env.NODE_ENV === 'production'
+  }
 }
 
 export const defaultSession: SessionData = {
-  isLoggedIn: false,
+  isLoggedIn: false
 }
 
 export const createUser = async (email: string, password: string) => {

@@ -3,6 +3,7 @@
 import { QueryResultRow, sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
 import { InsertExerciseInterface, Set } from '@/interfaces/workout'
+import { AddPerformedExercise } from '@/server-actions/workout-actions'
 
 export const insertWorkoutExercises = async (
   workoutId: number,
@@ -67,4 +68,35 @@ WHERE workouts.workout_id = ${workoutId}
 ORDER BY exercises.exercise_order;`
 
   return workout.rows
+}
+
+export const insertPerformedExercise = async ({
+  userId,
+  workoutId,
+  exerciseId,
+  performanceStatus,
+  name,
+  reps,
+  weight
+}: AddPerformedExercise) => {
+  const result = await sql`INSERT INTO performed_exercises 
+  ( 
+  user_id,
+  workout_id,
+  exercise_id,
+  performance_status,
+  name,
+  reps,
+  weight
+) 
+VALUES(
+   ${userId},
+  ${workoutId},
+  ${exerciseId},
+  ${performanceStatus},
+  ${name},
+  ${reps},
+  ${weight}
+)`
+  return result.rows
 }

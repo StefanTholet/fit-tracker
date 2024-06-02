@@ -4,7 +4,7 @@ import {
   SessionData,
   defaultSession,
   getUser,
-  createUser,
+  createUser
 } from '@/lib/auth'
 
 import { hashUserPassword, verifyPassword } from '@/lib/hash'
@@ -14,7 +14,7 @@ import { redirect } from 'next/navigation'
 
 interface User {
   email: string
-  user_id: string
+  user_id: number
 }
 
 const updateSession = async (user: User) => {
@@ -53,7 +53,7 @@ export const signup = async (
   if (!user) {
     return {
       error:
-        'Registration unsuccessful. Please try again using different credentials.',
+        'Registration unsuccessful. Please try again using different credentials.'
     }
   }
 

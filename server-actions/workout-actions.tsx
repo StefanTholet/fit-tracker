@@ -1,6 +1,7 @@
 'use server'
 
 import {
+  insertPerformedExercise,
   insertWorkout,
   insertWorkoutExercises,
   selectPlannedUserWorkouts,
@@ -37,4 +38,35 @@ export const getUserWorkouts = async (userId: string | undefined) => {
 export const getWorkout = async (workoutId: string) => {
   const workout = await selectWorkout(workoutId)
   return workout
+}
+
+export interface AddPerformedExercise {
+  userId: number
+  workoutId: number
+  exerciseId: string
+  performanceStatus: string
+  name: string
+  reps: string
+  weight: string
+}
+
+export const addPerformedExercise = async ({
+  userId,
+  workoutId,
+  exerciseId,
+  performanceStatus,
+  name,
+  reps,
+  weight
+}: AddPerformedExercise) => {
+  const result = await insertPerformedExercise({
+    userId,
+    workoutId,
+    exerciseId,
+    performanceStatus,
+    name,
+    reps,
+    weight
+  })
+  return result
 }
