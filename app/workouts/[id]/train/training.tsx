@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import Workout from '@/components/workout/workout'
 import Form from '@/components/form/form'
 import Set from '@/components/set/set'
@@ -9,6 +9,7 @@ import { GroupedExercise } from '@/interfaces/workout'
 interface SetInterface {
   weight: number
   reps: number
+  setIndex: number
   performanceStatus?: string
 }
 
@@ -47,8 +48,6 @@ const Training = ({ createdOn, exercises, name }: TrainingProps) => {
     exerciseId: string,
     setIndex: number
   ) => {
-    console.log(setIndex)
-
     e.preventDefault()
     if (exerciseName !== selectedExercise) {
       setSelectedExercise(exerciseName)
@@ -107,14 +106,18 @@ const Training = ({ createdOn, exercises, name }: TrainingProps) => {
     })
   }
   const getSetClassName = (exerciseName: string, setIndex: number) => {
-    const performanceStatus =
-      completedSets[exerciseName]?.sets[setIndex].performanceStatus
-    if (performanceStatus) {
-      const className = performanceStatusStylingMap[performanceStatus]
-      return className
+    if (setIndex !== undefined && exerciseName) {
+      const selectedExercise = completedSets[exerciseName]
+      const hasSets = selectedExercise?.sets
+      if (hasSets && selectedExercise.sets[setIndex]?.performanceStatus) {
+        return performanceStatusStylingMap[
+          selectedExercise.sets[setIndex].performanceStatus!
+        ]
+      }
     }
+    return ''
   }
-  console.log(completedSets)
+
   return (
     <Workout
       className="relative"
@@ -122,8 +125,6 @@ const Training = ({ createdOn, exercises, name }: TrainingProps) => {
       exercises={exercises}
       name={name}
       Set={({ set, setIndex, exerciseId, exerciseName }: SetProps) => {
-        console.log(set)
-
         return (
           <Set
             className={getSetClassName(exerciseName, setIndex)}
