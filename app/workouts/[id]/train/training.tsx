@@ -2,8 +2,8 @@
 import React, { useState } from 'react'
 import Workout from '@/components/workout/workout'
 import Form from '@/components/form/form'
-import Set from './set'
-import { SetProps } from './set'
+import Set from '@/components/set/set'
+import { SetProps } from '@/components/set/set'
 import { GroupedExercise } from '@/interfaces/workout'
 
 interface SetInterface {

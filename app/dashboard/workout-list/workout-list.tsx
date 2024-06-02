@@ -1,6 +1,8 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
+import Set from '@/components/set/set'
+import { SetProps } from '@/components/set/set'
 import { groupWorkouts } from '@/utils/exercise'
 import Workout from '@/components/workout/workout'
 import { FlatWorkout } from '@/interfaces/workout'
@@ -36,6 +38,18 @@ const WorkoutList: React.FC<WorkoutComponentProps> = ({ workouts }) => {
       <h2 className="text-2xl font-bold mb-4 text-center">Your Workouts</h2>
       {workoutList.map((workout, index) => (
         <Workout
+          Set={({ set, setIndex, exerciseId, exerciseName }: SetProps) => {
+            console.log(set)
+
+            return (
+              <Set
+                set={set}
+                exerciseId={exerciseId}
+                exerciseName={exerciseName}
+                setIndex={setIndex}
+              />
+            )
+          }}
           workoutId={workout.workoutId}
           name={workout.name}
           createdOn={workout.createdOn}

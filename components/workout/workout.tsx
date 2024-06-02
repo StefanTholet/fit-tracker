@@ -1,7 +1,7 @@
 import React from 'react'
 import ExerciseList from './exercise-list'
 import { GroupedExerciseSet, GroupedWorkout } from '@/interfaces/workout'
-import { SetProps } from '@/app/workouts/[id]/train/set'
+import { SetProps } from '../set/set'
 
 interface WorkoutProps extends GroupedWorkout {
   className?: string
