@@ -10,7 +10,7 @@ interface WorkoutFormProps {
   removeWorkoutForm?: () => void
   title: string
   initialState?: AddWorkoutInitialStateType
-  userId: string
+  userId: number
 }
 
 const WorkoutForm = ({
@@ -31,7 +31,7 @@ const WorkoutForm = ({
     removeSet
   } = useWorkoutForm(initialState)
 
-  const handleSubmit = async (userId: string) => {
+  const handleSubmit = async (userId: number) => {
     const workout: Workout = {
       name: workoutName,
       exercises

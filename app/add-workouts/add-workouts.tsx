@@ -5,7 +5,7 @@ import WorkoutForm from '@/components/workout-form/workout-form'
 import useAddWorkouts from '@/hooks/useAddWorkouts'
 
 interface AddWorkoutsProps {
-  userId: string
+  userId: number
 }
 const AddWorkouts = ({ userId }: AddWorkoutsProps) => {
   const { workouts, removeWorkoutForm, addWorkout } = useAddWorkouts()

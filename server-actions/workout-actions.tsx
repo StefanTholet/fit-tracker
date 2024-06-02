@@ -12,7 +12,7 @@ import { flattenExercises } from '@/utils/exercise'
 
 export const addWorkout = async (
   workout: Workout,
-  userId: string
+  userId: number
 ): Promise<QueryResponseMessage> => {
   try {
     const workoutId = await insertWorkout(userId, workout.name)
@@ -26,7 +26,7 @@ export const addWorkout = async (
   }
 }
 
-export const getUserWorkouts = async (userId: string | undefined) => {
+export const getUserWorkouts = async (userId: number | undefined) => {
   if (!userId) {
     return
   }
