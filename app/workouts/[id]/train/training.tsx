@@ -45,7 +45,7 @@ const Training = ({
 }: TrainingProps) => {
   const [exerciseData, setExerciseData] = useState({ ...exercises })
   const [showInput, setShowInput] = useState(false)
-  console.log(exercises)
+
   const [selectedExercise, setSelectedExercise] = useState(
     Object.keys(exercises)[0]
   )
@@ -78,13 +78,17 @@ const Training = ({
       return { ...state }
     })
   }
-  console.log(exerciseData)
 
   const getPerformanceStatus = () => {
     const targetReps = exercises[selectedExercise].sets[selectedSet].reps
-    const performedReps = exerciseData[selectedExercise].sets[selectedSet].reps
+    const performedReps = Number(
+      exerciseData[selectedExercise].sets[selectedSet].reps
+    )
     const targetWeight = exercises[selectedExercise].sets[selectedSet].weight
-    const liftedWeight = exerciseData[selectedExercise].sets[selectedSet].weight
+    const liftedWeight = Number(
+      exerciseData[selectedExercise].sets[selectedSet].weight
+    )
+
     let performanceStatus = 'met'
     if (targetReps > performedReps || targetWeight > liftedWeight) {
       performanceStatus = 'not-met'
@@ -100,7 +104,7 @@ const Training = ({
     const exercise = {
       ...exerciseData[selectedExercise]
     }
-    console.log(exercise)
+
     setCompletedSets((state) => {
       const performanceStatus = getPerformanceStatus()
       exercise.sets[selectedSet].performanceStatus = performanceStatus
@@ -115,7 +119,7 @@ const Training = ({
 
       return newState
     })
-    console.log(exercise)
+
     const currentSet = exercise.sets[selectedSet]
     const requestData = {
       name: exercise.name,
