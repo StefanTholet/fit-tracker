@@ -59,7 +59,7 @@ ORDER BY exercises.exercise_order;
 export const selectWorkout = async (workoutId: string) => {
   const workout: QueryResultRow = await sql`SELECT 
     workouts.workout_id, workouts.created_on, workouts.name AS workout_name, 
-  exercises.name AS exercise_name, exercises.reps, exercises.weight, exercises.exercise_order
+  exercises.name AS exercise_name, exercises.reps, exercises.weight, exercises.exercise_id, exercises.exercise_order
 FROM workouts 
 INNER JOIN exercises 
 ON workouts.workout_id = exercises.workout_id 

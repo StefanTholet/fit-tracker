@@ -1,11 +1,24 @@
 'use client'
-import { useState } from 'react'
-import Input from '@/components/form/input'
+import React, { useState } from 'react'
 import Workout from '@/components/workout/workout'
 import Form from '@/components/form/form'
-
+import Set from './set'
+import { SetProps } from './set'
 import { GroupedExercise } from '@/interfaces/workout'
-import useWorkoutForm from '@/hooks/useWorkoutForm'
+
+interface SetInterface {
+  weight: number
+  reps: number
+  performanceStatus?: string
+}
+
+interface Exercise {
+  sets: SetInterface[]
+}
+
+interface CompletedSets {
+  [key: string]: Exercise
+}
 
 interface TrainingProps {
   createdOn: string
@@ -13,20 +26,29 @@ interface TrainingProps {
   name: string
 }
 
-const Training = ({ createdOn, exercises, name }: TrainingProps) => {
-  // console.log(exercises)
-  // const exerciseList = Object.keys(exercises).map(
-  //   (exercise: string) => exercises[exercise]
-  // )
+const performanceStatusStylingMap: { [key: string]: string } = {
+  met: 'btn-secondary',
+  exceeded: 'btn-primary',
+  'not-met': 'btn-accent'
+}
 
-  const [exerciseData, setExerciseData] = useState(exercises)
+const Training = ({ createdOn, exercises, name }: TrainingProps) => {
+  const [exerciseData, setExerciseData] = useState({ ...exercises })
   const [showInput, setShowInput] = useState(false)
   const [selectedExercise, setSelectedExercise] = useState(
     Object.keys(exercises)[0]
   )
   const [selectedSet, setSelectedSet] = useState(0)
+  const [completedSets, setCompletedSets] = useState<CompletedSets>({})
 
-  const setClickHandler = (e, exerciseName, setIndex) => {
+  const setClickHandler = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    exerciseName: string,
+    exerciseId: string,
+    setIndex: number
+  ) => {
+    console.log(setIndex)
+
     e.preventDefault()
     if (exerciseName !== selectedExercise) {
       setSelectedExercise(exerciseName)
@@ -34,33 +56,92 @@ const Training = ({ createdOn, exercises, name }: TrainingProps) => {
     if (setIndex !== selectedSet) {
       setSelectedSet(setIndex)
     }
-    setShowInput((state) => !state)
+    setShowInput(true)
   }
-  console.log(exerciseData)
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { target } = e
     const { value, name } = target
 
     setExerciseData((state) => {
-      const exercise = { ...exerciseData[selectedExercise] }
+      const exercise = { ...state[selectedExercise] }
       exercise.sets[selectedSet][name] = value
       state[selectedExercise] = exercise
-      return state
+      return { ...state }
     })
   }
-  console.log(exerciseData[selectedExercise].sets[selectedSet])
+
+  const getPerformanceStatus = () => {
+    const targetReps = exercises[selectedExercise].sets[selectedSet].reps
+    const performedReps = exerciseData[selectedExercise].sets[selectedSet].reps
+    const targetWeight = exercises[selectedExercise].sets[selectedSet].weight
+    const liftedWeight = exerciseData[selectedExercise].sets[selectedSet].weight
+    let performanceStatus = 'met'
+    if (targetReps > performedReps || targetWeight > liftedWeight) {
+      performanceStatus = 'not-met'
+    } else if (performedReps > targetReps || liftedWeight > targetWeight) {
+      performanceStatus = 'exceeded'
+    }
+    return performanceStatus
+  }
+
+  const completeSet = () => {
+    setShowInput(false)
+    setCompletedSets((state) => {
+      const exercise = {
+        ...exerciseData[selectedExercise]
+      }
+
+      const performanceStatus = getPerformanceStatus()
+      exercise.sets[selectedSet].performanceStatus = performanceStatus
+
+      const newState = { ...state }
+
+      if (!newState[selectedExercise]) {
+        newState[selectedExercise] = { sets: [] }
+      }
+
+      newState[selectedExercise].sets = [...exercise.sets]
+
+      return newState
+    })
+  }
+  const getSetClassName = (exerciseName: string, setIndex: number) => {
+    const performanceStatus =
+      completedSets[exerciseName]?.sets[setIndex].performanceStatus
+    if (performanceStatus) {
+      const className = performanceStatusStylingMap[performanceStatus]
+      return className
+    }
+  }
+  console.log(completedSets)
   return (
     <Workout
-      setsClickHandler={setClickHandler}
-      className="relateve"
+      className="relative"
       createdOn={createdOn}
       exercises={exercises}
       name={name}
+      Set={({ set, setIndex, exerciseId, exerciseName }: SetProps) => {
+        console.log(set)
+
+        return (
+          <Set
+            className={getSetClassName(exerciseName, setIndex)}
+            set={set}
+            exerciseId={exerciseId}
+            exerciseName={exerciseName}
+            onClick={(e) =>
+              setClickHandler(e, exerciseName, exerciseId, setIndex)
+            }
+            setIndex={setIndex}
+          />
+        )
+      }}
     >
-      <Form className={`${showInput ? 'opacity-100' : 'opacity-0'}`}>
+      <Form className={`${showInput ? 'opacity-100' : 'opacity-0 h-0'}`}>
         <Form.FormControl label="Weight">
           <Form.Input
+            type="number"
             placeholder="weight"
             name="weight"
             value={exerciseData[selectedExercise].sets[selectedSet].weight}
@@ -69,12 +150,20 @@ const Training = ({ createdOn, exercises, name }: TrainingProps) => {
         </Form.FormControl>
         <Form.FormControl label="Reps">
           <Form.Input
+            type="number"
             placeholder="reps"
             name="reps"
-            value={exerciseData[selectedExercise].sets[selectedSet].weight}
+            value={exerciseData[selectedExercise].sets[selectedSet].reps}
             onChange={handleChange}
           />
         </Form.FormControl>
+        <button
+          type="button"
+          onClick={completeSet}
+          className="btn btn-primary block m-auto"
+        >
+          Complete set
+        </button>
       </Form>
     </Workout>
   )

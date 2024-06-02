@@ -29,6 +29,7 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
     if (!acc[workout.workout_id].exercises[workout.exercise_name]) {
       acc[workout.workout_id].exercises[workout.exercise_name] = {
         name: workout.exercise_name,
+        exercise_id: workout.exercise_id,
         sets: []
       }
     }
