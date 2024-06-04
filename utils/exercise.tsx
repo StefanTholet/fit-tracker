@@ -31,12 +31,14 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
       acc[workout.workout_id].exercises[workout.exercise_name] = {
         name: workout.exercise_name,
         exercise_id: workout.exercise_id,
+        exercise_order: workout.exercise_order,
         sets: []
       }
     }
     acc[workout.workout_id].exercises[workout.exercise_name].sets.push({
       reps: workout.reps,
-      weight: workout.weight
+      weight: workout.weight,
+      performanceStatus: workout.performance_status
     })
 
     return acc

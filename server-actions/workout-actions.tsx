@@ -4,6 +4,7 @@ import {
   insertPerformedExercise,
   insertWorkout,
   insertWorkoutExercises,
+  selectLastPerformedWorkoutById,
   selectPlannedUserWorkouts,
   selectWorkout
 } from '@/lib/workouts'
@@ -48,6 +49,7 @@ export interface AddPerformedExercise {
   name: string
   reps: string
   weight: string
+  order: string
 }
 
 export const addPerformedExercise = async ({
@@ -57,7 +59,8 @@ export const addPerformedExercise = async ({
   performanceStatus,
   name,
   reps,
-  weight
+  weight,
+  order
 }: AddPerformedExercise) => {
   const result = await insertPerformedExercise({
     userId,
@@ -66,7 +69,13 @@ export const addPerformedExercise = async ({
     performanceStatus,
     name,
     reps,
-    weight
+    weight,
+    order
   })
+  return result
+}
+
+export const getLastPerformedWorkoutById = async (workout_id: number) => {
+  const result = await selectLastPerformedWorkoutById(workout_id)
   return result
 }

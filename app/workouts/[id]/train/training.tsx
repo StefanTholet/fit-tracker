@@ -16,6 +16,7 @@ export interface SetInterface {
 
 export interface Exercise {
   sets: SetInterface[]
+  order: string
 }
 
 export interface CompletedSets {
@@ -25,6 +26,7 @@ export interface CompletedSets {
 interface TrainingProps {
   createdOn: string
   exercises: GroupedExercise
+  previousWorkout?: GroupedExercise
   name: string
   workoutId: number
   userId: number
@@ -33,7 +35,7 @@ interface TrainingProps {
 const performanceStatusStylingMap: { [key: string]: string } = {
   met: 'btn-secondary',
   exceeded: 'btn-primary',
-  'not-met': 'btn-accent',
+  'not-met': 'btn-accent'
 }
 
 const Training = ({
@@ -42,6 +44,7 @@ const Training = ({
   createdOn,
   exercises,
   name,
+  previousWorkout
 }: TrainingProps) => {
   const [exerciseData, setExerciseData] = useState({ ...exercises })
   const [showInput, setShowInput] = useState(false)
@@ -102,7 +105,7 @@ const Training = ({
     //TODO Add validations
     setShowInput(false)
     const exercise = {
-      ...exerciseData[selectedExercise],
+      ...exerciseData[selectedExercise]
     }
 
     setCompletedSets((state) => {
@@ -112,7 +115,7 @@ const Training = ({
       const newState = { ...state }
 
       if (!newState[selectedExercise]) {
-        newState[selectedExercise] = { sets: [] }
+        newState[selectedExercise] = { sets: [], order: exercise.order }
       }
 
       newState[selectedExercise].sets = [...exercise.sets]
@@ -121,6 +124,7 @@ const Training = ({
     })
 
     const currentSet = exercise.sets[selectedSet]
+
     const requestData = {
       name: exercise.name,
       reps: currentSet.reps,
@@ -129,6 +133,7 @@ const Training = ({
       exerciseId: exercise.exercise_id,
       userId,
       workoutId,
+      order: exercise.order
     }
     const result = await addPerformedExercise(requestData)
     return result
@@ -147,52 +152,81 @@ const Training = ({
   }
 
   return (
-    <Workout
-      className="relative"
-      createdOn={createdOn}
-      exercises={exercises}
-      name={name}
-      Set={({ set, setIndex, exerciseId, exerciseName }: SetProps) => {
-        return (
-          <Set
-            className={getSetClassName(exerciseName, setIndex)}
-            set={set}
-            exerciseId={exerciseId}
-            exerciseName={exerciseName}
-            onClick={(e) => handleClickSet(e, exerciseName, setIndex)}
-            setIndex={setIndex}
+    <div>
+      {previousWorkout && (
+        <>
+          <h2 className="text-center mb-4">Your previous performance</h2>
+          <Workout
+            isPrevious={true}
+            createdOn={previousWorkout.createdOn}
+            exercises={previousWorkout.exercises}
+            name={previousWorkout.name}
+            Set={({ set, setIndex, exerciseId, exerciseName }: SetProps) => {
+              return (
+                <Set
+                  className={
+                    performanceStatusStylingMap[
+                      previousWorkout.exercises[exerciseName].sets[setIndex]
+                        .performanceStatus
+                    ]
+                  }
+                  set={set}
+                  exerciseId={exerciseId}
+                  exerciseName={exerciseName}
+                  setIndex={setIndex}
+                />
+              )
+            }}
           />
-        )
-      }}
-    >
-      <Form className={`${showInput ? 'opacity-100' : 'opacity-0 h-0'}`}>
-        <Form.FormControl label="Weight">
-          <Form.Input
-            type="number"
-            placeholder="weight"
-            name="weight"
-            value={exerciseData[selectedExercise].sets[selectedSet].weight}
-            onChange={handleChange}
-          />
-        </Form.FormControl>
-        <Form.FormControl label="Reps">
-          <Form.Input
-            type="number"
-            placeholder="reps"
-            name="reps"
-            value={exerciseData[selectedExercise].sets[selectedSet].reps}
-            onChange={handleChange}
-          />
-        </Form.FormControl>
-        <button
-          type="button"
-          onClick={completeSet}
-          className="btn btn-primary block m-auto"
-        >
-          Complete set
-        </button>
-      </Form>
-    </Workout>
+        </>
+      )}
+      <Workout
+        className="relative"
+        createdOn={createdOn}
+        exercises={exercises}
+        name={name}
+        Set={({ set, setIndex, exerciseId, exerciseName }: SetProps) => {
+          return (
+            <Set
+              className={getSetClassName(exerciseName, setIndex)}
+              set={set}
+              exerciseId={exerciseId}
+              exerciseName={exerciseName}
+              onClick={(e) => handleClickSet(e, exerciseName, setIndex)}
+              setIndex={setIndex}
+            />
+          )
+        }}
+      >
+        <Form className={`${showInput ? 'opacity-100' : 'opacity-0 h-0'}`}>
+          <Form.FormControl label="Weight">
+            <Form.Input
+              type="number"
+              placeholder="weight"
+              name="weight"
+              value={exerciseData[selectedExercise].sets[selectedSet].weight}
+              onChange={handleChange}
+            />
+          </Form.FormControl>
+          <Form.FormControl label="Reps">
+            <Form.Input
+              type="number"
+              placeholder="reps"
+              name="reps"
+              value={exerciseData[selectedExercise].sets[selectedSet].reps}
+              onChange={handleChange}
+            />
+          </Form.FormControl>
+          <button
+            type="button"
+            onClick={completeSet}
+            className="btn btn-primary block m-auto"
+          >
+            Complete set
+          </button>
+        </Form>
+      </Workout>
+    </div>
   )
 }
 

@@ -5,8 +5,9 @@ import { SetProps } from '../set/set'
 
 interface WorkoutProps extends GroupedWorkout {
   className?: string
-  children: React.ReactNode
+  children?: React.ReactNode
   Set: React.ComponentType<SetProps>
+  isPrevious?: boolean
 }
 
 const Workout = ({
@@ -15,6 +16,7 @@ const Workout = ({
   exercises,
   className,
   Set,
+  isPrevious,
   children
 }: WorkoutProps) => {
   const exerciseList = Object.keys(exercises).map(
@@ -30,7 +32,8 @@ const Workout = ({
       <h3 className="text-xl font-semibold text-center">{name}</h3>
       {createdOn && (
         <p className="text-gray-500 text-center mt-3">
-          Created on: {new Date(createdOn).toLocaleDateString()}
+          {isPrevious ? 'Last performance date' : 'Created on'}:{' '}
+          {new Date(createdOn).toLocaleDateString()}
         </p>
       )}
       {exerciseList.map((exercise) => (

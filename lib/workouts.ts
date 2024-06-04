@@ -2,7 +2,7 @@
 
 import { QueryResultRow, sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
-import { InsertExerciseInterface, Set } from '@/interfaces/workout'
+import { InsertExerciseInterface } from '@/interfaces/workout'
 import { AddPerformedExercise } from '@/server-actions/workout-actions'
 
 export const insertWorkoutExercises = async (
@@ -34,13 +34,6 @@ export const insertWorkout = async (
   return workout.rows[0].workout_id
 }
 
-//getPerformedWorkout
-/*
-SELECT workouts.name AS name, performed_exercises.created_on as performed_on, performed_exercises.name AS exercise_name, performed_exercises.performance_status AS performanceStatus, performed_exercises.reps,  performed_exercises.weight FROM workouts 
-INNER JOIN  performed_exercises  ON workouts.workout_id = performed_exercises.workout_id
-WHERE workouts.workout_id = 24 
-*/
-
 export const selectPlannedUserWorkouts = async (userId: number) => {
   const workoutsResponse = await sql`
   SELECT 
@@ -65,15 +58,22 @@ ORDER BY exercises.exercise_order;
 }
 
 export const selectWorkout = async (workoutId: string) => {
-  const workout: QueryResultRow = await sql`SELECT 
-    workouts.workout_id, workouts.created_on, workouts.name AS workout_name, 
-  exercises.name AS exercise_name, exercises.reps, exercises.weight, exercises.exercise_id, exercises.exercise_order
-FROM workouts 
+  const workout: QueryResultRow = await sql`
+  SELECT 
+    workouts.workout_id, 
+    workouts.created_on, 
+    workouts.name AS workout_name, 
+    exercises.name AS exercise_name, 
+    exercises.reps, 
+    exercises.weight,
+    exercises.exercise_id, 
+    exercises.exercise_order 
+    FROM workouts 
 INNER JOIN exercises 
 ON workouts.workout_id = exercises.workout_id 
 WHERE workouts.workout_id = ${workoutId}
-ORDER BY exercises.exercise_order;`
-
+ORDER BY exercises.exercise_order`
+  // exercises.exercise_order missing from performed_exercises = problem?
   return workout.rows
 }
 
@@ -85,6 +85,7 @@ export const insertPerformedExercise = async ({
   name,
   reps,
   weight,
+  order
 }: AddPerformedExercise) => {
   const result = await sql`INSERT INTO performed_exercises 
   ( 
@@ -94,7 +95,8 @@ export const insertPerformedExercise = async ({
   performance_status,
   name,
   reps,
-  weight
+  weight,
+  exercise_order
 ) 
 VALUES(
    ${userId},
@@ -103,7 +105,46 @@ VALUES(
   ${performanceStatus},
   ${name},
   ${reps},
-  ${weight}
+  ${weight},
+  ${order}
 )`
   return result.rows
 }
+
+export const selectLastPerformedWorkoutById = async (workout_id: number) => {
+  const result: QueryResultRow = await sql`
+    WITH latest_date AS (
+      SELECT MAX(DATE(created_on)) AS max_date
+      FROM performed_exercises
+      WHERE workout_id = ${workout_id}
+    )
+    SELECT 
+      performed_exercises.created_on ,
+      workouts.name AS workout_name, 
+      workouts.workout_id,
+      performed_exercises.created_on AS performed_on, 
+      performed_exercises.name AS exercise_name,
+      performed_exercises.exercise_id, 
+      performed_exercises.performance_status, 
+      performed_exercises.reps, 
+      performed_exercises.weight 
+    FROM 
+      workouts 
+    INNER JOIN  
+      performed_exercises  
+    ON 
+      workouts.workout_id = performed_exercises.workout_id 
+    WHERE 
+      workouts.workout_id = ${workout_id}
+      AND DATE(performed_exercises.created_on) = (SELECT max_date FROM latest_date)
+      ORDER BY performed_exercises.exercise_order
+  `
+
+  return result.rows
+}
+
+/*
+SELECT workouts.name AS name, performed_exercises.created_on as performed_on, performed_exercises.name AS exercise_name, performed_exercises.performance_status AS performanceStatus, performed_exercises.reps,  performed_exercises.weight FROM workouts 
+INNER JOIN  performed_exercises  ON workouts.workout_id = performed_exercises.workout_id
+WHERE workouts.workout_id = 24 
+*/
