@@ -32,7 +32,7 @@ const Workout = ({
       <h3 className="text-xl font-semibold text-center">{name}</h3>
       {createdOn && (
         <p className="text-gray-500 text-center mt-3">
-          {isPrevious ? 'Last performance date' : 'Created on'}:{' '}
+          {isPrevious ? 'Previous session' : 'Created on'}:{' '}
           {new Date(createdOn).toLocaleDateString()}
         </p>
       )}

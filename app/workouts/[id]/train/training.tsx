@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Workout from '@/components/workout/workout'
 import Form from '@/components/form/form'
 import Set from '@/components/set/set'
@@ -151,11 +151,21 @@ const Training = ({
     return ''
   }
 
+  const headingRef = useRef<HTMLHeadingElement | null>(null)
+
+  useEffect(() => {
+    if (headingRef?.current) {
+      headingRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [])
+
   return (
     <div>
       {previousWorkout && (
         <>
-          <h2 className="text-center mb-4">Your previous performance</h2>
+          <h2 className="text-center mb-4 font-medium text-xl">
+            Your previous performance
+          </h2>
           <Workout
             isPrevious={true}
             createdOn={previousWorkout.createdOn}
@@ -179,6 +189,11 @@ const Training = ({
             }}
           />
         </>
+      )}
+      {previousWorkout && (
+        <h2 ref={headingRef} className="text-center mb-4 font-medium text-xl">
+          Today&apos;s plan
+        </h2>
       )}
       <Workout
         className="relative"
