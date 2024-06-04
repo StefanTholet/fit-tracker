@@ -2,7 +2,7 @@ import Button from '../button'
 import Image from 'next/image'
 import Link from 'next/link'
 import hero from '@/assets/images/hero.jpg'
-const Hero = ({ userId }: { userId?: number }) => {
+const Hero = ({ userId }: { userId?: number | string }) => {
   return (
     <div className="hero min-h-96 bg-neutral mb-14">
       <div className="hero-content flex-col lg:flex-row-reverse">
