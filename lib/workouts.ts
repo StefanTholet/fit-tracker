@@ -34,6 +34,13 @@ export const insertWorkout = async (
   return workout.rows[0].workout_id
 }
 
+//getPerformedWorkout
+/*
+SELECT workouts.name AS name, performed_exercises.created_on as performed_on, performed_exercises.name AS exercise_name, performed_exercises.performance_status AS performanceStatus, performed_exercises.reps,  performed_exercises.weight FROM workouts 
+INNER JOIN  performed_exercises  ON workouts.workout_id = performed_exercises.workout_id
+WHERE workouts.workout_id = 24 
+*/
+
 export const selectPlannedUserWorkouts = async (userId: number) => {
   const workoutsResponse = await sql`
   SELECT 
@@ -77,7 +84,7 @@ export const insertPerformedExercise = async ({
   performanceStatus,
   name,
   reps,
-  weight
+  weight,
 }: AddPerformedExercise) => {
   const result = await sql`INSERT INTO performed_exercises 
   ( 

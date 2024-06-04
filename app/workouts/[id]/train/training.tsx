@@ -33,7 +33,7 @@ interface TrainingProps {
 const performanceStatusStylingMap: { [key: string]: string } = {
   met: 'btn-secondary',
   exceeded: 'btn-primary',
-  'not-met': 'btn-accent'
+  'not-met': 'btn-accent',
 }
 
 const Training = ({
@@ -41,7 +41,7 @@ const Training = ({
   userId,
   createdOn,
   exercises,
-  name
+  name,
 }: TrainingProps) => {
   const [exerciseData, setExerciseData] = useState({ ...exercises })
   const [showInput, setShowInput] = useState(false)
@@ -102,7 +102,7 @@ const Training = ({
     //TODO Add validations
     setShowInput(false)
     const exercise = {
-      ...exerciseData[selectedExercise]
+      ...exerciseData[selectedExercise],
     }
 
     setCompletedSets((state) => {
@@ -128,10 +128,10 @@ const Training = ({
       performanceStatus: getPerformanceStatus(),
       exerciseId: exercise.exercise_id,
       userId,
-      workoutId
+      workoutId,
     }
     const result = await addPerformedExercise(requestData)
-    console.log(result)
+    return result
   }
   const getSetClassName = (exerciseName: string, setIndex: number) => {
     if (setIndex !== undefined && exerciseName) {
