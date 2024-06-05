@@ -1,12 +1,10 @@
 import type { Config } from 'tailwindcss'
-
+const { nextui } = require('@nextui-org/theme')
 const config: Config = {
   mode: 'jit',
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}'
-  ],
+    "./node_modules/@nextui-org/theme/dist/components/(button|ripple|spinner).js"
+],
   theme: {
     extend: {
       backgroundImage: {
@@ -16,11 +14,10 @@ const config: Config = {
       }
     }
   },
-  daisyui: {
-    themes: ['emerald', 'forest']
-  },
+
+  darkMode: 'class',
+  plugins: [nextui()],
   purge: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
-  plugins: [require('daisyui')],
   'tailwindCSS.includeLanguages': {
     javascript: 'javascript',
     javascriptreact: 'javascriptreact',
