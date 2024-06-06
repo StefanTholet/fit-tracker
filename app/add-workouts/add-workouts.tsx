@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import Button from '@/components/button'
+import { Button } from '@/components/ui/button'
 import WorkoutForm from '@/components/workout-form/workout-form'
 import useAddWorkouts from '@/hooks/useAddWorkouts'
 
@@ -20,7 +20,7 @@ const AddWorkouts = ({ userId }: AddWorkoutsProps) => {
           userId={userId}
         />
       ))}
-      <Button className="self-center mt-8" type="primary" onClick={addWorkout}>
+      <Button className="self-center mt-8" onClick={addWorkout}>
         Add Workout
       </Button>
     </div>

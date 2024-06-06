@@ -1,46 +1,46 @@
 import React from 'react'
 
-const Footer: React.FC = () => {
+const Footer = () => {
   return (
-    <footer className="bg-neutral text-neutral-content p-10 mt-auto">
+    <footer className="bg-gray-800 text-gray-200 p-10 mt-auto">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="mb-4 md:mb-0">
-            <h2 className="footer-title">Fit Tracker</h2>
+            <h2 className="text-2xl font-bold mb-2">Fit Tracker</h2>
             <p>
               Your ultimate companion for tracking workouts and achieving
               fitness goals.
             </p>
           </div>
           <div className="mb-4 md:mb-0">
-            <h2 className="footer-title">Quick Links</h2>
+            <h2 className="text-2xl font-bold mb-2">Quick Links</h2>
             <ul>
               <li>
-                <a href="#" className="link link-hover">
+                <a href="#" className="text-gray-200 hover:text-white">
                   Home
                 </a>
               </li>
               <li>
-                <a href="#" className="link link-hover">
+                <a href="#" className="text-gray-200 hover:text-white">
                   Workouts
                 </a>
               </li>
               <li>
-                <a href="#" className="link link-hover">
+                <a href="#" className="text-gray-200 hover:text-white">
                   About
                 </a>
               </li>
               <li>
-                <a href="#" className="link link-hover">
+                <a href="#" className="text-gray-200 hover:text-white">
                   Contact
                 </a>
               </li>
             </ul>
           </div>
           <div>
-            <h2 className="footer-title">Follow Us</h2>
-            <div className="grid grid-flow-col gap-4">
-              <a href="#" className="link link-hover">
+            <h2 className="text-2xl font-bold mb-2">Follow Us</h2>
+            <div className="flex gap-4">
+              <a href="#" className="text-gray-200 hover:text-white">
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
                   <path d="M22.54 6.42a8.66 8.66 0 0 1-2.36.65 4.15 4.15 0 0 0 1.82-2.3 8.51 8.51 0 0 1-2.64 1A4.15 4.15 0 0 0 16 4c-2.27 0-4.12 1.86-4.12 4.13 0 .32.04.64.1.94-3.43-.17-6.47-1.8-8.51-4.28a4.14 4.14 0 0 0-.56 2.08c0 1.43.73 2.69 1.83 3.43a4.17 4.17 0 0 1-1.86-.51v.05c0 2 1.42 3.67 3.3 4.05-.34.1-.7.16-1.07.16-.26 0-.52-.02-.77-.07.53 1.66 2.06 2.87 3.87 2.9a8.34 8.34 0 0 1-6.15 1.72 11.78 11.78 0 0 0 6.35 1.86c7.62 0 11.78-6.31 11.78-11.78 0-.18 0-.35-.01-.53a8.4 8.4 0 0 0 2.1-2.14" />
                 </svg>
               </a>
-              <a href="#" className="link link-hover">
+              <a href="#" className="text-gray-200 hover:text-white">
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
@@ -58,7 +58,7 @@ const Footer: React.FC = () => {
                   <path d="M18.36 2H5.64A3.64 3.64 0 0 0 2 5.64v12.72A3.64 3.64 0 0 0 5.64 22h12.72A3.64 3.64 0 0 0 22 18.36V5.64A3.64 3.64 0 0 0 18.36 2zm-7.6 15.56v-5.36H8.32v-2.56h2.44v-1.84c0-2.4 1.46-3.72 3.6-3.72.72 0 1.44.04 2.12.12v2.4h-1.48c-1.16 0-1.4.56-1.4 1.36v1.68h2.8l-.36 2.56h-2.44v5.36h-2.88z" />
                 </svg>
               </a>
-              <a href="#" className="link link-hover">
+              <a href="#" className="text-gray-200 hover:text-white">
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"

@@ -2,7 +2,6 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import Barbell from '@/assets/svg/barbell'
-import { FaEye, FaEdit, FaTrashAlt } from 'react-icons/fa'
 
 interface TableActionsProps {
   workoutId: number
@@ -16,10 +15,10 @@ const TableActions = ({ workoutId }: TableActionsProps) => {
   return (
     <>
       <button className="btn btn-sm btn-secondary" title="Edit" disabled>
-        <FaEdit />
+        {/* <FaEdit /> */}
       </button>
       <button className="btn btn-sm btn-error" title="Delete" disabled>
-        <FaTrashAlt />
+        {/* <FaTrashAlt /> */}
       </button>
       <button
         className="btn btn-sm"

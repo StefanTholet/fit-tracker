@@ -1,30 +1,34 @@
-import Button from '../button'
 import Image from 'next/image'
 import Link from 'next/link'
 import hero from '@/assets/images/hero.jpg'
+import { Button } from '../ui/button'
+import styles from './layout.module.css'
+
 const Hero = ({ userId }: { userId?: number | string }) => {
   return (
-    <div className="hero min-h-96 bg-neutral mb-14">
-      <div className="hero-content flex-col lg:flex-row-reverse">
-        <Image
-          priority
-          src={hero}
-          sizes="30vw"
-          className="w-full max-w-sm  rounded-lg shadow-2xl"
-          alt="person lifting weights"
-        />
-        <div>
+    <div className="min-h-96 bg-gray-800 mb-14 flex items-center justify-center py-10">
+      <div className="flex flex-col lg:flex-row-reverse items-center">
+        <div className={styles.imageContainer}>
+          <Image
+            priority
+            src={hero}
+            sizes="50vw"
+            className="rounded-lg shadow-2xl"
+            alt="person lifting weights"
+          />
+        </div>
+        <div className="text-center lg:text-left lg:ml-10 mt-8 lg:mt-0 max-w-lg mr-3">
           <h1 className="text-5xl text-white font-bold">Fit Tracker</h1>
           <p className="py-6 text-white">Where history is written...</p>
           {!userId && (
-            <>
-              <Button className=" text-white" type="primary">
+            <div className="flex justify-center lg:justify-start">
+              <Button className="text-white bg-blue-500 hover:bg-blue-700 mr-3">
                 <Link href="/signup">Register</Link>
               </Button>
-              <Button className="ml-3 btn  text-white" type="primary-2">
+              <Button className="text-white bg-green-500 hover:bg-green-700">
                 <Link href="/login">Login</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

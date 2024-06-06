@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import AuthForm from '@/components/auth-forms/auth-form'
 import Container from '@/components/container'
+import { Button } from '@/components/ui/button'
 import { login } from '@/server-actions/auth-actions'
 export default function Login() {
   return (
@@ -10,11 +11,11 @@ export default function Login() {
         <AuthForm
           action={login}
           SubmitButton={
-            <button className="btn btn-primary w-full">Login</button>
+            <Button className="btn btn-primary w-full">Login</Button>
           }
         />
         <p className="text-sm text-center">
-          Don&apos;t have an account? <Link href="/register">Register</Link>
+          Don&apos;t have an account? <Link href="/signup">Register</Link>
         </p>
       </div>
     </Container>

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Container from '@/components/container'
 import AuthForm from '@/components/auth-forms/auth-form'
 import { signup } from '@/server-actions/auth-actions'
-
+import { Button } from '@/components/ui/button'
 export default function Signup() {
   return (
     <Container>
@@ -11,7 +11,7 @@ export default function Signup() {
         <AuthForm
           action={signup}
           SubmitButton={
-            <button className="btn btn-primary w-full">Register</button>
+            <Button className="btn btn-primary w-full">Register</Button>
           }
         />
         <p className="text-sm text-center">
