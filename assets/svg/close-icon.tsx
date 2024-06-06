@@ -3,12 +3,15 @@ import React from 'react'
 const CloseIcon = ({
   className = '',
   style = {},
+  onClick
 }: {
-  className: string
-  style: object
+  className?: string
+  style?: object
+  onClick?: () => void
 }) => {
   return (
     <svg
+      onClick={onClick}
       xmlns="http://www.w3.org/2000/svg"
       fill="white"
       viewBox="0 0 24 24"

@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import Input from './input'
 import { QueryResponseMessage } from '@/interfaces/workout'
-import CloseIcon from '../close-icon'
+import CloseIcon from '@/assets/svg/close-icon'
 
 interface FormProps {
   className?: string

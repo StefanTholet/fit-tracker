@@ -1,5 +1,5 @@
 'use client'
-import { useState, ChangeEvent } from 'react'
+import { useState } from 'react'
 import { Exercise, Set, AddWorkoutInitialStateType } from '@/interfaces/workout'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -14,12 +14,17 @@ const EXERCISE_INITIAL_STATE: Exercise[] = [
 interface UseWorkoutFormState {
   workoutName: string
   exercises: Exercise[]
-  handleWorkoutNameChange: (event: ChangeEvent<HTMLInputElement>) => void
-  handleExerciseChange: (e: ChangeEvent<HTMLInputElement>, id: string) => void
+  handleWorkoutNameChange: (value: string) => void
+  handleExerciseChange: (
+    exerciseName: string,
+    exerciseValue: string,
+    id: string
+  ) => void
   addExercise: () => void
   removeExercise: (id: string) => void
   handleSetChange: (
-    e: ChangeEvent<HTMLInputElement>,
+    name: string,
+    value: string,
     exerciseId: string,
     setId: string
   ) => void
@@ -31,36 +36,37 @@ const useWorkoutForm = (
   initialState: AddWorkoutInitialStateType | undefined = undefined
 ): UseWorkoutFormState => {
   const [workoutName, setWorkoutName] = useState(
-    (initialState && initialState?.workout_name) || ''
+    (initialState && initialState?.workout_name) ||
+      'Enter your workout name below'
   )
   const [exercises, setExercises] = useState<Exercise[]>(
     (initialState && initialState?.exercises) || EXERCISE_INITIAL_STATE
   )
 
-  const handleWorkoutNameChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
-    setWorkoutName(event.target.value)
+  const handleWorkoutNameChange = (value: string): void => {
+    setWorkoutName(value)
   }
 
   const handleExerciseChange = (
-    e: ChangeEvent<HTMLInputElement>,
+    exerciseName: string,
+    exerciseValue: string,
     id: string
   ): void => {
-    const { value, name } = e.target
     setExercises(
       exercises.map((exercise) =>
-        exercise.id === id ? { ...exercise, [name]: value } : exercise
+        exercise.id === id
+          ? { ...exercise, [exerciseName]: exerciseValue }
+          : exercise
       )
     )
   }
 
   const handleSetChange = (
-    e: ChangeEvent<HTMLInputElement>,
+    name: string,
+    value: string,
     exerciseId: string,
     setId: string
   ): void => {
-    const { value, name } = e.target
     setExercises(
       exercises.map((exercise) => {
         if (exercise.id === exerciseId) {
