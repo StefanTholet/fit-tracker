@@ -11,6 +11,7 @@ interface WorkoutComponentProps {
 
 const WorkoutList: React.FC<WorkoutComponentProps> = ({ workouts }) => {
   const workoutList = Object.values(workouts)
+  console.log(workoutList)
 
   return (
     <div className="container mx-auto p-4 max-w-fit">
@@ -19,7 +20,7 @@ const WorkoutList: React.FC<WorkoutComponentProps> = ({ workouts }) => {
         <WorkoutCard key={workout.workoutId}>
           <WorkoutCard.Header workoutName={workout.name} />
           {Object.values(workout.exercises).map((exercise) => (
-            <WorkoutCard.Exercises key={exercise.id}>
+            <WorkoutCard.Exercises key={exercise.exercise_id}>
               <WorkoutCard.Exercise name={exercise.name} />
               <WorkoutCard.SetsContainer>
                 {exercise.sets.map((set: GroupedExerciseSet, index: number) => (

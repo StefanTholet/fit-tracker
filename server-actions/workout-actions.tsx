@@ -49,7 +49,7 @@ export interface AddPerformedExercise {
   name: string
   reps: string
   weight: string
-  order: string
+  exercise_order: number
 }
 
 export const addPerformedExercise = async ({
@@ -60,7 +60,7 @@ export const addPerformedExercise = async ({
   name,
   reps,
   weight,
-  order
+  exercise_order
 }: AddPerformedExercise) => {
   const result = await insertPerformedExercise({
     userId,
@@ -70,7 +70,7 @@ export const addPerformedExercise = async ({
     name,
     reps,
     weight,
-    order
+    exercise_order
   })
   return result
 }

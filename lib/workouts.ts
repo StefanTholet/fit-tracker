@@ -85,7 +85,7 @@ export const insertPerformedExercise = async ({
   name,
   reps,
   weight,
-  order
+  exercise_order
 }: AddPerformedExercise) => {
   const result = await sql`INSERT INTO performed_exercises 
   ( 
@@ -106,7 +106,7 @@ VALUES(
   ${name},
   ${reps},
   ${weight},
-  ${order}
+  ${exercise_order}
 )`
   return result.rows
 }

@@ -77,6 +77,7 @@ export interface GroupedExerciseSet {
 }
 export interface GroupedExercise {
   name: string
+  exercise_id: string | number
   sets: GroupedExerciseSet[]
   [key: string]: any
 }
@@ -85,6 +86,13 @@ export interface GroupedWorkout {
   createdOn: string
   [key: string]: any
   exercises: GroupedExercise
+}
+
+export interface PreviousWorkout {
+  workoutId: number
+  name: string
+  createdOn: string
+  exercises: Record<string, GroupedExercise>
 }
 
 export type QueryResponseMessage = SuccessResponse | ErrorResponse
