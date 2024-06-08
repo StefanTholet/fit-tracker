@@ -5,12 +5,14 @@ import NoPlan from '@/assets/svg/no-plan'
 import { FlatWorkout } from '@/interfaces/workout'
 import { getUserWorkouts } from '@/server-actions/workout-actions'
 import { getSession } from '../../server-actions/auth-actions'
+import { groupWorkouts } from '@/utils/exercise'
 
 const Dashboard = async () => {
   const session = await getSession()
   const userId = session?.userId
 
-  const workouts = (await getUserWorkouts(userId)) as FlatWorkout[]
+  const flatWorkouts = (await getUserWorkouts(userId)) as FlatWorkout[]
+  const workouts = Object.values(groupWorkouts(flatWorkouts))
 
   return (
     <div className="flex flex-col items-center justify-center  gap-5">

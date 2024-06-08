@@ -2,7 +2,7 @@ import React from 'react'
 
 export interface SetProps {
   disabled?: boolean
-  set: { reps: number; weight: number }
+  set: { reps: number | string; weight: number | string }
   exerciseName: string
   exerciseId: string
   setIndex: number

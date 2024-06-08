@@ -71,8 +71,9 @@ export interface FlatWorkout {
 }
 
 export interface GroupedExerciseSet {
-  reps: number
-  weight: number
+  reps: number | string
+  weight: number | string
+  performanceStatus?: 'met' | 'not-met' | 'exceeded'
 }
 export interface GroupedExercise {
   name: string

@@ -1,70 +1,46 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import Set from '@/components/set/set'
-import { SetProps } from '@/components/set/set'
-import { groupWorkouts } from '@/utils/exercise'
-import Workout from '@/components/workout/workout'
-import { FlatWorkout } from '@/interfaces/workout'
+
+import { GroupedExerciseSet, GroupedWorkout } from '@/interfaces/workout'
+import WorkoutCard from '@/components/workout-card/workout-card'
+import { Button } from '@/components/ui/button'
 interface WorkoutComponentProps {
-  workouts: FlatWorkout[]
+  workouts: GroupedWorkout[]
 }
 
 const WorkoutList: React.FC<WorkoutComponentProps> = ({ workouts }) => {
-  const handleSetClick = (set: { reps: number; weight: number }) => {
-    console.log('Set clicked:', set)
-    // Add your logic here
-  }
-
-  const groupedWorkouts = groupWorkouts(workouts)
-
-  const workoutList = Object.values(groupedWorkouts)
-
-  //TODO extract each workout in its own component
-  // Disable sets buttons when viewed inside dashboard
-  // Add header actions section as props
-  // Add header actions for editting and deleting the workouts
-  // Add footer actions section as props
-  // Add footer action to start a workout
-
-  // Create logic to show a pop-up of an input when a set button is clicked
-  /* Once a value in the input is changed 
-   a button-like element will appear beneath the set that was recorded with green background and white text
-*/
-  // When all sets are completed a green check will appear next to the exercise that was completed
+  const workoutList = Object.values(workouts)
 
   return (
     <div className="container mx-auto p-4 max-w-fit">
       <h2 className="text-2xl font-bold mb-4 text-center">Your Workouts</h2>
-      {workoutList.map((workout, index) => (
-        <Workout
-          Set={({ set, setIndex, exerciseId, exerciseName }: SetProps) => {
-            console.log(set)
-
-            return (
-              <Set
-                set={set}
-                exerciseId={exerciseId}
-                exerciseName={exerciseName}
-                setIndex={setIndex}
-              />
-            )
-          }}
-          workoutId={workout.workoutId}
-          name={workout.name}
-          createdOn={workout.createdOn}
-          exercises={workout.exercises}
-          key={index}
-        >
-          <div className="mt-4 flex justify-center">
-            <Link
-              className="btn btn-primary btn-sm"
-              href={`/workouts/${workout.workoutId}/train`}
-            >
-              Begin workout
-            </Link>
+      {workoutList.map((workout, i) => (
+        <WorkoutCard key={workout.workoutId}>
+          <WorkoutCard.Header workoutName={workout.name} />
+          {Object.values(workout.exercises).map((exercise) => (
+            <WorkoutCard.Exercises key={exercise.id}>
+              <WorkoutCard.Exercise name={exercise.name} />
+              <WorkoutCard.SetsContainer>
+                {exercise.sets.map((set: GroupedExerciseSet, index: number) => (
+                  <WorkoutCard.Set
+                    key={i + index + 1}
+                    reps={set.reps}
+                    weight={set.weight}
+                    performanceStatus={set.performanceStatus}
+                  ></WorkoutCard.Set>
+                ))}
+              </WorkoutCard.SetsContainer>
+            </WorkoutCard.Exercises>
+          ))}
+          <div className="mt-4 flex justify-center pb-7">
+            <Button>
+              <Link href={`/workouts/${workout.workoutId}/train`}>
+                Begin workout
+              </Link>
+            </Button>
           </div>
-        </Workout>
+        </WorkoutCard>
       ))}
     </div>
   )
