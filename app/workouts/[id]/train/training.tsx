@@ -247,7 +247,7 @@ const Training = ({
           >
             <Label htmlFor="weight">Weight</Label>
             <Input
-              className="rounded-md pl-2"
+              className="rounded-md pl-2 border border-solid border-gray-200"
               type="number"
               name="weight"
               id="weight"
@@ -257,7 +257,7 @@ const Training = ({
             />
             <Label htmlFor="reps">Reps</Label>
             <Input
-              className="rounded-md pl-2"
+              className="rounded-md pl-2 border border-solid border-gray-200"
               type="number"
               name="reps"
               id="reps"

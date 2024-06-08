@@ -16,7 +16,7 @@ function WorkoutCard({
 }: WorkoutCardProps) {
   const variantClassMapper = {
     current: 'bg-white',
-    previous: 'bg-gray-900 text-gray-50 dark:bg-gray-50 dark:text-gray-900'
+    previous: 'bg-gray-800 text-gray-50 dark:bg-gray-50 dark:text-gray-900'
   }
 
   return (
