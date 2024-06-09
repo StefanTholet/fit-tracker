@@ -175,7 +175,7 @@ const Training = ({
     (exercise: string) => exercises[exercise]
   )
   return (
-    <div className="flex">
+    <div className="flex flex-wrap gap-8">
       {previousWorkout && (
         <div>
           <div>
