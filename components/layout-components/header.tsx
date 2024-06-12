@@ -9,11 +9,12 @@ export type LinkType = {
 const AUTHENTICATED_LINKS: LinkType[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/add-workouts', label: 'Add Workouts' },
+  { href: '/train/freestyle', label: 'Smash' }
 ]
 
 const GUEST_LINKS: LinkType[] = [
   { href: '/login', label: 'Login' },
-  { href: '/signup', label: 'Signup' },
+  { href: '/signup', label: 'Signup' }
 ]
 
 const Header = async () => {

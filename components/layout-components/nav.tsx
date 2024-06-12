@@ -12,15 +12,19 @@ const Nav = ({ links }: { links: LinkType[] }) => {
   const toggleMenu = () => setMenuOpen(!menuOpen)
   return (
     <div className="container mx-auto px-4 flex justify-between items-center">
-      <Link href="/" className="text-2xl font-bold text-white tracking-wide">
+      <Link
+        onClick={() => setMenuOpen(false)}
+        href="/"
+        className="text-2xl font-bold text-white tracking-wide"
+      >
         Fit Tracker
       </Link>
       <div className="lg:hidden">
         <button onClick={toggleMenu} className="text-white focus:outline-none">
           {menuOpen ? (
-            <CloseIcon className="absolute top-1" style={{ left: '96%' }} />
+            <CloseIcon className="absolute top-1" style={{ left: '93%' }} />
           ) : (
-            <MenuIcon className="absolute top-1" style={{ left: '96%' }} />
+            <MenuIcon className="absolute top-1" style={{ left: '93%' }} />
           )}
         </button>
       </div>
@@ -35,6 +39,7 @@ const Nav = ({ links }: { links: LinkType[] }) => {
           {links.map((link) => (
             <li key={link.label} className="my-2 lg:my-0">
               <Link
+                onClick={toggleMenu}
                 href={link.href}
                 className="text-white text-lg hover:text-gray-200 transition-colors duration-200"
               >

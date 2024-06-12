@@ -36,8 +36,7 @@ const useWorkoutForm = (
   initialState: AddWorkoutInitialStateType | undefined = undefined
 ): UseWorkoutFormState => {
   const [workoutName, setWorkoutName] = useState(
-    (initialState && initialState?.workout_name) ||
-      'Enter your workout name below'
+    (initialState && initialState?.workout_name) || ''
   )
   const [exercises, setExercises] = useState<Exercise[]>(
     (initialState && initialState?.exercises) || EXERCISE_INITIAL_STATE

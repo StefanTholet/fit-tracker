@@ -7,7 +7,7 @@ import { AddPerformedExercise } from '@/server-actions/workout-actions'
 
 export const insertWorkoutExercises = async (
   workoutId: number,
-  userId: number,
+  userId: number | string,
   exercises: InsertExerciseInterface[]
 ) => {
   return await Promise.all(
@@ -23,7 +23,7 @@ export const insertWorkoutExercises = async (
 }
 
 export const insertWorkout = async (
-  userId: number,
+  userId: number | string,
   name: string
 ): Promise<number> => {
   const workout = await sql`

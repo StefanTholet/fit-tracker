@@ -11,9 +11,17 @@ import {
 import { Workout, QueryResponseMessage, Exercise } from '@/interfaces/workout'
 import { flattenExercises } from '@/utils/exercise'
 
+export const addWorkoutName = async (
+  userId: string | number,
+  workoutName: string
+) => {
+  const workoutId = await insertWorkout(userId, workoutName)
+  return workoutId
+}
+
 export const addWorkout = async (
   workout: Workout,
-  userId: number
+  userId: number | string
 ): Promise<QueryResponseMessage> => {
   try {
     const workoutId = await insertWorkout(userId, workout.name)
@@ -42,10 +50,10 @@ export const getWorkout = async (workoutId: string) => {
 }
 
 export interface AddPerformedExercise {
-  userId: number
-  workoutId: number
-  exerciseId: string
-  performanceStatus: string
+  userId: number | string
+  workoutId: number | string
+  exerciseId: string | string
+  performanceStatus: string | undefined
   name: string
   reps: string
   weight: string
