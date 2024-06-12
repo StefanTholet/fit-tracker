@@ -9,7 +9,7 @@ export type LinkType = {
 const AUTHENTICATED_LINKS: LinkType[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/add-workouts', label: 'Add Workouts' },
-  { href: '/train/freestyle', label: 'Smash' }
+  { href: '/smash', label: 'Smash' }
 ]
 
 const GUEST_LINKS: LinkType[] = [
