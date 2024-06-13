@@ -14,7 +14,6 @@ const Dashboard = async () => {
 
   const flatWorkouts = (await getUserWorkouts(userId)) as FlatWorkout[]
   const workouts = Object.values(groupWorkouts(flatWorkouts))
-  console.log(workouts)
 
   return (
     <div className="flex flex-col items-center justify-center  gap-5">
