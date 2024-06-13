@@ -38,7 +38,7 @@ const WorkoutForm = ({
       exercises
     }
     try {
-      const response = await addWorkout(workout, userId)
+      const response = await addWorkout(workout, userId, 'planned')
       return response
     } catch (error) {
       console.error(error)

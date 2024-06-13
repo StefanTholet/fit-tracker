@@ -1,6 +1,7 @@
 'use server'
 
 import {
+  insertManyPerformedExercises,
   insertPerformedExercise,
   insertWorkout,
   insertWorkoutExercises,
@@ -8,26 +9,56 @@ import {
   selectPlannedUserWorkouts,
   selectWorkout
 } from '@/lib/workouts'
-import { Workout, QueryResponseMessage, Exercise } from '@/interfaces/workout'
+import { Workout, QueryResponseMessage } from '@/interfaces/workout'
 import { flattenExercises } from '@/utils/exercise'
 
 export const addWorkoutName = async (
   userId: string | number,
-  workoutName: string
+  workoutName: string,
+  type: 'planned' | 'freestyle'
 ) => {
-  const workoutId = await insertWorkout(userId, workoutName)
+  const workoutId = await insertWorkout(userId, workoutName, type)
   return workoutId
 }
 
 export const addWorkout = async (
   workout: Workout,
-  userId: number | string
+  userId: number | string,
+  type: 'planned' | 'freestyle'
 ): Promise<QueryResponseMessage> => {
   try {
-    const workoutId = await insertWorkout(userId, workout.name)
+    const workoutId = await insertWorkout(userId, workout.name, type)
     const flattenedExercises = flattenExercises(workout.exercises)
 
     await insertWorkoutExercises(workoutId, userId, flattenedExercises)
+    return { success: 'Workout successfully added' }
+  } catch (error) {
+    console.error('Error adding workout and exercises:', error)
+    throw new Error('Failed to add workout and exercises.')
+  }
+}
+
+export const addFreestyleWorkout = async (
+  workout: Workout,
+  userId: number | string
+): Promise<QueryResponseMessage> => {
+  try {
+    const workoutId = await insertWorkout(userId, workout.name, 'freestyle')
+    const flattenedExercises = flattenExercises(workout.exercises)
+    console.log(flattenedExercises)
+    const insertedPlannedExercises = await insertWorkoutExercises(
+      workoutId,
+      userId,
+      flattenedExercises
+    )
+    if (
+      insertedPlannedExercises &&
+      Array.isArray(insertedPlannedExercises) &&
+      insertedPlannedExercises.length > 0
+    ) {
+      await insertManyPerformedExercises(insertedPlannedExercises)
+    }
+
     return { success: 'Workout successfully added' }
   } catch (error) {
     console.error('Error adding workout and exercises:', error)

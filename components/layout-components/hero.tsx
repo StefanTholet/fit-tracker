@@ -7,7 +7,11 @@ import styles from './layout.module.css'
 const Hero = ({ userId }: { userId?: number | string }) => {
   return (
     <div className="min-h-96 bg-gray-800 mb-14 flex items-center justify-center py-10">
-      <div className="flex flex-col lg:flex-row-reverse items-center">
+      <div
+        className={`${
+          userId ? 'w-full' : ''
+        } flex flex-col lg:flex-row-reverse items-center`}
+      >
         <div className={styles.imageContainer}>
           <Image
             priority

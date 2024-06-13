@@ -5,30 +5,14 @@ import { v4 as uuidv4 } from 'uuid'
 import { InsertExerciseInterface } from '@/interfaces/workout'
 import { AddPerformedExercise } from '@/server-actions/workout-actions'
 
-export const insertWorkoutExercises = async (
-  workoutId: number,
-  userId: number | string,
-  exercises: InsertExerciseInterface[]
-) => {
-  return await Promise.all(
-    exercises.map(async (exercise, i) => {
-      await sql`
-      INSERT INTO exercises (exercise_id, user_id, workout_id, name, reps, weight, exercise_order) 
-      VALUES (${uuidv4()}, ${userId}, ${workoutId}, ${exercise.name}, ${
-        exercise.reps
-      }, ${exercise.weight}, ${i + 1})
-    `
-    })
-  )
-}
-
 export const insertWorkout = async (
   userId: number | string,
-  name: string
+  name: string,
+  type: 'planned' | 'freestyle'
 ): Promise<number> => {
   const workout = await sql`
-    INSERT INTO workouts (user_id, name, created_on) 
-    VALUES (${userId}, ${name}, NOW()) 
+    INSERT INTO workouts (user_id, name, created_on, type) 
+    VALUES (${userId}, ${name}, NOW(), ${type}) 
     RETURNING workout_id
   `
   return workout.rows[0].workout_id
@@ -108,7 +92,59 @@ VALUES(
   ${weight},
   ${exercise_order}
 )`
+
   return result.rows
+}
+
+interface InsertWorkoutExercisesResponse {
+  exercise_id: string
+  workout_id: number
+  user_id: number
+  name: string
+  weight: number
+  reps: number
+  created_on: string
+  exercise_order: number
+}
+
+export const insertWorkoutExercises = async (
+  workoutId: number,
+  userId: number | string,
+  exercises: InsertExerciseInterface[]
+) => {
+  const result = await Promise.all(
+    exercises.map(async (exercise, i) => {
+      const res = await sql`
+        INSERT INTO exercises (exercise_id, user_id, workout_id, name, reps, weight, exercise_order) 
+        VALUES (${uuidv4()}, ${userId}, ${workoutId}, ${exercise.name}, ${
+        exercise.reps
+      }, ${exercise.weight}, ${i + 1})
+        RETURNING *
+      `
+      return <InsertWorkoutExercisesResponse>res.rows[0]
+    })
+  )
+
+  console.log(result)
+  return result
+}
+
+export const insertManyPerformedExercises = async (
+  performedExercises: InsertWorkoutExercisesResponse[]
+) => {
+  return await Promise.all(
+    performedExercises.map(
+      async (exercise, i) =>
+        await sql`INSERT INTO performed_exercises 
+                              (exercise_id, user_id, workout_id, name, reps, weight, performance_status, exercise_order)
+                              VALUES(${exercise.exercise_id}, ${
+          exercise.user_id
+        }, ${exercise.workout_id}, 
+                              ${exercise.name}, ${exercise.reps}, ${
+          exercise.weight
+        }, ${'met'} ${exercise.exercise_order})`
+    )
+  )
 }
 
 export const selectLastPerformedWorkoutById = async (workout_id: number) => {

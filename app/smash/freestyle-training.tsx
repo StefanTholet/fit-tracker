@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import TrashIcon from '@/assets/svg/trash-icon'
 import useWorkoutForm from '@/hooks/useWorkoutForm'
-import { addWorkout } from '@/server-actions/workout-actions'
+import { addFreestyleWorkout } from '@/server-actions/workout-actions'
 import { Workout } from '@/interfaces/workout'
 import SetInputs from './set-inputs'
 import ExerciseInput from './exercise-input'
@@ -21,16 +21,16 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
     handleSetChange,
     exercises,
     workoutName,
-    handleWorkoutNameChange,
+    handleWorkoutNameChange
   } = useWorkoutForm()
 
   const handleSubmit = async () => {
     const workout: Workout = {
       name: workoutName,
-      exercises,
+      exercises
     }
     try {
-      const response = await addWorkout(workout, userId)
+      const response = await addFreestyleWorkout(workout, userId)
       return response
     } catch (error) {
       console.error(error)
