@@ -8,6 +8,8 @@ import TrashIcon from '@/assets/svg/trash-icon'
 import useWorkoutForm from '@/hooks/useWorkoutForm'
 import { addWorkout } from '@/server-actions/workout-actions'
 import { Workout } from '@/interfaces/workout'
+import SetInputs from './set-inputs'
+import ExerciseInput from './exercise-input'
 
 const FreestyleTraining = ({ userId }: { userId: string | number }) => {
   const {
@@ -19,13 +21,13 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
     handleSetChange,
     exercises,
     workoutName,
-    handleWorkoutNameChange
+    handleWorkoutNameChange,
   } = useWorkoutForm()
 
   const handleSubmit = async () => {
     const workout: Workout = {
       name: workoutName,
-      exercises
+      exercises,
     }
     try {
       const response = await addWorkout(workout, userId)
@@ -61,78 +63,29 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
           </h3>
           <Button onClick={addExercise}>Add exercise</Button>
         </div>
-        {exercises.map((exercise, index) => (
-          <div
-            key={exercise.id}
-            className="flex flex-col gap-4 justify-start mt-8"
-          >
-            <Label htmlFor={exercise.id}>Exercise name</Label>
-            <div className="flex gap-3">
-              <Input
-                id={exercise.id}
-                value={exercise.name}
-                onChange={(e) =>
-                  handleExerciseChange(
-                    e.target.name,
-                    e.target.value,
-                    exercise.id
-                  )
-                }
-                name="name"
-                placeholder="Exercise Name"
-                className="bg-white dark:bg-gray-600 dark:text-gray-50 border-gray-300 dark:border-gray-500 focus:ring-2"
-              />
+        {exercises.map((exercise) => (
+          <div key={exercise.id} className="flex flex-col gap-6">
+            <ExerciseInput
+              exercise={exercise}
+              handleExerciseChange={handleExerciseChange}
+            >
               <span
                 className="self-center cursor-pointer"
                 onClick={() => removeExercise(exercise.id)}
+                title="Remove exercise"
               >
                 <TrashIcon className={'hover:scale-110'} />
               </span>
-            </div>
-
+            </ExerciseInput>
             <p>Sets</p>
             {exercise.sets.map((set) => (
-              <div
+              <SetInputs
                 key={set.id}
-                className="grid grid-cols-3 items-center gap-4 "
-              >
-                <Input
-                  type="number"
-                  value={set.reps}
-                  onChange={(e) =>
-                    handleSetChange(
-                      e.target.name,
-                      e.target.value,
-                      exercise.id,
-                      set.id
-                    )
-                  }
-                  name="reps"
-                  placeholder="Reps"
-                  className="bg-white dark:bg-gray-600 dark:text-gray-50 border-gray-300 dark:border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <Input
-                  type="number"
-                  value={set.weight}
-                  onChange={(e) =>
-                    handleSetChange(
-                      e.target.name,
-                      e.target.value,
-                      exercise.id,
-                      set.id
-                    )
-                  }
-                  name="weight"
-                  placeholder="Weight"
-                  className="bg-white dark:bg-gray-600 dark:text-gray-50 border-gray-300 dark:border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <span
-                  className="self-center cursor-pointer max-w-fit"
-                  onClick={() => removeSet(exercise.id, set.id)}
-                >
-                  <TrashIcon className={'hover:scale-110'} />
-                </span>
-              </div>
+                set={set}
+                exerciseId={exercise.id}
+                handleSetChange={handleSetChange}
+                removeSet={removeSet}
+              />
             ))}
             <Button className="max-w-28" onClick={() => addSet(exercise.id)}>
               Add set
