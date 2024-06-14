@@ -6,7 +6,13 @@ import MenuIcon from '@/assets/menu-icon'
 import CloseIcon from '@/assets/svg/close-icon'
 import { LinkType } from './header'
 
-const Nav = ({ links }: { links: LinkType[] }) => {
+const Nav = ({
+  links,
+  userId,
+}: {
+  links: LinkType[]
+  userId?: string | number
+}) => {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const toggleMenu = () => setMenuOpen(!menuOpen)
@@ -47,7 +53,7 @@ const Nav = ({ links }: { links: LinkType[] }) => {
               </Link>
             </li>
           ))}
-          {true && (
+          {userId && (
             <li className="text-white text-lg hover:text-gray-200 transition-colors duration-200">
               <LogoutForm />
             </li>

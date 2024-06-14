@@ -1,5 +1,5 @@
-import React from 'react'
-import Link from 'next/link'
+import React, { Suspense } from 'react'
+import Loader from '@/components/layout-components/loader'
 import WorkoutList from './workout-list/workout-list'
 import NoWorkouts from './no-workouts'
 
