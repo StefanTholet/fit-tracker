@@ -3,6 +3,10 @@
   position: relative;
   width: 100%;
   max-width: 500px;
+  /* min-width: 375px; */
+  /* min-height: 250px; */
+  max-height: 333px;
+
   overflow: hidden;
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);

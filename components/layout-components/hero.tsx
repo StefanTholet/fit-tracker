@@ -18,7 +18,11 @@ const Hero = ({ userId }: { userId?: number | string }) => {
           <Image
             priority
             src={hero}
-            sizes="50vw"
+            sizes="100vw"
+            style={{
+              width: '100%',
+              height: 'auto',
+            }}
             className="rounded-lg shadow-2xl"
             alt="person lifting weights"
           />

@@ -21,13 +21,13 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
     handleSetChange,
     exercises,
     workoutName,
-    handleWorkoutNameChange
+    handleWorkoutNameChange,
   } = useWorkoutForm()
 
   const handleSubmit = async () => {
     const workout: Workout = {
       name: workoutName,
-      exercises
+      exercises,
     }
     try {
       const response = await addFreestyleWorkout(workout, userId)
@@ -61,7 +61,6 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
             Exercises
           </h3>
-          <Button onClick={addExercise}>Add exercise</Button>
         </div>
         {exercises.map((exercise) => (
           <div key={exercise.id} className="flex flex-col gap-6">
@@ -92,6 +91,9 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
             </Button>
           </div>
         ))}
+        <Button className="mt-8" onClick={addExercise}>
+          Add exercise
+        </Button>
         <Button
           onMouseDown={() => handleSubmit()}
           type="submit"

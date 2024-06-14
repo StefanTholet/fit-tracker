@@ -1,12 +1,11 @@
-import React, { Suspense } from 'react'
-import Loader from '@/components/layout-components/loader'
+import React from 'react'
 import WorkoutList from './workout-list/workout-list'
 import NoWorkouts from './no-workouts'
-
 import { FlatWorkout } from '@/interfaces/workout'
 import { getUserWorkouts } from '@/server-actions/workout-actions'
 import { getSession } from '../../server-actions/auth-actions'
 import { groupWorkouts } from '@/utils/exercise'
+import Alert from '@/components/alert'
 
 const Dashboard = async () => {
   const session = await getSession()
