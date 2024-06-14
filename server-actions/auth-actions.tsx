@@ -74,7 +74,7 @@ export const signup = async (
 export const login = async (
   prevState: any,
   formData: FormData
-): Promise<void | {
+): Promise<{
   message: string
   variant: 'success' | 'danger' | 'warning'
   title: string

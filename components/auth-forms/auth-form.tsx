@@ -12,7 +12,7 @@ interface AuthFormProps {
   action: (
     prevState: any,
     formData: FormData
-  ) => void | { error: string } | Promise<void | AlertProps>
+  ) => { error: string } | Promise<void | AlertProps>
   SubmitButton: ReactElement
   children?: ReactNode
 }
