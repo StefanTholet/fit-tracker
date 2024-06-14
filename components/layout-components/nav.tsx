@@ -14,7 +14,6 @@ const Nav = ({
   userId?: string | number
 }) => {
   const [menuOpen, setMenuOpen] = useState(false)
-
   const toggleMenu = () => setMenuOpen(!menuOpen)
   return (
     <div className="container mx-auto px-4 flex justify-between items-center">

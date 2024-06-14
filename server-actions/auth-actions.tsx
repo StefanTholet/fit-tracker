@@ -4,7 +4,7 @@ import {
   SessionData,
   defaultSession,
   getUser,
-  createUser
+  createUser,
 } from '@/lib/auth'
 
 import { hashUserPassword, verifyPassword } from '@/lib/hash'
@@ -53,7 +53,7 @@ export const signup = async (
   if (!user) {
     return {
       error:
-        'Registration unsuccessful. Please try again using different credentials.'
+        'Registration unsuccessful. Please try again using different credentials.',
     }
   }
 
@@ -64,27 +64,50 @@ export const signup = async (
 export const login = async (
   prevState: any,
   formData: FormData
-): Promise<void | { error: string }> => {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+): Promise<void | {
+  message: string
+  variant: 'success' | 'danger' | 'warning'
+  title: string
+}> => {
+  try {
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const message = {
+      message: 'All fields are required',
+      variant: 'danger' as 'danger',
+      title: 'Unsuccessful login',
+    }
 
-  if (!email || !password) {
-    return { error: 'All fields are required' }
+    if (!email || !password) {
+      return { ...message, message: 'All fields are required' }
+    }
+
+    const user = await getUser(email)
+    if (!user) {
+      return { ...message, message: 'Wrong credentials' }
+    }
+
+    const userPassword = user.password
+    const isValid = verifyPassword(userPassword, password)
+    if (!isValid) {
+      return { ...message, message: 'Wrong credentials' }
+    }
+    console.log('ne')
+    await updateSession(user as User)
+    console.log('da')
+    return {
+      title: `Hello ${email}`,
+      message: `Welcome back`,
+      variant: 'success',
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      title: 'Authentication error',
+      message: 'Please try again later',
+      variant: 'danger',
+    }
   }
-
-  const user = await getUser(email)
-  if (!user) {
-    return { error: 'Wrong credentials' }
-  }
-
-  const userPassword = user.password
-  const isValid = verifyPassword(userPassword, password)
-  if (!isValid) {
-    return { error: 'Wrong credentials' }
-  }
-
-  await updateSession(user as User)
-  redirect('/dashboard')
 }
 
 export const logout = async () => {

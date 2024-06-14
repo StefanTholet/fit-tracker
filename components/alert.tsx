@@ -3,6 +3,7 @@ import CloseIcon from '@/assets/svg/close-icon'
 import CircleAlertIcon from '@/assets/svg/circle-alert-icon'
 import CircleCheckIcon from '@/assets/svg/circle-check-icon'
 import TriangleAlertIcon from '@/assets/svg/triangle-alert-icon'
+import { AlertProps } from '@/interfaces/alert'
 
 const variantClassMapper = {
   success: {
@@ -42,13 +43,12 @@ const iconsMapper = {
   warning: () => <CircleAlertIcon className="h-6 w-6" />,
 }
 
-interface AlertProps {
-  title: string
-  message: string
-  variant: 'success' | 'warning' | 'danger'
-}
-
-const Alert = ({ title, message, variant = 'success' }: AlertProps) => {
+const Alert = ({
+  title,
+  message,
+  variant = 'success',
+  handleClose,
+}: AlertProps) => {
   return (
     <div
       className={`rounded-lg border ${variantClassMapper[variant].container}`}
@@ -61,16 +61,21 @@ const Alert = ({ title, message, variant = 'success' }: AlertProps) => {
         </div>
         <div className="flex-1 space-y-2">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-orange-900 dark:text-orange-100">
+            <h4
+              className={`"text-sm font-semibold ${variantClassMapper[variant].title}`}
+            >
               {title}
             </h4>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`${variantClassMapper[variant].button}`}
-            >
-              <CloseIcon className="h-4 w-4" />
-            </Button>
+            {handleClose && (
+              <Button
+                onClick={handleClose}
+                variant="ghost"
+                size="sm"
+                className={`${variantClassMapper[variant].button}`}
+              >
+                <CloseIcon className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           <p className={`text-sm ${variantClassMapper[variant].message}`}>
             {message}

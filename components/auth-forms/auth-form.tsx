@@ -1,9 +1,11 @@
 'use client'
-import React, { ReactElement, ReactNode } from 'react'
+import React, { ReactElement, ReactNode, useEffect, useRef } from 'react'
 import { useFormState } from 'react-dom'
+import useAlert from '@/hooks/useAlert'
 import Form from '../form/form'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
+import { redirect } from 'next/navigation'
 
 interface AuthFormProps {
   action: (
@@ -13,13 +15,27 @@ interface AuthFormProps {
   SubmitButton: ReactElement
   children?: ReactNode
 }
+
 const AuthForm = ({ SubmitButton, action, children }: AuthFormProps) => {
   const [state, formAction] = useFormState<any, FormData>(action, undefined)
-
+  const { Alert } = useAlert()
+  console.log(state)
+  useEffect(() => {
+    if (state && state?.variant === 'success') {
+      console.log('redirecting')
+    }
+  }, [state])
+  const ref = useRef(0)
+  ref.current += 1
+  console.log(ref.current)
   return (
     <Form action={formAction}>
-      {state?.error && (
-        <p className="text-red-800 text-center">{state.error}</p>
+      {state && (
+        <Alert
+          title={state.title}
+          message={state.message}
+          variant={state.variant}
+        />
       )}
       <div className="grid w-full max-w-sm items-center gap-1.5">
         <Label htmlFor="email"> Email</Label>
@@ -35,7 +51,9 @@ const AuthForm = ({ SubmitButton, action, children }: AuthFormProps) => {
         />
       </div>
 
-      <Form.FormControl className="mt-6">{SubmitButton}</Form.FormControl>
+      <Form.FormControl className="mt-6">
+        <button>Login</button>
+      </Form.FormControl>
       {children}
     </Form>
   )

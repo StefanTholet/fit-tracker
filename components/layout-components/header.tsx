@@ -24,7 +24,7 @@ const Header = async () => {
 
   return (
     <header className="relative bg-gradient-to-r from-blue-500 to-purple-600 shadow-md py-4">
-      <Nav links={links} />
+      <Nav links={links} userId={session.userId} />
     </header>
   )
 }
