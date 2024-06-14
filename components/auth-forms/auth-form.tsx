@@ -6,12 +6,13 @@ import Form from '../form/form'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { redirect } from 'next/navigation'
+import { AlertProps } from '@/interfaces/alert'
 
 interface AuthFormProps {
   action: (
     prevState: any,
     formData: FormData
-  ) => void | { error: string } | Promise<void | { error: string }>
+  ) => void | { error: string } | Promise<void | AlertProps>
   SubmitButton: ReactElement
   children?: ReactNode
 }
