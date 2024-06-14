@@ -39,12 +39,20 @@ export const getSession = async () => {
 export const signup = async (
   prevState: any,
   formData: FormData
-): Promise<void | { error: string }> => {
+): Promise<{
+  message: string
+  variant: 'success' | 'danger' | 'warning'
+  title: string
+}> => {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
   if (!email || !password) {
-    return { error: 'All fields are required' }
+    return {
+      message: 'All fields are required',
+      title: 'Registration unsuccessful',
+      variant: 'danger',
+    }
   }
 
   const hashedPassword = hashUserPassword(password)
@@ -52,8 +60,10 @@ export const signup = async (
 
   if (!user) {
     return {
-      error:
+      title: 'Registration unsuccessful',
+      message:
         'Registration unsuccessful. Please try again using different credentials.',
+      variant: 'danger',
     }
   }
 
