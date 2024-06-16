@@ -33,8 +33,6 @@ const CardTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => {
-  console.log(className)
-
   return (
     <h3
       ref={ref}

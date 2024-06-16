@@ -43,3 +43,69 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
 
     return acc
   }, {} as GroupedWorkout)
+
+export interface EXERCISE_RESP {
+  exercise_id: number
+  exercise_name: string
+  reps: number
+  weight: number
+  exercise_order: number
+  created_on: Date
+  performance_status?: 'met' | 'not-met' | 'exceeded'
+}
+
+type Set = {
+  reps: number
+  weight: number
+  exercise_order: number
+  created_on: Date
+  exercise_id: number
+  performance_status?: 'met' | 'not-met' | 'exceeded'
+}
+export interface EXERCISE_RESP_GROUPED extends EXERCISE_RESP {
+  sets: Set[]
+}
+
+type ACC = {
+  [key: string]: { exercise_name: string; sets: Set[] }
+}
+
+export const groupExercises = (acc: ACC, curr: EXERCISE_RESP_GROUPED) => {
+  const currentExerciseName = curr?.exercise_name
+  const currentExericse = acc[currentExerciseName]
+  if (!currentExericse) {
+    acc[currentExerciseName] = {
+      exercise_name: curr.exercise_name,
+
+      sets: [
+        {
+          reps: curr.reps,
+          weight: curr.weight,
+          exercise_order: curr.exercise_order,
+          created_on: curr.created_on,
+          exercise_id: curr.exercise_id,
+          performance_status: curr?.performance_status
+        }
+      ]
+    }
+  } else {
+    acc[currentExerciseName].sets.push({
+      reps: curr.reps,
+      weight: curr.weight,
+      exercise_order: curr.exercise_order,
+      created_on: curr.created_on,
+      exercise_id: curr.exercise_id,
+      performance_status: curr?.performance_status
+    })
+  }
+  return acc
+}
+
+export const formatWorkouts = (workouts) => {
+  return workouts.map((workout) => {
+    workout.exercises = workout.exercises.reduce(groupExercises)
+    console.log(workout)
+
+    return workout
+  })
+}

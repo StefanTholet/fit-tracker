@@ -2,7 +2,7 @@
 
 import { QueryResultRow, sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
-import { InsertExerciseInterface } from '@/interfaces/workout'
+import { FlatWorkout, InsertExerciseInterface } from '@/interfaces/workout'
 import { AddPerformedExercise } from '@/server-actions/workout-actions'
 
 export const insertWorkout = async (
@@ -16,29 +16,6 @@ export const insertWorkout = async (
     RETURNING workout_id
   `
   return workout.rows[0].workout_id
-}
-
-export const selectPlannedUserWorkouts = async (userId: number) => {
-  const workoutsResponse = await sql`
-  SELECT 
-  workouts.workout_id as workout_id, 
-  workouts.name AS workout_name,
-  exercises.name AS exercise_name, 
-  exercise_order,
-  exercises.reps, 
-  exercises.weight, 
-  exercises.exercise_id, 
-  ${userId} AS userId,
-  workouts.created_on as created_on
-FROM workouts 
-INNER JOIN exercises 
-ON workouts.workout_id = exercises.workout_id 
-WHERE workouts.user_id = ${userId} AND exercises.performed = 0
-ORDER BY exercises.exercise_order;
-   `
-  const userWorkouts: QueryResultRow = workoutsResponse.rows
-
-  return userWorkouts
 }
 
 export const selectWorkout = async (workoutId: string) => {
@@ -57,7 +34,7 @@ INNER JOIN exercises
 ON workouts.workout_id = exercises.workout_id 
 WHERE workouts.workout_id = ${workoutId}
 ORDER BY exercises.exercise_order`
-  // exercises.exercise_order missing from performed_exercises = problem?
+
   return workout.rows
 }
 
@@ -175,4 +152,66 @@ export const selectLastPerformedWorkoutById = async (workout_id: number) => {
   `
 
   return result.rows
+}
+
+export const selectLastPerformedWorkout = async (userId: number | string) => {
+  const { rows } = await sql`SELECT 
+  workouts.workout_id,
+  workouts.name,
+  workouts.created_on AS workout_created_on,
+  json_agg(
+    json_build_object(
+      'exercise_id', performed_exercises.performed_exercise_id,
+      'exercise_name', performed_exercises.name,
+      'reps', performed_exercises.reps,
+      'weight', performed_exercises.weight,
+      'exercise_order', performed_exercises.exercise_order,
+      'created_on', performed_exercises.created_on
+    ) ORDER BY performed_exercises.exercise_order
+  ) AS exercises
+FROM 
+  workouts
+JOIN 
+  performed_exercises ON workouts.workout_id = performed_exercises.workout_id
+WHERE workouts.user_id = ${userId}
+GROUP BY 
+  workouts.workout_id, workouts.name, workouts.created_on
+ORDER BY 
+  workouts.created_on DESC
+LIMIT 1
+`
+  return rows[0]
+}
+
+export const selectPlannedUserWorkouts = async (userId: number | string) => {
+  const workoutsResponse = await sql`
+  SELECT 
+  workouts.workout_id, 
+  workouts.name AS workout_name,
+  workouts.created_on,
+  json_agg(
+    json_build_object(
+      'exercise_id', exercises.exercise_id,
+      'exercise_name', exercises.name,
+      'reps', exercises.reps,
+      'weight', exercises.weight,
+      'exercise_order', exercises.exercise_order,
+      'created_on', exercises.created_on 
+    ) ORDER BY exercises.exercise_order
+  ) AS exercises
+  FROM 
+  workouts
+  JOIN 
+    exercises 
+    ON 
+    workouts.workout_id = exercises.workout_id
+    WHERE
+    workouts.user_id = ${userId}
+    GROUP BY
+      workouts.workout_id, workouts.name, workouts.created_on
+      ORDER BY 
+      workouts.created_on DESC
+   `
+  const userWorkouts = workoutsResponse.rows
+  return userWorkouts
 }
