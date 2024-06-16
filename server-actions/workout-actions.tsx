@@ -7,7 +7,7 @@ import {
   insertWorkoutExercises,
   selectLastPerformedWorkoutById,
   selectPlannedUserWorkouts,
-  selectWorkout,
+  selectWorkout
 } from '@/lib/workouts'
 import { Workout, QueryResponseMessage } from '@/interfaces/workout'
 import { flattenExercises } from '@/utils/exercise'
@@ -51,6 +51,7 @@ export const addFreestyleWorkout = async (
       userId,
       flattenedExercises
     )
+
     if (
       insertedPlannedExercises &&
       Array.isArray(insertedPlannedExercises) &&
@@ -99,7 +100,7 @@ export const addPerformedExercise = async ({
   name,
   reps,
   weight,
-  exercise_order,
+  exercise_order
 }: AddPerformedExercise) => {
   const result = await insertPerformedExercise({
     userId,
@@ -109,7 +110,7 @@ export const addPerformedExercise = async ({
     name,
     reps,
     weight,
-    exercise_order,
+    exercise_order
   })
   return result
 }

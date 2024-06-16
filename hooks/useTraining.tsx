@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { addPerformedExercise } from '@/server-actions/workout-actions'
 import { GroupedExercise } from '@/interfaces/workout'
+import { useToast } from '@/components/ui/use-toast'
 
 const performanceStatusStylingMap: { [key: string]: string } = {
   met: 'btn-secondary',
@@ -35,8 +36,6 @@ interface UseTrainingProps {
 }
 
 const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
-  //used in handleChange to add value to the selectedSet of currentExercise
-  /* coupled 3 states */
   const [exerciseData, setExerciseData] = useState<GroupedExercise>(
     exercises ? structuredClone(exercises) : ({} as GroupedExercise)
   )
@@ -44,11 +43,12 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
     exercises ? Object.keys(exercises)[0] : ''
   )
   const [selectedSet, setSelectedSet] = useState(0)
-  /* coupled 3 states  end*/
 
   const [showInput, setShowInput] = useState(false)
 
   const [completedSets, setCompletedSets] = useState<CompletedSets>({})
+
+  const { toast } = useToast()
 
   const handleClickSet = (
     e: React.MouseEvent<HTMLButtonElement>,
@@ -101,7 +101,6 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
   }
 
   const completeSet = async () => {
-    // TODO: Add validations
     setShowInput(false)
     const exercise = {
       ...exerciseData[selectedExercise]
@@ -142,6 +141,7 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
       exercise_order: Object.keys(completedSets).length
     }
     const result = await addPerformedExercise(requestData)
+    toast({ title: 'Set completed!', variant: 'success' })
     return result
   }
   const getSetClassName = (exerciseName: string, setIndex: number) => {

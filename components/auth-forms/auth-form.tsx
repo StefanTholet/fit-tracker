@@ -1,11 +1,11 @@
 'use client'
-import React, { ReactElement, ReactNode, useEffect, useRef } from 'react'
+import React, { ReactNode, useEffect } from 'react'
+import { useToast } from '../ui/use-toast'
 import { useFormState } from 'react-dom'
-import useAlert from '@/hooks/useAlert'
 import Form from '../form/form'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { redirect } from 'next/navigation'
+import { Button } from '../ui/button'
 import { AlertProps } from '@/interfaces/alert'
 
 interface AuthFormProps {
@@ -13,31 +13,26 @@ interface AuthFormProps {
     prevState: any,
     formData: FormData
   ) => { error: string } | Promise<void | AlertProps>
-  SubmitButton: ReactElement
+  type: 'Login' | 'Signup'
   children?: ReactNode
 }
 
-const AuthForm = ({ SubmitButton, action, children }: AuthFormProps) => {
+const AuthForm = ({ type, action, children }: AuthFormProps) => {
   const [state, formAction] = useFormState<any, FormData>(action, undefined)
-  const { Alert } = useAlert()
-  console.log(state)
+  const { toast } = useToast()
+
   useEffect(() => {
-    if (state && state?.variant === 'success') {
-      console.log('redirecting')
+    if (state) {
+      toast({
+        title: state.title,
+        description: state.message,
+        variant: 'destructive'
+      })
     }
   }, [state])
-  const ref = useRef(0)
-  ref.current += 1
-  console.log(ref.current)
+
   return (
     <Form action={formAction}>
-      {state && (
-        <Alert
-          title={state.title}
-          message={state.message}
-          variant={state.variant}
-        />
-      )}
       <div className="grid w-full max-w-sm items-center gap-1.5">
         <Label htmlFor="email"> Email</Label>
         <Input id="email" name="email" type="email" placeholder="email" />
@@ -53,7 +48,7 @@ const AuthForm = ({ SubmitButton, action, children }: AuthFormProps) => {
       </div>
 
       <Form.FormControl className="mt-6">
-        <button>Login</button>
+        <Button className="btn btn-primary w-full">{type}</Button>
       </Form.FormControl>
       {children}
     </Form>

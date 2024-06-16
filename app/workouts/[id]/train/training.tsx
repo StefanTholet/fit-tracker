@@ -130,7 +130,7 @@ const Training = ({
               value={exerciseData[selectedExercise].sets[selectedSet].reps}
               onChange={handleChange}
             />
-            <Button onClick={completeSet} className="btn   my-5">
+            <Button onClick={completeSet} className="btn my-5">
               Complete set
             </Button>
           </div>

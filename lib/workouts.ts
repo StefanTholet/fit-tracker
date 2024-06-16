@@ -125,7 +125,6 @@ export const insertWorkoutExercises = async (
     })
   )
 
-  console.log(result)
   return result
 }
 
@@ -133,17 +132,16 @@ export const insertManyPerformedExercises = async (
   performedExercises: InsertWorkoutExercisesResponse[]
 ) => {
   return await Promise.all(
-    performedExercises.map(
-      async (exercise, i) =>
-        await sql`INSERT INTO performed_exercises 
+    performedExercises.map(async (exercise, i) => {
+      return await sql`INSERT INTO performed_exercises 
                               (exercise_id, user_id, workout_id, name, reps, weight, performance_status, exercise_order)
                               VALUES(${exercise.exercise_id}, ${
-          exercise.user_id
-        }, ${exercise.workout_id}, 
+        exercise.user_id
+      }, ${exercise.workout_id}, 
                               ${exercise.name}, ${exercise.reps}, ${
-          exercise.weight
-        }, ${'met'} ${exercise.exercise_order})`
-    )
+        exercise.weight
+      }, ${'met'}, ${exercise.exercise_order})`
+    })
   )
 }
 
@@ -178,9 +176,3 @@ export const selectLastPerformedWorkoutById = async (workout_id: number) => {
 
   return result.rows
 }
-
-/*
-SELECT workouts.name AS name, performed_exercises.created_on as performed_on, performed_exercises.name AS exercise_name, performed_exercises.performance_status AS performanceStatus, performed_exercises.reps,  performed_exercises.weight FROM workouts 
-INNER JOIN  performed_exercises  ON workouts.workout_id = performed_exercises.workout_id
-WHERE workouts.workout_id = 24 
-*/

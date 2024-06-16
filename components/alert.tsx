@@ -14,7 +14,7 @@ const variantClassMapper = {
     button:
       'text-green-900 hover:bg-green-200 dark:text-green-100 dark:hover:bg-green-800',
     title: 'text-green-900 dark:text-green-100',
-    message: 'text-green-700 dark:text-green-300',
+    message: 'text-green-700 dark:text-green-300'
   },
   danger: {
     container:
@@ -23,7 +23,7 @@ const variantClassMapper = {
     title: 'text-red-900 dark:text-red-100',
     button:
       'text-red-900 hover:bg-red-200 dark:text-red-100 dark:hover:bg-red-800',
-    message: 'text-red-700 dark:text-red-300',
+    message: 'text-red-700 dark:text-red-300'
   },
   warning: {
     container:
@@ -33,21 +33,21 @@ const variantClassMapper = {
     title: 'text-orange-900 dark:text-orange-100',
     button:
       'text-orange-900 hover:bg-orange-200 dark:text-orange-100 dark:hover:bg-orange-800',
-    message: 'text-orange-700 dark:text-orange-300',
-  },
+    message: 'text-orange-700 dark:text-orange-300'
+  }
 }
 
 const iconsMapper = {
   success: () => <CircleCheckIcon className="h-6 w-6" />,
   danger: () => <TriangleAlertIcon className="h-6 w-6" />,
-  warning: () => <CircleAlertIcon className="h-6 w-6" />,
+  warning: () => <CircleAlertIcon className="h-6 w-6" />
 }
 
 const Alert = ({
   title,
   message,
   variant = 'success',
-  handleClose,
+  handleClose
 }: AlertProps) => {
   return (
     <div

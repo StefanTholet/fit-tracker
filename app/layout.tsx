@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Header from '@/components/layout-components/header'
 import Hero from '@/components/layout-components/hero'
 import Footer from '@/components/layout-components/footer'
+import { Toaster } from '@/components/ui/toaster'
+
 import { getSession } from '@/server-actions/auth-actions'
 import '../styles/global.css'
 import { Inter as FontSans } from 'next/font/google'
@@ -37,7 +39,10 @@ export default async function RootLayout({
         >
           <Header />
           <Hero userId={session.userId} />
-          <div className="page-container mb-14">{children}</div>
+          <div className="page-container mb-14">
+            {children}
+            <Toaster />
+          </div>
           <Footer />
         </div>
       </body>

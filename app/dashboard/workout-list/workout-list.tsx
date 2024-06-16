@@ -11,7 +11,6 @@ interface WorkoutComponentProps {
 
 const WorkoutList: React.FC<WorkoutComponentProps> = ({ workouts }) => {
   const workoutList = Object.values(workouts)
-  console.log(workoutList)
 
   return (
     <div className="container mx-auto p-4 max-w-fit">

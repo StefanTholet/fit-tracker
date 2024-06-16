@@ -10,6 +10,8 @@ import { addFreestyleWorkout } from '@/server-actions/workout-actions'
 import { Workout } from '@/interfaces/workout'
 import SetInputs from './set-inputs'
 import ExerciseInput from './exercise-input'
+import { useToast } from '@/components/ui/use-toast'
+import useLoader from '@/hooks/useLoader'
 
 const FreestyleTraining = ({ userId }: { userId: string | number }) => {
   const {
@@ -21,20 +23,35 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
     handleSetChange,
     exercises,
     workoutName,
-    handleWorkoutNameChange,
+    handleWorkoutNameChange
   } = useWorkoutForm()
+
+  const { toast } = useToast()
+  const { ButtonLoader, setIsLoading, isLoading } = useLoader(false)
 
   const handleSubmit = async () => {
     const workout: Workout = {
       name: workoutName,
-      exercises,
+      exercises
     }
     try {
-      const response = await addFreestyleWorkout(workout, userId)
-      return response
+      setIsLoading(true)
+      await addFreestyleWorkout(workout, userId)
+      toast({
+        title: `${workoutName}`,
+        description:
+          'Has been successfully completed and added to your workouts list!',
+        variant: 'success'
+      })
     } catch (error) {
-      console.error(error)
-      throw error
+      toast({
+        title:
+          'An error has occured while trying to save your workout. Please try again later.',
+
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -99,7 +116,7 @@ const FreestyleTraining = ({ userId }: { userId: string | number }) => {
           type="submit"
           className="w-full mt-5"
         >
-          Save Workout
+          {isLoading ? <ButtonLoader /> : 'Save Workout'}
         </Button>
       </WorkoutCard>
     </div>

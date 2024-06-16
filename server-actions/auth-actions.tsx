@@ -4,7 +4,7 @@ import {
   SessionData,
   defaultSession,
   getUser,
-  createUser,
+  createUser
 } from '@/lib/auth'
 
 import { hashUserPassword, verifyPassword } from '@/lib/hash'
@@ -51,7 +51,7 @@ export const signup = async (
     return {
       message: 'All fields are required',
       title: 'Registration unsuccessful',
-      variant: 'danger',
+      variant: 'danger'
     }
   }
 
@@ -63,7 +63,7 @@ export const signup = async (
       title: 'Registration unsuccessful',
       message:
         'Registration unsuccessful. Please try again using different credentials.',
-      variant: 'danger',
+      variant: 'danger'
     }
   }
 
@@ -79,45 +79,32 @@ export const login = async (
   variant: 'success' | 'danger' | 'warning'
   title: string
 }> => {
-  try {
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const message = {
-      message: 'All fields are required',
-      variant: 'danger' as 'danger',
-      title: 'Unsuccessful login',
-    }
-
-    if (!email || !password) {
-      return { ...message, message: 'All fields are required' }
-    }
-
-    const user = await getUser(email)
-    if (!user) {
-      return { ...message, message: 'Wrong credentials' }
-    }
-
-    const userPassword = user.password
-    const isValid = verifyPassword(userPassword, password)
-    if (!isValid) {
-      return { ...message, message: 'Wrong credentials' }
-    }
-    console.log('ne')
-    await updateSession(user as User)
-    console.log('da')
-    return {
-      title: `Hello ${email}`,
-      message: `Welcome back`,
-      variant: 'success',
-    }
-  } catch (error) {
-    console.log(error)
-    return {
-      title: 'Authentication error',
-      message: 'Please try again later',
-      variant: 'danger',
-    }
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const message = {
+    message: 'All fields are required',
+    variant: 'danger' as 'danger',
+    title: 'Unsuccessful login'
   }
+
+  if (!email || !password) {
+    return { ...message, message: 'All fields are required' }
+  }
+
+  const user = await getUser(email)
+  if (!user) {
+    return { ...message, message: 'Wrong credentials' }
+  }
+
+  const userPassword = user.password
+  const isValid = verifyPassword(userPassword, password)
+  if (!isValid) {
+    return { ...message, message: 'Wrong credentials' }
+  }
+
+  await updateSession(user as User)
+
+  redirect('/dashboard')
 }
 
 export const logout = async () => {
