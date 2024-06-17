@@ -3,18 +3,15 @@ import React from 'react'
 import WorkoutCard from '@/components/workout-card/workout-card'
 import { Label } from '@/components/ui/label'
 import Input from '@/components/form/input'
-import {
-  GroupedExercise,
-  GroupedExerciseSet,
-  PreviousWorkout
-} from '@/interfaces/workout'
+import { GroupedExerciseSet } from '@/interfaces/workout'
 import { Button } from '@/components/ui/button'
 import useTraining from '@/hooks/useTraining'
+import { FormattedWorkout, TransformedExercises } from '@/utils/exercise'
 
 interface TrainingProps {
   createdOn: string
-  exercises: GroupedExercise
-  previousWorkout?: PreviousWorkout
+  exercises: TransformedExercises
+  previousWorkout?: FormattedWorkout
   name: string
   workoutId: number
   userId: number
@@ -56,12 +53,8 @@ const Training = ({
                 }
               />
               {Object.values(previousWorkout.exercises).map((exercise, i) => (
-                <WorkoutCard.Exercises
-                  key={(exercise as GroupedExercise).exercise_id}
-                >
-                  <WorkoutCard.Exercise
-                    name={(exercise as GroupedExercise).name}
-                  />
+                <WorkoutCard.Exercises key={exercise.id}>
+                  <WorkoutCard.Exercise name={exercise.name} />
                   <WorkoutCard.SetsContainer>
                     {exercise.sets.map(
                       (set: GroupedExerciseSet, index: number) => (
@@ -89,7 +82,7 @@ const Training = ({
         <WorkoutCard variant="current">
           <WorkoutCard.Header workoutName={name} />
           {currentExerciseList.map((exercise) => (
-            <WorkoutCard.Exercises key={exercise.exercise_id}>
+            <WorkoutCard.Exercises key={exercise.id}>
               <WorkoutCard.Exercise name={exercise.name} />
               <WorkoutCard.SetsContainer>
                 {exercise.sets.map((set: GroupedExerciseSet, index: number) => (
@@ -98,7 +91,9 @@ const Training = ({
                     key={index}
                     reps={set.reps}
                     weight={set.weight}
-                    performanceStatus={set.performanceStatus}
+                    performanceStatus={
+                      exerciseData[exercise.name].sets[index]?.performanceStatus
+                    }
                     variant="current"
                   />
                 ))}

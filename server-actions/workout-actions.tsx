@@ -15,7 +15,7 @@ import {
   QueryResponseMessage,
   FlatWorkout
 } from '@/interfaces/workout'
-import { flattenExercises } from '@/utils/exercise'
+import { WorkoutResp, flattenExercises } from '@/utils/exercise'
 
 export const addWorkoutName = async (
   userId: string | number,
@@ -74,7 +74,7 @@ export const addFreestyleWorkout = async (
 
 export const getUserWorkouts = async (
   userId: number | string
-): Promise<FlatWorkout[]> => {
+): Promise<WorkoutResp[]> => {
   const userWorkouts = await selectPlannedUserWorkouts(userId)
   return userWorkouts
 }
@@ -85,8 +85,8 @@ export const getWorkout = async (workoutId: string) => {
 }
 
 interface DashboardDataInterface {
-  userWorkouts: FlatWorkout[]
-  lastPerformedWorkout: FlatWorkout
+  userWorkouts: WorkoutResp[]
+  lastPerformedWorkout: WorkoutResp
 }
 
 export const getDashboardData = async (
@@ -94,19 +94,18 @@ export const getDashboardData = async (
 ): Promise<DashboardDataInterface> => {
   const userWorkouts = await getUserWorkouts(userId)
   const lastPerformedWorkout = await selectLastPerformedWorkout(userId)
-  console.log('userWorkouts', userWorkouts[0])
-  console.log('lastPerformedWorkout', lastPerformedWorkout)
-  return { userWorkouts, lastPerformedWorkout }
+
+  return { userWorkouts, lastPerformedWorkout } as DashboardDataInterface
 }
 
 export interface AddPerformedExercise {
   userId: number | string
   workoutId: number | string
-  exerciseId: string | string
+  exerciseId: string | number
   performanceStatus: string | undefined
   name: string
-  reps: string
-  weight: string
+  reps: string | number
+  weight: string | number
   exercise_order: number
 }
 
@@ -130,6 +129,7 @@ export const addPerformedExercise = async ({
     weight,
     exercise_order
   })
+
   return result
 }
 

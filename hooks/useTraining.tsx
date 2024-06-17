@@ -1,28 +1,22 @@
 'use client'
 import React, { useState } from 'react'
 import { addPerformedExercise } from '@/server-actions/workout-actions'
-import { GroupedExercise } from '@/interfaces/workout'
 import { useToast } from '@/components/ui/use-toast'
-
-const performanceStatusStylingMap: { [key: string]: string } = {
-  met: 'btn-secondary',
-  exceeded: 'btn-primary',
-  'not-met': 'btn-accent'
-}
+import { TransformedExercises } from '@/utils/exercise'
 
 export interface SetInterface {
   weight: number
   reps: number
-  setIndex: number
+
   performanceStatus?: string
-  [key: string]: any // Allow dynamic keys
+  [key: string]: any
 }
 
 export interface Exercise {
   sets: SetInterface[]
   order: number
   name: string
-  exercise_id: string
+  id: string | number
 }
 
 export interface CompletedSets {
@@ -32,12 +26,12 @@ export interface CompletedSets {
 interface UseTrainingProps {
   userId: string | number
   workoutId: string | number
-  exercises?: GroupedExercise
+  exercises?: TransformedExercises
 }
 
 const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
-  const [exerciseData, setExerciseData] = useState<GroupedExercise>(
-    exercises ? structuredClone(exercises) : ({} as GroupedExercise)
+  const [exerciseData, setExerciseData] = useState<TransformedExercises>(
+    exercises ? structuredClone(exercises) : ({} as TransformedExercises)
   )
   const [selectedExercise, setSelectedExercise] = useState(
     exercises ? Object.keys(exercises)[0] : ''
@@ -45,7 +39,7 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
   const [selectedSet, setSelectedSet] = useState(0)
 
   const [showInput, setShowInput] = useState(false)
-
+  //do I need this?
   const [completedSets, setCompletedSets] = useState<CompletedSets>({})
 
   const { toast } = useToast()
@@ -72,14 +66,15 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
     setExerciseData((state) => {
       const exercise = state[selectedExercise]
         ? { ...state[selectedExercise] }
-        : { sets: [], name: '', exercise_id: '', order: 0 }
+        : { sets: [], name: '', id: '', order: 0 }
+
       exercise.sets[selectedSet][name] = value
       state[selectedExercise] = exercise
       return { ...state }
     })
   }
 
-  const getPerformanceStatus = () => {
+  const getPerformanceStatus = (): 'met' | 'not-met' | 'exceeded' => {
     if (exercises) {
       const targetReps = exercises[selectedExercise].sets[selectedSet].reps
       const performedReps = Number(
@@ -90,14 +85,13 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
         exerciseData[selectedExercise].sets[selectedSet].weight
       )
 
-      let performanceStatus = 'met'
       if (targetReps > performedReps || targetWeight > liftedWeight) {
-        performanceStatus = 'not-met'
+        return 'not-met'
       } else if (performedReps > targetReps || liftedWeight > targetWeight) {
-        performanceStatus = 'exceeded'
+        return 'exceeded'
       }
-      return performanceStatus
     }
+    return 'met'
   }
 
   const completeSet = async () => {
@@ -119,7 +113,7 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
           sets: [],
           order: exercise.order,
           name: exercise.name,
-          exercise_id: exercise.exercise_id
+          id: exercise.id
         }
       }
 
@@ -132,29 +126,32 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
 
     const requestData = {
       name: exercise.name as string,
-      reps: currentSet.reps as string,
+      reps: currentSet.reps,
       weight: currentSet.weight,
       performanceStatus: getPerformanceStatus(),
-      exerciseId: exercise.exercise_id,
+      exerciseId: exercise.id,
       userId,
       workoutId,
       exercise_order: Object.keys(completedSets).length
     }
-    const result = await addPerformedExercise(requestData)
-    toast({ title: 'Set completed!', variant: 'success' })
-    return result
-  }
-  const getSetClassName = (exerciseName: string, setIndex: number) => {
-    if (setIndex !== undefined && exerciseName) {
-      const selectedExercise = completedSets[exerciseName]
-      const hasSets = selectedExercise?.sets
-      if (hasSets && selectedExercise.sets[setIndex]?.performanceStatus) {
-        return performanceStatusStylingMap[
-          selectedExercise.sets[setIndex].performanceStatus!
-        ]
-      }
+
+    try {
+      await addPerformedExercise(requestData)
+      toast({ title: 'Set completed!', variant: 'success' })
+      setExerciseData((state) => {
+        const newState = { ...state }
+        newState[selectedExercise].sets[selectedSet].performanceStatus =
+          getPerformanceStatus()
+
+        return { ...state }
+      })
+    } catch (error) {
+      toast({
+        title: 'Something went wrong...',
+        description: 'Unable to save your completed set',
+        variant: 'destructive'
+      })
     }
-    return ''
   }
 
   const currentExerciseList = exercises
@@ -165,7 +162,6 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
     currentExerciseList,
     exerciseData,
     setExerciseData,
-    getSetClassName,
     completeSet,
     showInput,
     handleClickSet,

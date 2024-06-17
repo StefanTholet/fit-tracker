@@ -2,61 +2,52 @@ import React from 'react'
 import WorkoutList from './workout-list/workout-list'
 import NoWorkouts from './no-workouts'
 import { FlatWorkout } from '@/interfaces/workout'
-import {
-  getDashboardData,
-  getUserWorkouts
-} from '@/server-actions/workout-actions'
+import { getDashboardData } from '@/server-actions/workout-actions'
 import { getSession } from '../../server-actions/auth-actions'
-import { formatWorkouts, groupWorkouts } from '@/utils/exercise'
-import { formatWithOptions } from 'util'
+import {
+  FormattedWorkout,
+  WorkoutResp,
+  formatWorkouts,
+  groupWorkouts
+} from '@/utils/exercise'
+
+interface DashboardData {
+  userWorkouts: WorkoutResp[]
+  lastPerformedWorkout: WorkoutResp
+}
 
 const Dashboard = async () => {
   const session = await getSession()
   const userId = session.userId
 
-  let dashboardData = {}
-  let userWorkouts = {}
-  let lastPerformedWorkout = {}
-  console.log(userId)
+  let dashboardData: DashboardData | null = null
+  let userWorkouts: FormattedWorkout[] = []
+  let lastPerformedWorkout: FormattedWorkout | null = null
 
   if (userId) {
     dashboardData = await getDashboardData(userId)
-    console.log(dashboardData)
 
-    userWorkouts = formatWorkouts(dashboardData?.userWorkouts)
-    lastPerformedWorkout = formatWorkouts([
-      dashboardData.lastPerformedWorkout
-    ])[0]
-    // console.log(groupWorkouts(userWorkouts))
+    if (dashboardData) {
+      userWorkouts = formatWorkouts(dashboardData.userWorkouts)
+      lastPerformedWorkout = formatWorkouts([
+        dashboardData.lastPerformedWorkout
+      ])[0]
+    }
   }
-  // const workouts = Object.values(groupWorkouts(flatWorkouts))
-  // console.log(userWorkouts)
-  console.log(lastPerformedWorkout)
-  // see whats up with latest workout:
-  // {
-  // workout_id: 76,
-  // name: 'Test latest',
-  // workout_created_on: 2024-06-16T16:03:18.059Z,
-  // exercises: {
-  //   exercise_id: 68,
-  //   exercise_name: 'Squats',
-  //   reps: 1,
-  //   weight: 10,
-  //   exercise_order: 1,
-  //   created_on: '2024-06-16T19:03:18.291904',
-  //   Squats: { exercise_name: 'Squats', sets: [Array] },
-  //   Deadlift: { exercise_name: 'Deadlift', sets: [Array] },
-  //   Press: { exercise_name: 'Press', sets: [Array] }
-  // }
-}
+
   return (
     <div className="flex flex-col items-center justify-center  gap-5">
-      {/* {workouts && workouts.length > 0 && <WorkoutList workouts={workouts} />}
-      {!workouts || workouts.length === 0 ? (
+      {userWorkouts && userWorkouts.length > 0 && (
+        <WorkoutList
+          workouts={userWorkouts}
+          lastWorkout={lastPerformedWorkout}
+        />
+      )}
+      {!userWorkouts || userWorkouts.length === 0 ? (
         <div className="max-w-lg">
           <NoWorkouts />
         </div>
-      ) : null} */}
+      ) : null}
     </div>
   )
 }

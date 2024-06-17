@@ -2,7 +2,7 @@ import {
   getLastPerformedWorkoutById,
   getWorkout
 } from '@/server-actions/workout-actions'
-import { groupWorkouts } from '@/utils/exercise'
+import { formatWorkouts } from '@/utils/exercise'
 import Training from './training'
 import { getSession } from '@/server-actions/auth-actions'
 import { redirect } from 'next/navigation'
@@ -17,8 +17,11 @@ const page = async ({ params }: TrainPageProps) => {
   const lastPerformedWorkout = await getLastPerformedWorkoutById(
     Number(params.id)
   )
-  const previousWorkout = groupWorkouts(lastPerformedWorkout)[params.id]
-  const groupedWorkout = groupWorkouts(workout)[params.id]
+
+  // console.log(workout)
+
+  const previousWorkout = formatWorkouts(lastPerformedWorkout)[0]
+  const formattedWorkout = formatWorkouts(workout)[0]
 
   if (!userId) {
     redirect('/login')
@@ -29,10 +32,10 @@ const page = async ({ params }: TrainPageProps) => {
         <Training
           userId={userId}
           workoutId={Number(params.id)}
-          createdOn={groupedWorkout.createdOn}
+          createdOn={formattedWorkout.created_on}
           previousWorkout={previousWorkout}
-          exercises={groupedWorkout.exercises}
-          name={groupedWorkout.name}
+          exercises={formattedWorkout.exercises}
+          name={formattedWorkout.name}
         />
       </div>
     </div>

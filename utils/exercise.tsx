@@ -1,3 +1,4 @@
+// Import statements
 import { Exercise, InsertExerciseInterface } from '../interfaces/workout'
 import { FlatWorkout, GroupedWorkout } from '@/interfaces/workout'
 
@@ -44,7 +45,8 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
     return acc
   }, {} as GroupedWorkout)
 
-export interface EXERCISE_RESP {
+// Interfaces
+export interface ExerciseResp {
   exercise_id: number
   exercise_name: string
   reps: number
@@ -54,29 +56,50 @@ export interface EXERCISE_RESP {
   performance_status?: 'met' | 'not-met' | 'exceeded'
 }
 
-type Set = {
+export type Set = {
   reps: number
   weight: number
   exercise_order: number
   created_on: Date
   exercise_id: number
-  performance_status?: 'met' | 'not-met' | 'exceeded'
+  performanceStatus?: 'met' | 'not-met' | 'exceeded'
+  id?: string
+  [key: string]: any
 }
-export interface EXERCISE_RESP_GROUPED extends EXERCISE_RESP {
+
+export interface ExerciseRespGrouped extends ExerciseResp {
   sets: Set[]
 }
 
-type ACC = {
-  [key: string]: { exercise_name: string; sets: Set[] }
+export interface WorkoutResp {
+  workout_id: number
+  name: string
+  created_on: string
+  exercises: ExerciseResp[]
 }
 
-export const groupExercises = (acc: ACC, curr: EXERCISE_RESP_GROUPED) => {
-  const currentExerciseName = curr?.exercise_name
-  const currentExericse = acc[currentExerciseName]
-  if (!currentExericse) {
-    acc[currentExerciseName] = {
-      exercise_name: curr.exercise_name,
+export type TransformedExercises = {
+  [key: string]: {
+    name: string
+    id: number | string
+    order: number
+    sets: Set[]
+  }
+}
 
+// Grouping function
+export const groupExercises = (
+  acc: TransformedExercises,
+  curr: ExerciseResp
+): TransformedExercises => {
+  const currentExerciseName = curr.exercise_name
+  const currentExercise = acc[currentExerciseName]
+
+  if (!currentExercise) {
+    acc[currentExerciseName] = {
+      id: curr.exercise_id,
+      name: curr.exercise_name,
+      order: curr.exercise_order,
       sets: [
         {
           reps: curr.reps,
@@ -84,7 +107,7 @@ export const groupExercises = (acc: ACC, curr: EXERCISE_RESP_GROUPED) => {
           exercise_order: curr.exercise_order,
           created_on: curr.created_on,
           exercise_id: curr.exercise_id,
-          performance_status: curr?.performance_status
+          performanceStatus: curr.performance_status
         }
       ]
     }
@@ -95,17 +118,34 @@ export const groupExercises = (acc: ACC, curr: EXERCISE_RESP_GROUPED) => {
       exercise_order: curr.exercise_order,
       created_on: curr.created_on,
       exercise_id: curr.exercise_id,
-      performance_status: curr?.performance_status
+      performanceStatus: curr.performance_status
     })
   }
+
   return acc
 }
 
-export const formatWorkouts = (workouts) => {
-  return workouts.map((workout) => {
-    workout.exercises = workout.exercises.reduce(groupExercises)
-    console.log(workout)
+// Formatted workout interface
+export interface FormattedWorkout {
+  id: number
+  name: string
+  created_on: string
+  exercises: TransformedExercises // Use ACC type for exercises
+}
 
-    return workout
+// Format workouts function
+export const formatWorkouts = (workouts: WorkoutResp[]): FormattedWorkout[] => {
+  return workouts.map((workout) => {
+    const groupedExercises = workout.exercises.reduce<TransformedExercises>(
+      groupExercises,
+      {} as TransformedExercises
+    )
+
+    return {
+      id: workout.workout_id,
+      name: workout.name,
+      created_on: workout.created_on,
+      exercises: groupedExercises
+    }
   })
 }
