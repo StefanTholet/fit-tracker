@@ -33,8 +33,14 @@ const Training = ({
     handleChange,
     exerciseData,
     selectedExercise,
-    selectedSet
+    selectedSet,
+    completedSets
   } = useTraining({ workoutId, userId, exercises })
+
+  // const isWorkoutCompleted = currentExerciseList.length === completedSets.length
+  // console.log('currentExerciseList', currentExerciseList)
+  // console.log('completedSets', completedSets)
+  // console.log(isWorkoutCompleted)
 
   return (
     <div className="flex flex-wrap gap-8">

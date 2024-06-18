@@ -1,15 +1,9 @@
 import React from 'react'
 import WorkoutList from './workout-list/workout-list'
 import NoWorkouts from './no-workouts'
-import { FlatWorkout } from '@/interfaces/workout'
 import { getDashboardData } from '@/server-actions/workout-actions'
 import { getSession } from '../../server-actions/auth-actions'
-import {
-  FormattedWorkout,
-  WorkoutResp,
-  formatWorkouts,
-  groupWorkouts
-} from '@/utils/exercise'
+import { FormattedWorkout, WorkoutResp, formatWorkouts } from '@/utils/exercise'
 
 interface DashboardData {
   userWorkouts: WorkoutResp[]

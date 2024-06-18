@@ -172,7 +172,8 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
     handleChange,
     setSelectedExercise,
     selectedExercise,
-    selectedSet
+    selectedSet,
+    completedSets
   }
 }
 
