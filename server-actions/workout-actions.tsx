@@ -137,7 +137,7 @@ export const addPerformedExercise = async ({
     })
     return 'completed'
   }
-  debugger
+
   await updatePerformedExercise({
     exerciseId,
     performanceStatus,
