@@ -7,15 +7,14 @@ import {
   insertWorkoutExercises,
   selectLastPerformedWorkout,
   selectLastPerformedWorkoutById,
+  selectPerformedExercisePerformanceDates,
   selectPlannedUserWorkouts,
-  selectWorkout
+  selectWorkout,
+  updatePerformedExercise
 } from '@/lib/workouts'
-import {
-  Workout,
-  QueryResponseMessage,
-  FlatWorkout
-} from '@/interfaces/workout'
+import { Workout, QueryResponseMessage } from '@/interfaces/workout'
 import { WorkoutResp, flattenExercises } from '@/utils/exercise'
+import { areBothDatesFromToday } from '@/utils/dateUtils'
 
 export const addWorkoutName = async (
   userId: string | number,
@@ -102,7 +101,7 @@ export interface AddPerformedExercise {
   userId: number | string
   workoutId: number | string
   exerciseId: string | number
-  performanceStatus: string | undefined
+  performanceStatus: 'met' | 'not-met' | 'exceeded'
   name: string
   reps: string | number
   weight: string | number
@@ -119,18 +118,34 @@ export const addPerformedExercise = async ({
   weight,
   exercise_order
 }: AddPerformedExercise) => {
-  const result = await insertPerformedExercise({
-    userId,
-    workoutId,
+  const previousDatesOfPerformance =
+    await selectPerformedExercisePerformanceDates(exerciseId)
+
+  const alreadyPerformedToday = areBothDatesFromToday(
+    previousDatesOfPerformance
+  )
+  if (!alreadyPerformedToday) {
+    await insertPerformedExercise({
+      userId,
+      workoutId,
+      exerciseId,
+      performanceStatus,
+      name,
+      reps,
+      weight,
+      exercise_order
+    })
+    return 'completed'
+  }
+  debugger
+  await updatePerformedExercise({
     exerciseId,
     performanceStatus,
-    name,
     reps,
     weight,
     exercise_order
   })
-
-  return result
+  return 'edited'
 }
 
 export const getLastPerformedWorkoutById = async (workout_id: number) => {

@@ -227,3 +227,39 @@ export const selectPlannedUserWorkouts = async (userId: number | string) => {
   const userWorkouts = workoutsResponse.rows
   return userWorkouts as WorkoutResp[]
 }
+
+export const selectPerformedExercisePerformanceDates = async (
+  exerciseId: number | string
+) => {
+  const result = await sql`SELECT created_on FROM performed_exercises 
+    WHERE exercise_id = ${exerciseId}
+    ORDER BY created_on DESC
+    LIMIT 1
+`
+  return result.rows[0]?.created_on
+}
+
+export const updatePerformedExercise = async ({
+  exerciseId,
+  performanceStatus,
+  reps,
+  weight,
+  exercise_order
+}: {
+  exerciseId: string | number
+  performanceStatus: 'met' | 'not-met' | 'exceeded'
+  reps: string | number
+  weight: string | number
+  exercise_order: string | number
+}) => {
+  const result = await sql` UPDATE performed_exercises 
+SET  
+  performance_status = ${performanceStatus},
+  reps=${reps},
+  weight=${weight},
+  exercise_order=${exercise_order},
+  created_on = CURRENT_TIMESTAMP
+WHERE exercise_id = ${exerciseId} AND DATE(created_on) = CURRENT_DATE;
+`
+  return result.rows
+}

@@ -136,8 +136,8 @@ const useTraining = ({ userId, workoutId, exercises }: UseTrainingProps) => {
     }
 
     try {
-      await addPerformedExercise(requestData)
-      toast({ title: 'Set completed!', variant: 'success' })
+      const result = await addPerformedExercise(requestData)
+      toast({ title: `Set ${result}!`, variant: 'success' })
       setExerciseData((state) => {
         const newState = { ...state }
         newState[selectedExercise].sets[selectedSet].performanceStatus =
