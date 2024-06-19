@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Exercise } from './useExerciseInputManager'
 import { TransformedExercises } from '@/utils/exercise'
 
@@ -27,13 +28,16 @@ const useSetsManager = ({
 
   const [showInput, setShowInput] = useState(false)
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const completeSet = async (exercise: Exercise) => {
     setCompletedSets((state) => {
       const performanceStatus = getPerformanceStatus()
       exercise.sets[selectedSet].performanceStatus = performanceStatus
       exercise.sets[selectedSet].exercise_order =
         Object.keys(completedSets).length
-
+      debugger
       const newState = { ...state }
 
       if (!newState[selectedExercise]) {
