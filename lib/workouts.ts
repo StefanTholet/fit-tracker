@@ -131,8 +131,6 @@ export const insertManyPerformedExercises = async (
 }
 
 export const selectLastPerformedWorkoutById = async (workout_id: number) => {
-  console.log(workout_id)
-
   const result: QueryResultRow = await sql`
     SELECT
     workouts.workout_id,
@@ -229,10 +227,14 @@ export const selectPlannedUserWorkouts = async (userId: number | string) => {
 }
 
 export const selectPerformedExercisePerformanceDates = async (
-  exerciseId: number | string
+  exerciseId: number | string,
+  exercise_order: number,
+  reps: string | number,
+  weight: string | number
 ) => {
+  //TODO - change insertPerformedExercise to attach its own ID instead of adding it automatically so that it can be used to make this request reliant
   const result = await sql`SELECT created_on FROM performed_exercises 
-    WHERE exercise_id = ${exerciseId}
+    WHERE exercise_id = ${exerciseId} AND exercise_order = ${exercise_order} AND reps = ${reps} AND weight = ${weight}
     ORDER BY created_on DESC
     LIMIT 1
 `

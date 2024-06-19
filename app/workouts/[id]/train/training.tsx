@@ -1,12 +1,19 @@
 'use client'
-import React from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import WorkoutCard from '@/components/workout-card/workout-card'
 import { Label } from '@/components/ui/label'
 import Input from '@/components/form/input'
 import { GroupedExerciseSet } from '@/interfaces/workout'
 import { Button } from '@/components/ui/button'
-import useTraining from '@/hooks/useTraining'
+import useExerciseInputManager, {
+  Exercise
+} from '@/hooks/useExerciseInputManager'
 import { FormattedWorkout, TransformedExercises } from '@/utils/exercise'
+import Link from 'next/link'
+import { useToast } from '@/components/ui/use-toast'
+import { addPerformedExercise } from '@/server-actions/workout-actions'
+import { getPerformanceStatus } from './trainingUtils'
+import useSetsManager from '@/hooks/useSetsManager'
 
 interface TrainingProps {
   createdOn: string
@@ -25,22 +32,107 @@ const Training = ({
   name,
   previousWorkout
 }: TrainingProps) => {
+  const [selectedSet, setSelectedSet] = useState(0)
+
   const {
     currentExerciseList,
-    completeSet,
-    showInput,
-    handleClickSet,
     handleChange,
     exerciseData,
     selectedExercise,
-    selectedSet,
-    completedSets
-  } = useTraining({ workoutId, userId, exercises })
+    setExerciseData,
+    setSelectedExercise
+  } = useExerciseInputManager({ exercises, selectedSet })
 
-  // const isWorkoutCompleted = currentExerciseList.length === completedSets.length
-  // console.log('currentExerciseList', currentExerciseList)
-  // console.log('completedSets', completedSets)
-  // console.log(isWorkoutCompleted)
+  const targetReps = exercises[selectedExercise].sets[selectedSet].reps
+  const performedReps = Number(
+    exerciseData[selectedExercise].sets[selectedSet].reps
+  )
+  const targetWeight = exercises[selectedExercise].sets[selectedSet].weight
+  const liftedWeight = Number(
+    exerciseData[selectedExercise].sets[selectedSet].weight
+  )
+
+  const boundGetPerformanceStatus = () =>
+    getPerformanceStatus(targetReps, performedReps, targetWeight, liftedWeight)
+
+  const { showInput, handleClickSet, completedSets, completeSet } =
+    useSetsManager({
+      exercises,
+      selectedExercise,
+      setSelectedExercise,
+      selectedSet,
+      setSelectedSet,
+      getPerformanceStatus: boundGetPerformanceStatus
+    })
+
+  const submitSet = async (exercise: Exercise) => {
+    const currentSet = { ...exercise.sets[selectedSet] }
+
+    const requestData = {
+      name: exercise.name as string,
+      reps: currentSet.reps,
+      weight: currentSet.weight,
+      performanceStatus: getPerformanceStatus(
+        targetReps,
+        performedReps,
+        targetWeight,
+        liftedWeight
+      ),
+      exerciseId: exercise.id,
+      userId,
+      workoutId,
+      exercise_order: Object.keys(completedSets).length
+    }
+
+    try {
+      const result = await addPerformedExercise(requestData)
+      toast({
+        title: `${selectedExercise}`,
+        description: `Set ${selectedSet + 1} successfully ${result}!`,
+        variant: 'success'
+      })
+      setExerciseData((state) => {
+        const newState = { ...state }
+        newState[selectedExercise].sets[selectedSet].performanceStatus =
+          getPerformanceStatus(
+            targetReps,
+            performedReps,
+            targetWeight,
+            liftedWeight
+          )
+
+        return { ...state }
+      })
+      completeSet({ ...exercise })
+    } catch (error) {
+      toast({
+        title: 'Something went wrong...',
+        description: 'Unable to save your completed set',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const { toast } = useToast()
+
+  let isWorkoutCompleted = useRef(false)
+
+  const completedSetsArray = Object.values(completedSets)
+  useMemo(() => {
+    if (completedSetsArray.length === currentExerciseList.length) {
+      isWorkoutCompleted.current = completedSetsArray.every((exercise) => {
+        return exercise.sets.every((set) => {
+          return set.performanceStatus
+        })
+      })
+      if (isWorkoutCompleted) {
+        setTimeout(() => {
+          toast({ title: 'Workout complete', variant: 'success' })
+        }, 1000)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedSets])
 
   return (
     <div className="flex flex-wrap gap-8">
@@ -131,10 +223,18 @@ const Training = ({
               value={exerciseData[selectedExercise].sets[selectedSet].reps}
               onChange={handleChange}
             />
-            <Button onClick={completeSet} className="btn my-5">
+            <Button
+              onClick={() => submitSet(exerciseData[selectedExercise])}
+              className="btn my-5"
+            >
               Complete set
             </Button>
           </div>
+          {isWorkoutCompleted.current && (
+            <Link className="flex justify-center pb-7" href="dashboard">
+              <Button>Go to dashboard</Button>
+            </Link>
+          )}
         </WorkoutCard>
       </div>
     </div>

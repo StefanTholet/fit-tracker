@@ -119,7 +119,12 @@ export const addPerformedExercise = async ({
   exercise_order
 }: AddPerformedExercise) => {
   const previousDatesOfPerformance =
-    await selectPerformedExercisePerformanceDates(exerciseId)
+    await selectPerformedExercisePerformanceDates(
+      exerciseId,
+      exercise_order,
+      reps,
+      weight
+    )
 
   const alreadyPerformedToday = areBothDatesFromToday(
     previousDatesOfPerformance
