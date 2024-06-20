@@ -6,7 +6,7 @@ export interface SetInterface {
   weight: number
   reps: number
 
-  performanceStatus?: string
+  performanceStatus?: 'met' | 'not-met' | 'exceeded'
   [key: string]: any
 }
 

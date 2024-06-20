@@ -68,7 +68,11 @@ const Training = ({
 
   const submitSet = async (exercise: Exercise) => {
     const currentSet = { ...exercise.sets[selectedSet] }
-
+    //change db constraints for performed_exercises
+    //created the id for the database here and attach it through the request
+    //attach the id in the setExercises function
+    //do we need completedSets if we can have the performed_exercise_id in exercises now?
+    // use the id to decide if a set should be updated or inserted in the db
     const requestData = {
       name: exercise.name as string,
       reps: currentSet.reps,
@@ -191,7 +195,8 @@ const Training = ({
                     reps={set.reps}
                     weight={set.weight}
                     performanceStatus={
-                      exerciseData[exercise.name].sets[index]?.performanceStatus
+                      completedSets[exercise.name]?.sets[index]
+                        ?.performanceStatus
                     }
                     variant="current"
                   />
