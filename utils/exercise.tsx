@@ -72,7 +72,7 @@ export interface ExerciseRespGrouped extends ExerciseResp {
 }
 
 export interface WorkoutResp {
-  workout_id: number
+  id: number
   name: string
   created_on: string
   exercises: ExerciseResp[]
@@ -142,7 +142,7 @@ export const formatWorkouts = (workouts: WorkoutResp[]): FormattedWorkout[] => {
     )
 
     return {
-      id: workout.workout_id,
+      id: workout.id,
       name: workout.name,
       created_on: workout.created_on,
       exercises: groupedExercises

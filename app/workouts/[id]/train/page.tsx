@@ -18,8 +18,6 @@ const page = async ({ params }: TrainPageProps) => {
     Number(params.id)
   )
 
-  // console.log(workout)
-
   const previousWorkout = formatWorkouts(lastPerformedWorkout)[0]
   const formattedWorkout = formatWorkouts(workout)[0]
 

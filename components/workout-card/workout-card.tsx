@@ -7,13 +7,15 @@ interface WorkoutCardProps {
   variant?: 'previous' | 'current'
   className?: string
   containerClassName?: string
+  cardRef?: React.ForwardedRef<HTMLDivElement>
 }
 
 function WorkoutCard({
   children,
   variant = 'current',
   className = '',
-  containerClassName = ''
+  containerClassName = '',
+  cardRef = null
 }: WorkoutCardProps) {
   const variantClassMapper = {
     current: 'bg-white',
@@ -22,6 +24,7 @@ function WorkoutCard({
 
   return (
     <div
+      ref={cardRef}
       className={`w-full max-w-4xl mx-auto space-y-8 p-6 rounded-lg shadow-lg ${containerClassName}`}
     >
       <Card className={`${variantClassMapper[variant]} ${className}`}>
@@ -113,6 +116,8 @@ const Set = ({
     }
   }
 
+  const selectedClass = 'border-2 border-blue-500'
+
   return (
     <div
       className={`p-2 rounded-md dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 ${
@@ -121,7 +126,9 @@ const Set = ({
         performanceStatus
           ? variantClassMapper[variant][performanceStatus]
           : 'bg-gray-200'
-      } hover:bg-gray-200 transition-colors duration-200`}
+      } hover:bg-gray-200 transition-colors duration-200 ${
+        selected ? selectedClass : ''
+      }`}
       onClick={onClick}
     >
       <p className="text-sm text-gray-500 font-medium">{reps} reps</p>

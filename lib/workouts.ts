@@ -2,7 +2,7 @@
 
 import { QueryResultRow, sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
-import { FlatWorkout, InsertExerciseInterface } from '@/interfaces/workout'
+import { InsertExerciseInterface } from '@/interfaces/workout'
 import { AddPerformedExercise } from '@/server-actions/workout-actions'
 import { WorkoutResp } from '@/utils/exercise'
 
@@ -14,14 +14,14 @@ export const insertWorkout = async (
   const workout = await sql`
     INSERT INTO workouts (user_id, name, created_on, type) 
     VALUES (${userId}, ${name}, NOW(), ${type}) 
-    RETURNING workout_id
+    RETURNING id
   `
-  return workout.rows[0].workout_id
+  return workout.rows[0].id
 }
 
 export const selectWorkout = async (workoutId: string) => {
   const workout: QueryResultRow = await sql`SELECT 
-  workouts.workout_id,
+  workouts.id,
   workouts.name,
   workouts.created_on,
   json_agg(
@@ -37,16 +37,17 @@ export const selectWorkout = async (workoutId: string) => {
 FROM 
   workouts
 JOIN 
-  exercises ON workouts.workout_id = exercises.workout_id
-WHERE workouts.workout_id = ${workoutId}
+  exercises ON workouts.id = exercises.workout_id
+WHERE workouts.id = ${workoutId}
 GROUP BY 
-  workouts.workout_id, workouts.name, workouts.created_on
+  workouts.id, workouts.name, workouts.created_on
 `
 
   return workout.rows
 }
 
 export const insertPerformedExercise = async ({
+  id,
   userId,
   workoutId,
   exerciseId,
@@ -59,6 +60,7 @@ export const insertPerformedExercise = async ({
   const result = await sql`INSERT INTO performed_exercises 
   ( 
   user_id,
+  id,
   workout_id,
   exercise_id,
   performance_status,
@@ -69,6 +71,7 @@ export const insertPerformedExercise = async ({
 ) 
 VALUES(
    ${userId},
+   ${id},
   ${workoutId},
   ${exerciseId},
   ${performanceStatus},
@@ -133,12 +136,12 @@ export const insertManyPerformedExercises = async (
 export const selectLastPerformedWorkoutById = async (workout_id: number) => {
   const result: QueryResultRow = await sql`
     SELECT
-    workouts.workout_id,
+    workouts.id,
     workouts.name,
     workouts.created_on,
     json_agg(
       json_build_object(
-      'exercise_id', performed_exercises.performed_exercise_id,
+      'exercise_id', performed_exercises.id,
       'exercise_name', performed_exercises.name,
       'reps', performed_exercises.reps,
       'weight', performed_exercises.weight,
@@ -152,9 +155,9 @@ export const selectLastPerformedWorkoutById = async (workout_id: number) => {
             JOIN
             performed_exercises 
             ON 
-            workouts.workout_id = performed_exercises.workout_id
-            WHERE workouts.workout_id = ${workout_id}
-            GROUP BY workouts.workout_id, workouts.name, workouts.created_on
+            workouts.id = performed_exercises.workout_id
+            WHERE workouts.id = ${workout_id}
+            GROUP BY workouts.id, workouts.name, workouts.created_on
             ORDER BY 
   workouts.created_on DESC
 LIMIT 1
@@ -165,12 +168,12 @@ LIMIT 1
 
 export const selectLastPerformedWorkout = async (userId: number | string) => {
   const { rows } = await sql`SELECT 
-  workouts.workout_id,
+  workouts.id,
   workouts.name,
   workouts.created_on,
   json_agg(
     json_build_object(
-      'exercise_id', performed_exercises.performed_exercise_id,
+      'exercise_id', performed_exercises.id,
       'exercise_name', performed_exercises.name,
       'reps', performed_exercises.reps,
       'weight', performed_exercises.weight,
@@ -182,10 +185,10 @@ export const selectLastPerformedWorkout = async (userId: number | string) => {
 FROM 
   workouts
 JOIN 
-  performed_exercises ON workouts.workout_id = performed_exercises.workout_id
+  performed_exercises ON workouts.id = performed_exercises.workout_id
 WHERE workouts.user_id = ${userId}
 GROUP BY 
-  workouts.workout_id, workouts.name, workouts.created_on, performed_exercises.created_on
+  workouts.id, workouts.name, workouts.created_on, performed_exercises.created_on
 ORDER BY 
   performed_exercises.created_on DESC
 LIMIT 1
@@ -196,7 +199,7 @@ LIMIT 1
 export const selectPlannedUserWorkouts = async (userId: number | string) => {
   const workoutsResponse = await sql`
   SELECT 
-  workouts.workout_id, 
+  workouts.id, 
   workouts.name,
   workouts.created_on,
   json_agg(
@@ -214,11 +217,11 @@ export const selectPlannedUserWorkouts = async (userId: number | string) => {
   JOIN 
     exercises 
     ON 
-    workouts.workout_id = exercises.workout_id
+    workouts.id = exercises.workout_id
     WHERE
     workouts.user_id = ${userId}
     GROUP BY
-      workouts.workout_id, workouts.name, workouts.created_on
+      workouts.id, workouts.name, workouts.created_on
       ORDER BY 
       workouts.created_on DESC
    `
@@ -264,4 +267,10 @@ SET
 WHERE exercise_id = ${exerciseId} AND DATE(created_on) = CURRENT_DATE;
 `
   return result.rows
+}
+
+export const selectPerformedExercise = async (id: string) => {
+  const result =
+    await sql`SELECT * FROM performed_exercises WHERE performed_exercises.id = ${id}`
+  return result.rows[0]
 }

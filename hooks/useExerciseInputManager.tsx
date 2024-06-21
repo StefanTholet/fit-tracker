@@ -5,7 +5,8 @@ import { TransformedExercises } from '@/utils/exercise'
 export interface SetInterface {
   weight: number
   reps: number
-
+  performed_exercise_id?: string
+  exercise_order: number
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
   [key: string]: any
 }
@@ -19,16 +20,15 @@ export interface Exercise {
 
 interface UseExerciseInputManager {
   exercises?: TransformedExercises
-  selectedSet: number
 }
 
-const useExerciseInputManager = ({
-  exercises,
-  selectedSet
-}: UseExerciseInputManager) => {
+const useExerciseInputManager = ({ exercises }: UseExerciseInputManager) => {
   const [exerciseData, setExerciseData] = useState<TransformedExercises>(
     exercises ? structuredClone(exercises) : ({} as TransformedExercises)
   )
+  const [selectedSet, setSelectedSet] = useState(0)
+  const [showInput, setShowInput] = useState(false)
+
   const [selectedExercise, setSelectedExercise] = useState(
     exercises ? Object.keys(exercises)[0] : ''
   )
@@ -52,13 +52,42 @@ const useExerciseInputManager = ({
     ? Object.keys(exercises).map((exercise: string) => exercises[exercise])
     : []
 
+  const handleClickSet = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    exerciseName: string,
+    setIndex: number
+  ) => {
+    e.preventDefault()
+    if (
+      setIndex === selectedSet &&
+      exerciseName === selectedExercise &&
+      showInput
+    ) {
+      setShowInput(false)
+      setSelectedExercise(exercises ? Object.keys(exercises)[0] : '')
+      setSelectedSet(0)
+      return
+    }
+    if (exerciseName !== selectedExercise) {
+      setSelectedExercise(exerciseName)
+    }
+    if (setIndex !== selectedSet) {
+      setSelectedSet(setIndex)
+    }
+
+    setShowInput(true)
+  }
+
   return {
     currentExerciseList,
     exerciseData,
     setExerciseData,
     handleChange,
     setSelectedExercise,
-    selectedExercise
+    selectedExercise,
+    showInput,
+    handleClickSet,
+    selectedSet
   }
 }
 

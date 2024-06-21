@@ -7,6 +7,7 @@ import {
   insertWorkoutExercises,
   selectLastPerformedWorkout,
   selectLastPerformedWorkoutById,
+  selectPerformedExercise,
   selectPerformedExercisePerformanceDates,
   selectPlannedUserWorkouts,
   selectWorkout,
@@ -98,6 +99,7 @@ export const getDashboardData = async (
 }
 
 export interface AddPerformedExercise {
+  id: string
   userId: number | string
   workoutId: number | string
   exerciseId: string | number
@@ -109,6 +111,7 @@ export interface AddPerformedExercise {
 }
 
 export const addPerformedExercise = async ({
+  id,
   userId,
   workoutId,
   exerciseId,
@@ -118,19 +121,10 @@ export const addPerformedExercise = async ({
   weight,
   exercise_order
 }: AddPerformedExercise) => {
-  const previousDatesOfPerformance =
-    await selectPerformedExercisePerformanceDates(
-      exerciseId,
-      exercise_order,
-      reps,
-      weight
-    )
-
-  const alreadyPerformedToday = areBothDatesFromToday(
-    previousDatesOfPerformance
-  )
-  if (!alreadyPerformedToday) {
+  const isPerformed = await selectPerformedExercise(id)
+  if (!isPerformed) {
     await insertPerformedExercise({
+      id,
       userId,
       workoutId,
       exerciseId,
@@ -140,7 +134,7 @@ export const addPerformedExercise = async ({
       weight,
       exercise_order
     })
-    return 'completed'
+    return 'edited'
   }
 
   await updatePerformedExercise({
@@ -150,7 +144,7 @@ export const addPerformedExercise = async ({
     weight,
     exercise_order
   })
-  return 'edited'
+  return 'completed'
 }
 
 export const getLastPerformedWorkoutById = async (workout_id: number) => {
