@@ -74,6 +74,7 @@ export interface GroupedExerciseSet {
   reps: number | string
   weight: number | string
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
+  [key: string]: any
 }
 export interface GroupedExercise {
   name: string

@@ -1,23 +1,32 @@
 'use client'
-import React, { useRef, useEffect } from 'react'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import React, { useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import WorkoutCard from '@/components/workout-card/workout-card'
-import { Label } from '@/components/ui/label'
-import Input from '@/components/form/input'
 import { GroupedExerciseSet } from '@/interfaces/workout'
 import { Button } from '@/components/ui/button'
-import useExerciseInputManager, {
-  Exercise
-} from '@/hooks/useExerciseInputManager'
 import { FormattedWorkout, TransformedExercises } from '@/utils/exercise'
 import Link from 'next/link'
 import { useToast } from '@/components/ui/use-toast'
 import { addPerformedExercise } from '@/server-actions/workout-actions'
-import { getPerformanceStatus } from './trainingUtils'
-
 import { v4 as uuidv4 } from 'uuid'
 import { Base64 } from 'js-base64'
-import { buildSearchParams } from './utils'
+import Sets from './sets'
+
+export interface SetInterface {
+  weight: number
+  reps: number
+  performed_exercise_id?: string
+  exercise_order: number
+  performanceStatus?: 'met' | 'not-met' | 'exceeded'
+  [key: string]: any
+}
+
+export interface Exercise {
+  sets: SetInterface[]
+  order: number
+  name: string
+  id: string | number
+}
 
 export interface CompletedSets {
   [key: string]: Exercise
@@ -30,7 +39,9 @@ interface TrainingProps {
   workoutId: number
   userId: number
 }
-
+type acc = {
+  [key: string]: boolean
+}
 const Training: React.FC<TrainingProps> = ({
   workoutId,
   userId,
@@ -39,29 +50,20 @@ const Training: React.FC<TrainingProps> = ({
   name,
   previousWorkout
 }) => {
-  const router = useRouter()
-  const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const {
-    currentExerciseList,
-    handleChange,
-    exerciseData,
-    selectedExercise,
-    setExerciseData,
-    showInput,
-    handleClickSet,
-    selectedSet
-  } = useExerciseInputManager({ exercises })
+  const [addSetInputsMap, setAddSetsInputMap] = useState(
+    Object.keys(exercises).reduce((acc: acc, curr: string) => {
+      acc[curr] = false
+      return acc
+    }, {})
+  )
 
-  const targetReps = exercises[selectedExercise]?.sets[selectedSet]?.reps
-  const performedReps = Number(
-    exerciseData[selectedExercise]?.sets[selectedSet]?.reps
-  )
-  const targetWeight = exercises[selectedExercise]?.sets[selectedSet]?.weight
-  const liftedWeight = Number(
-    exerciseData[selectedExercise]?.sets[selectedSet]?.weight
-  )
+  const [newSet, setNewSet] = useState<SetInterface>({
+    exercise_order: 0,
+    reps: 1,
+    weight: 1
+  })
 
   const getCompletedSets = () => {
     const url = searchParams.get('completedSets')
@@ -84,7 +86,11 @@ const Training: React.FC<TrainingProps> = ({
     return {}
   }
 
-  const submitSet = async (exercise: Exercise) => {
+  const submitSet = async (
+    exercise: Exercise,
+    selectedSet: number,
+    performanceStatus: 'met' | 'not-met' | 'exceeded'
+  ) => {
     const currentSet = { ...exercise.sets[selectedSet] }
     const id = currentSet.performed_exercise_id || uuidv4()
     const requestData = {
@@ -92,12 +98,7 @@ const Training: React.FC<TrainingProps> = ({
       name: exercise.name as string,
       reps: currentSet.reps,
       weight: currentSet.weight,
-      performanceStatus: getPerformanceStatus(
-        targetReps,
-        performedReps,
-        targetWeight,
-        liftedWeight
-      ),
+      performanceStatus,
       exerciseId: exercise.id,
       userId,
       workoutId,
@@ -107,91 +108,52 @@ const Training: React.FC<TrainingProps> = ({
     try {
       const result = await addPerformedExercise(requestData)
       toast({
-        title: `${selectedExercise}`,
+        title: `${exercise.name}`,
         description: `Set ${selectedSet + 1} successfully ${result}!`,
         variant: 'success'
       })
-      currentSet.performed_exercise_id = id
-      currentSet.performanceStatus = getPerformanceStatus(
-        targetReps,
-        performedReps,
-        targetWeight,
-        liftedWeight
-      )
-      const newParams = buildSearchParams(
-        searchParams.get('completedSets'),
-        pathname,
-        selectedExercise,
-        currentSet
-      )
-      router.replace(newParams, { scroll: false })
-      setExerciseData((state) => {
-        const newState = { ...state }
-        newState[selectedExercise].sets[selectedSet].performed_exercise_id = id
-        newState[selectedExercise].sets[selectedSet].performanceStatus =
-          getPerformanceStatus(
-            targetReps,
-            performedReps,
-            targetWeight,
-            liftedWeight
-          )
-        return { ...state }
-      })
+      return id
     } catch (error) {
       console.log(error)
-
       toast({
         title: 'Something went wrong...',
         description: 'Unable to save your completed set',
         variant: 'destructive'
       })
+      return null
     }
   }
 
   const { toast } = useToast()
 
   let isWorkoutCompleted = useRef(false)
-  const divRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    const url = searchParams.get('completedSets')
-    const decodedUrl = url ? Base64.decode(url) : null
+  const toggleAddSetInput = (exerciseName: string) => {
+    setAddSetsInputMap((state) => {
+      const newState = { ...state }
+      newState[exerciseName] = !newState[exerciseName]
+      return newState
+    })
+  }
 
-    if (decodedUrl) {
-      const completedSetsUrl = decodedUrl
-        .split('exercise=')
-        .filter((el) => el !== '?' && el !== '')
+  const handleSetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { target } = e
+    const { name, value } = target
+    setNewSet((state) => ({ ...state, [name]: value }))
+  }
 
-      completedSetsUrl.forEach((set) => {
-        const setData = set.split('=')
-        const exerciseName = setData[0]
+  //TODO
+  // const handleSetSave = (exerciseName: string) => {
+  //   setExerciseData(state => {
+  //     const newState = {...state}
+  //     newSet.exerciseId = exerciseData[exerciseName]
+  //     state[exerciseName].sets.push(newSet)
+  //   })
+  // }
 
-        const completedSet = JSON.parse(setData[1])
-        setExerciseData((state) => {
-          let newState = { ...state }
-
-          newState[exerciseName].sets = newState[exerciseName].sets.map(
-            (set) => {
-              if (set.exercise_order === completedSet.exercise_order) {
-                set.performed_exercise_id = completedSet.performed_exercise_id
-                set.performanceStatus = completedSet.performanceStatus
-              }
-              return set
-            }
-          )
-          return newState
-        })
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    const { current } = divRef
-    if (current && showInput) {
-      current.scrollIntoView({ behavior: 'smooth', block: 'end' })
-    }
-  }, [showInput])
+  const currentExerciseList = exercises
+    ? Object.keys(exercises).map((exercise: string) => exercises[exercise])
+    : []
 
   return (
     <div className="flex flex-wrap gap-8">
@@ -241,63 +203,52 @@ const Training: React.FC<TrainingProps> = ({
           {currentExerciseList.map((exercise) => (
             <WorkoutCard.Exercises key={exercise.id}>
               <WorkoutCard.Exercise name={exercise.name} />
-              <WorkoutCard.SetsContainer>
-                {exercise.sets.map((set: GroupedExerciseSet, index: number) => {
-                  const isSelected =
-                    exercise.name === selectedExercise &&
-                    selectedSet === index &&
-                    showInput
-                  return (
-                    <WorkoutCard.Set
-                      selected={isSelected}
-                      onClick={(e) => handleClickSet(e, exercise.name, index)}
-                      key={index}
-                      reps={set.reps}
-                      weight={set.weight}
-                      performanceStatus={
-                        exerciseData[exercise.name]?.sets[index]
-                          ?.performanceStatus
-                      }
-                      variant="current"
-                    />
-                  )
-                })}
-              </WorkoutCard.SetsContainer>
+              <Sets
+                sets={exercise.sets}
+                exerciseName={exercise.name}
+                submitSet={submitSet}
+                id={exercise.id}
+                order={exercise.order}
+              />
+              {/* <Button onClick={() => toggleAddSetInput(exercise.name)}>
+                Add set
+              </Button>
+              <div
+                className={`flex flex-col gap-4 max-w-48 m-auto ${
+                  addSetInputsMap[exercise.name]
+                    ? 'opacity-100'
+                    : 'opacity-0 h-0'
+                }`}
+              >
+                <p>Add your set</p>
+                <Label htmlFor="weight">Weight</Label>
+                <Input
+                  className="rounded-md pl-2 border border-solid border-gray-200"
+                  type="number"
+                  name="weight"
+                  id="weight"
+                  placeholder="weight"
+                  value={newSet.weight}
+                  onChange={handleSetChange}
+                />
+                <Label htmlFor="reps">Reps</Label>
+                <Input
+                  className="rounded-md pl-2 border border-solid border-gray-200"
+                  type="number"
+                  name="reps"
+                  id="reps"
+                  placeholder="reps"
+                  value={newSet.reps}
+                  onChange={handleSetChange}
+                />
+                <Button>Save</Button>
+              </div> */}
             </WorkoutCard.Exercises>
           ))}
-          <div
-            ref={divRef}
-            className={`flex flex-col gap-4 max-w-48 m-auto ${
-              showInput ? 'opacity-100' : 'opacity-0 h-0'
-            }`}
-          >
-            <Label htmlFor="weight">Weight</Label>
-            <Input
-              className="rounded-md pl-2 border border-solid border-gray-200"
-              type="number"
-              name="weight"
-              id="weight"
-              placeholder="weight"
-              value={exerciseData[selectedExercise]?.sets[selectedSet]?.weight}
-              onChange={handleChange}
-            />
-            <Label htmlFor="reps">Reps</Label>
-            <Input
-              className="rounded-md pl-2 border border-solid border-gray-200"
-              type="number"
-              name="reps"
-              id="reps"
-              placeholder="reps"
-              value={exerciseData[selectedExercise]?.sets[selectedSet]?.reps}
-              onChange={handleChange}
-            />
-            <Button
-              onClick={() => submitSet(exerciseData[selectedExercise])}
-              className="btn my-5"
-            >
-              Complete set
-            </Button>
+          <div className="p-6">
+            <Button>Add exercise</Button>
           </div>
+
           {isWorkoutCompleted.current && (
             <Link className="flex justify-center pb-7" href="dashboard">
               <Button>Go to dashboard</Button>
