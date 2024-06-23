@@ -8,6 +8,7 @@ interface WorkoutCardProps {
   className?: string
   containerClassName?: string
   cardRef?: React.ForwardedRef<HTMLDivElement>
+  isEditMode?: boolean // New prop
 }
 
 function WorkoutCard({
@@ -15,11 +16,13 @@ function WorkoutCard({
   variant = 'current',
   className = '',
   containerClassName = '',
-  cardRef = null
+  cardRef = null,
+  isEditMode = false // Default value
 }: WorkoutCardProps) {
   const variantClassMapper = {
     current: 'bg-white',
-    previous: 'bg-gray-800 text-gray-50 dark:bg-gray-50 dark:text-gray-900'
+    previous: 'bg-gray-800 text-gray-50 dark:bg-gray-50 dark:text-gray-900',
+    editMode: 'border border-dashed border-gray-400' // Edit mode styling
   }
 
   return (
@@ -27,7 +30,11 @@ function WorkoutCard({
       ref={cardRef}
       className={`w-full max-w-4xl mx-auto space-y-8 p-6 rounded-lg shadow-lg ${containerClassName}`}
     >
-      <Card className={`${variantClassMapper[variant]} ${className}`}>
+      <Card
+        className={`${variantClassMapper[variant]} ${
+          isEditMode ? variantClassMapper.editMode : ''
+        } ${className}`}
+      >
         {children}
       </Card>
     </div>
@@ -39,17 +46,23 @@ interface HeaderProps {
   children?: ReactNode
   className?: string
   titleClassName?: string
+  isEditMode?: boolean // New prop
 }
 
 const Header = ({
   titleClassName = '',
   className = '',
   workoutName,
-  children
+  children,
+  isEditMode = false // Default value
 }: HeaderProps) => (
   <CardHeader className={`${className}`}>
     <div className="flex items-center justify-between">
-      <CardTitle className={titleClassName}>{workoutName}</CardTitle>
+      <CardTitle
+        className={`${isEditMode ? 'text-blue-600' : ''} ${titleClassName}`}
+      >
+        {workoutName}
+      </CardTitle>
       {children}
     </div>
   </CardHeader>
@@ -57,26 +70,36 @@ const Header = ({
 
 interface ExercisesProps {
   children?: ReactNode
+  isEditMode?: boolean // New prop
 }
 
-const Exercises = ({ children }: ExercisesProps) => (
+const Exercises = ({ children, isEditMode = false }: ExercisesProps) => (
   <CardContent>
-    <div className="space-y-4">{children}</div>
+    <div className={`space-y-4 ${isEditMode ? 'bg-gray-100' : ''}`}>
+      {children}
+    </div>
   </CardContent>
 )
 
 const Exercise = ({
   name,
   onClick,
-  children
+  children,
+  isEditMode = false // Default value
 }: {
   name: string
   onClick?: () => void
   children?: ReactNode
+  isEditMode?: boolean
 }) => (
-  <div className="space-y-2" onClick={onClick}>
+  <div
+    className={`space-y-2 ${isEditMode ? 'bg-gray-100 p-2 rounded' : ''}`}
+    onClick={onClick}
+  >
     <div className="flex items-center justify-between">
-      <h3 className="font-medium">{name}</h3>
+      <h3 className={`font-medium ${isEditMode ? 'text-blue-600' : ''}`}>
+        {name}
+      </h3>
       {children}
     </div>
   </div>
@@ -89,10 +112,24 @@ interface SetProps {
   reps: string | number
   weight: string | number
   variant?: 'previous' | 'current'
+  children?: ReactNode
+  isEditMode?: boolean // New prop
 }
 
-const SetsContainer = ({ children }: { children: ReactNode }) => (
-  <div className="grid grid-cols-3 gap-2">{children}</div>
+const SetsContainer = ({
+  children,
+  isEditMode = false
+}: {
+  children: ReactNode
+  isEditMode?: boolean
+}) => (
+  <div
+    className={`grid grid-cols-3 gap-2 ${
+      isEditMode ? 'bg-gray-100 p-2 rounded' : ''
+    }`}
+  >
+    {children}
+  </div>
 )
 
 const Set = ({
@@ -101,7 +138,9 @@ const Set = ({
   onClick,
   reps,
   weight,
-  variant = 'current'
+  variant = 'current',
+  children,
+  isEditMode = false // Default value
 }: SetProps) => {
   const variantClassMapper = {
     current: {
@@ -113,14 +152,15 @@ const Set = ({
       met: 'bg-green-300 text-white',
       exceeded: 'bg-green-400 text-white',
       'not-met': 'bg-pink-300 text-white'
-    }
+    },
+    editMode: 'border border-dashed border-gray-400' // Edit mode styling
   }
 
   const selectedClass = 'border-2 border-blue-500'
 
   return (
     <div
-      className={`p-2 rounded-md dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+      className={`relative p-2 rounded-md dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 ${
         onClick ? 'cursor-pointer' : ''
       } ${
         performanceStatus
@@ -128,11 +168,12 @@ const Set = ({
           : 'bg-gray-200'
       } hover:bg-gray-200 transition-colors duration-200 ${
         selected ? selectedClass : ''
-      }`}
+      } ${isEditMode ? variantClassMapper.editMode : ''}`}
       onClick={onClick}
     >
+      {children}
       <p className="text-sm text-gray-500 font-medium">{reps} reps</p>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{weight}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">{weight}kg</p>
       {performanceStatus && (
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {performanceStatus}

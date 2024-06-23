@@ -3,30 +3,57 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import WorkoutCard from '@/components/workout-card/workout-card'
 import { GroupedExerciseSet } from '@/interfaces/workout'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { getPerformanceStatus } from './trainingUtils'
 import { buildSearchParams } from './utils'
 import { Base64 } from 'js-base64'
+import InputGroup from './input-group'
 
 interface SetsProps {
   sets: GroupedExerciseSet[]
   exerciseName: string
   id: string | number
   order: number
+  isEditMode?: boolean
   submitSet: (...args: any) => Promise<string | null>
+  addSet: (exerciseName: string, newSet: GroupedExerciseSet) => void
+  editSet?: (
+    exerciseId: string | number,
+    reps: number | string,
+    weight: number | string,
+    order: number
+  ) => Promise<boolean | null>
+  deleteSet?: (id: string, exerciseName: string) => Promise<boolean>
 }
 
-const Sets = ({ sets, exerciseName, id, order, submitSet }: SetsProps) => {
+const Sets = ({
+  isEditMode,
+  addSet,
+  editSet,
+  deleteSet,
+  submitSet,
+  sets,
+  exerciseName,
+  id,
+  order
+}: SetsProps) => {
   const [exerciseData, setExerciseData] = useState({
     name: exerciseName,
-    sets: [...sets],
+    sets: [...sets.map((set) => structuredClone(set))],
     id,
     order
   })
   const [selectedSet, setSelectedSet] = useState(0)
   const [showInput, setShowInput] = useState(false)
+  const [showAddSetInput, setShowAddSetInput] = useState(false)
+  const [newSet, setNewSet] = useState({
+    exercise_id: exerciseData.id,
+    exercise_order: exerciseData.sets.length + 1,
+    reps: 1,
+    weight: 10
+  })
+
   const divRef = useRef<HTMLDivElement | null>(null)
+  const showAddSetRef = useRef<HTMLDivElement | null>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -37,6 +64,7 @@ const Sets = ({ sets, exerciseName, id, order, submitSet }: SetsProps) => {
     setIndex: number
   ) => {
     e.preventDefault()
+
     if (setIndex === selectedSet && showInput) {
       setShowInput(false)
       setSelectedSet(0)
@@ -46,10 +74,10 @@ const Sets = ({ sets, exerciseName, id, order, submitSet }: SetsProps) => {
       setSelectedSet(setIndex)
     }
     setShowInput(true)
-    const { current } = divRef
-    if (current) {
-      current.scrollIntoView({ behavior: 'smooth', block: 'end' })
-    }
+    // const { current } = divRef
+    // if (current) {
+    //   current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    // }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,13 +147,30 @@ const Sets = ({ sets, exerciseName, id, order, submitSet }: SetsProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const toggleAddSetInput = () => setShowAddSetInput((state) => !state)
+
+  const newSetHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { target } = e
+    const { value, name } = target
+    setNewSet((state) => ({ ...state, [name]: value }))
+  }
+
+  const addNewSet = async () => {
+    await addSet(exerciseData.name, newSet)
+  }
+
+  useEffect(() => {
+    setExerciseData({ name: exerciseName, sets: [...sets], id, order })
+  }, [sets, exerciseName, id, order])
+
   return (
     <>
-      <WorkoutCard.SetsContainer>
+      <WorkoutCard.SetsContainer isEditMode={isEditMode}>
         {sets.map((set: GroupedExerciseSet, index: number) => {
           const isSelected = selectedSet === index && showInput
           return (
             <WorkoutCard.Set
+              isEditMode={isEditMode}
               selected={isSelected}
               onClick={(e) => handleClickSet(e, index)}
               key={index}
@@ -133,40 +178,63 @@ const Sets = ({ sets, exerciseName, id, order, submitSet }: SetsProps) => {
               weight={set.weight}
               performanceStatus={exerciseData?.sets[index]?.performanceStatus}
               variant="current"
-            />
+            ></WorkoutCard.Set>
           )
         })}
       </WorkoutCard.SetsContainer>
-      <div
-        ref={divRef}
-        className={`flex flex-col gap-4 max-w-48 m-auto ${
-          showInput ? 'opacity-100' : 'opacity-0 h-0'
-        }`}
+      <InputGroup
+        divRef={divRef}
+        handleChange={handleChange}
+        set={exerciseData.sets[selectedSet]}
+        showInput={showInput}
+        title={isEditMode ? 'Edit set' : ''}
       >
-        <Label htmlFor="weight">Weight</Label>
-        <Input
-          className="rounded-md pl-2 border border-solid border-gray-200"
-          type="number"
-          name="weight"
-          id="weight"
-          placeholder="weight"
-          value={exerciseData.sets[selectedSet]?.weight}
-          onChange={handleChange}
-        />
-        <Label htmlFor="reps">Reps</Label>
-        <Input
-          className="rounded-md pl-2 border border-solid border-gray-200"
-          type="number"
-          name="reps"
-          id="reps"
-          placeholder="reps"
-          value={exerciseData.sets[selectedSet]?.reps}
-          onChange={handleChange}
-        />
-        <Button onClick={handleSubmit} className="btn my-5">
-          Complete set
-        </Button>
-      </div>
+        <div className="flex gap-1 justify-center flex-wrap">
+          <Button
+            onClick={
+              isEditMode && editSet
+                ? () =>
+                    editSet(
+                      exerciseData.id,
+                      exerciseData.sets[selectedSet].reps,
+                      exerciseData.sets[selectedSet].weight,
+                      exerciseData.sets[selectedSet].exercise_order
+                    )
+                : handleSubmit
+            }
+            className="btn w-full my-5"
+          >
+            {isEditMode ? 'Save changes' : 'Complete set'}
+          </Button>
+          {isEditMode && deleteSet && (
+            <Button
+              onClick={() =>
+                deleteSet(
+                  exerciseData.sets[selectedSet].exercise_id,
+                  exerciseName
+                )
+              }
+              className="bg-red-700 w-full"
+            >
+              Delete set
+            </Button>
+          )}
+        </div>
+      </InputGroup>
+      {isEditMode && (
+        <>
+          <Button onClick={toggleAddSetInput}>Add set</Button>
+          {showAddSetInput && <p>Add your new set below</p>}
+          <InputGroup
+            set={newSet}
+            showInput={showAddSetInput}
+            divRef={showAddSetRef}
+            handleChange={newSetHandleChange}
+          >
+            <Button onMouseDown={addNewSet}>Save new set</Button>
+          </InputGroup>
+        </>
+      )}
     </>
   )
 }

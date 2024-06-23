@@ -47,7 +47,7 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
 
 // Interfaces
 export interface ExerciseResp {
-  exercise_id: number
+  exercise_id: string
   exercise_name: string
   reps: number
   weight: number
@@ -61,7 +61,7 @@ export type Set = {
   weight: number
   exercise_order: number
   created_on: Date
-  exercise_id: number
+  exercise_id: string
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
   id?: string
   [key: string]: any

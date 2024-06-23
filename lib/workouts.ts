@@ -4,7 +4,7 @@ import { QueryResultRow, sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
 import { InsertExerciseInterface } from '@/interfaces/workout'
 import { AddPerformedExercise } from '@/server-actions/workout-actions'
-import { WorkoutResp } from '@/utils/exercise'
+import { Set, WorkoutResp } from '@/utils/exercise'
 
 export const insertWorkout = async (
   userId: number | string,
@@ -273,4 +273,41 @@ export const selectPerformedExercise = async (id: string) => {
   const result =
     await sql`SELECT * FROM performed_exercises WHERE performed_exercises.id = ${id}`
   return result.rows[0]
+}
+
+export const insertExercise = async (
+  workoutId: string | number,
+  userId: string | number,
+  name: string,
+  weight: string | number,
+  reps: string | number,
+  order: number
+) => {
+  const { rows } =
+    await sql`INSERT INTO exercises (exercise_id, user_id, workout_id, name, reps, weight, exercise_order) 
+        VALUES (${uuidv4()}, ${userId}, ${workoutId}, ${name}, ${reps}, ${weight}, ${order})
+        RETURNING created_on, exercise_id, exercise_order, reps, weight`
+  return rows[0] as Set
+}
+
+export const updatePlannedSet = async (
+  exerciseId: string | number,
+  reps: number | string,
+  weight: number | string,
+  order: number
+) => {
+  const { rows } = await sql`
+    UPDATE exercises 
+      SET reps=${reps}, weight=${weight}, exercise_order=${order}
+      WHERE exercises.exercise_id=${exerciseId}
+      RETURNING *
+    `
+  return rows[0]
+}
+
+export const deletePlannedSet = async (id: string) => {
+  const { rows } =
+    await sql`DELETE FROM exercises WHERE exercises.exercise_id=${id}`
+
+  return rows[0]
 }

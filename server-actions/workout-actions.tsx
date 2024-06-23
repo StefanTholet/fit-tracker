@@ -1,6 +1,7 @@
 'use server'
 
 import {
+  insertExercise,
   insertManyPerformedExercises,
   insertPerformedExercise,
   insertWorkout,
@@ -8,14 +9,14 @@ import {
   selectLastPerformedWorkout,
   selectLastPerformedWorkoutById,
   selectPerformedExercise,
-  selectPerformedExercisePerformanceDates,
   selectPlannedUserWorkouts,
   selectWorkout,
-  updatePerformedExercise
+  updatePerformedExercise,
+  updatePlannedSet as updateSet,
+  deletePlannedSet as deleteSet
 } from '@/lib/workouts'
 import { Workout, QueryResponseMessage } from '@/interfaces/workout'
 import { WorkoutResp, flattenExercises } from '@/utils/exercise'
-import { areBothDatesFromToday } from '@/utils/dateUtils'
 
 export const addWorkoutName = async (
   userId: string | number,
@@ -41,6 +42,27 @@ export const addWorkout = async (
     console.error('Error adding workout and exercises:', error)
     throw new Error('Failed to add workout and exercises.')
   }
+}
+
+export const addExercise = async (
+  workoutId: string | number,
+  userId: string | number,
+  name: string,
+  weight: string | number,
+  reps: string | number,
+  order: number
+) => {
+  try {
+    const newExercise = await insertExercise(
+      workoutId,
+      userId,
+      name,
+      weight,
+      reps,
+      order
+    )
+    return newExercise
+  } catch (error) {}
 }
 
 export const addFreestyleWorkout = async (
@@ -150,4 +172,29 @@ export const addPerformedExercise = async ({
 export const getLastPerformedWorkoutById = async (workout_id: number) => {
   const result = await selectLastPerformedWorkoutById(workout_id)
   return result
+}
+
+export const updatePlannedSet = async (
+  exerciseId: string | number,
+  reps: number | string,
+  weight: number | string,
+  order: number
+) => {
+  try {
+    const result = await updateSet(exerciseId, reps, weight, order)
+    return result
+  } catch (error) {
+    return error
+  }
+}
+
+export const deletePlannedSet = async (id: string) => {
+  try {
+    const result = await deleteSet(id)
+    return result
+  } catch (error) {
+    console.log(error)
+
+    return error
+  }
 }

@@ -1,16 +1,23 @@
 'use client'
-import React, { useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import WorkoutCard from '@/components/workout-card/workout-card'
-import { GroupedExerciseSet } from '@/interfaces/workout'
-import { Button } from '@/components/ui/button'
-import { FormattedWorkout, TransformedExercises } from '@/utils/exercise'
-import Link from 'next/link'
-import { useToast } from '@/components/ui/use-toast'
-import { addPerformedExercise } from '@/server-actions/workout-actions'
+import React, { ReactNode, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { useSearchParams } from 'next/navigation'
 import { Base64 } from 'js-base64'
+import Link from 'next/link'
+import WorkoutCard from '@/components/workout-card/workout-card'
+import { Button } from '@/components/ui/button'
 import Sets from './sets'
+import PencilIcon from '@/assets/svg/pencil-icon'
+import { useToast } from '@/components/ui/use-toast'
+import { FormattedWorkout, TransformedExercises } from '@/utils/exercise'
+import { GroupedExerciseSet } from '@/interfaces/workout'
+import {
+  addExercise,
+  addPerformedExercise,
+  deletePlannedSet,
+  updatePlannedSet
+} from '@/server-actions/workout-actions'
+import {} from '@/lib/workouts'
 
 export interface SetInterface {
   weight: number
@@ -34,36 +41,29 @@ export interface CompletedSets {
 interface TrainingProps {
   createdOn: string
   exercises: TransformedExercises
-  previousWorkout?: FormattedWorkout
   name: string
   workoutId: number
   userId: number
+  children?: ReactNode
 }
-type acc = {
-  [key: string]: boolean
-}
+
 const Training: React.FC<TrainingProps> = ({
   workoutId,
   userId,
   createdOn,
   exercises,
   name,
-  previousWorkout
+
+  children
 }) => {
   const searchParams = useSearchParams()
-
-  const [addSetInputsMap, setAddSetsInputMap] = useState(
-    Object.keys(exercises).reduce((acc: acc, curr: string) => {
-      acc[curr] = false
-      return acc
-    }, {})
+  const { toast } = useToast()
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [exerciseList, setExerciseList] = useState(
+    exercises
+      ? Object.keys(exercises).map((exercise: string) => exercises[exercise])
+      : []
   )
-
-  const [newSet, setNewSet] = useState<SetInterface>({
-    exercise_order: 0,
-    reps: 1,
-    weight: 1
-  })
 
   const getCompletedSets = () => {
     const url = searchParams.get('completedSets')
@@ -124,138 +124,149 @@ const Training: React.FC<TrainingProps> = ({
     }
   }
 
-  const { toast } = useToast()
+  const addNewSet = async (
+    exerciseName: string,
+    newSet: GroupedExerciseSet
+  ) => {
+    try {
+      const createdSet = await addExercise(
+        workoutId,
+        userId,
+        exerciseName,
+        newSet.weight,
+        newSet.reps,
+        newSet.exercise_order
+      )
+
+      if (createdSet) {
+        setExerciseList((state) => {
+          const newState = [...state]
+          const exerciseIndex = newState.findIndex(
+            (ex) => ex.name === exerciseName
+          )
+
+          newState[exerciseIndex].sets = [
+            ...newState[exerciseIndex].sets,
+            createdSet
+          ]
+          return [...newState]
+        })
+        toast({
+          title: `${exerciseName}`,
+          description: 'Set successfully added!',
+          variant: 'success'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: `Something went wrong`,
+        description: 'Failed to add set!',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const editSet = async (
+    exerciseId: string | number,
+    reps: number | string,
+    weight: number | string,
+    order: number
+  ) => {
+    try {
+      await updatePlannedSet(exerciseId, reps, weight, order)
+      toast({
+        title: `Set changes`,
+        description: 'Successfully saved!',
+        variant: 'success'
+      })
+      return true
+    } catch (error) {
+      toast({
+        title: `Could not save your set changes`,
+        variant: 'destructive'
+      })
+      return null
+    }
+  }
+
+  const deleteSet = async (exerciseId: string, exerciseName: string) => {
+    try {
+      const result = await deletePlannedSet(exerciseId)
+      toast({
+        title: `Set`,
+        description: 'Successfully deleted!',
+        variant: 'success'
+      })
+      setExerciseList((state) => {
+        const newState = [...state]
+        const exerciseIndex = newState.findIndex(
+          (exercise) => exercise.name === exerciseName
+        )
+        newState[exerciseIndex].sets = newState[exerciseIndex].sets.filter(
+          (set) => set.exercise_id !== exerciseId
+        )
+        return newState
+      })
+    } catch (error) {
+      toast({
+        title: `Could not delete set`,
+        description: 'Please try again later',
+        variant: 'destructive'
+      })
+    } finally {
+      return true
+    }
+  }
 
   let isWorkoutCompleted = useRef(false)
 
-  const toggleAddSetInput = (exerciseName: string) => {
-    setAddSetsInputMap((state) => {
-      const newState = { ...state }
-      newState[exerciseName] = !newState[exerciseName]
-      return newState
-    })
-  }
-
-  const handleSetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = e
-    const { name, value } = target
-    setNewSet((state) => ({ ...state, [name]: value }))
-  }
-
-  //TODO
-  // const handleSetSave = (exerciseName: string) => {
-  //   setExerciseData(state => {
-  //     const newState = {...state}
-  //     newSet.exerciseId = exerciseData[exerciseName]
-  //     state[exerciseName].sets.push(newSet)
-  //   })
-  // }
-
-  const currentExerciseList = exercises
-    ? Object.keys(exercises).map((exercise: string) => exercises[exercise])
-    : []
-
   return (
-    <div className="flex flex-wrap gap-8">
-      {previousWorkout && (
-        <div>
-          <div>
-            <h2 className="text-center font-medium text-xl">
-              Your previous performance
-            </h2>
-            <WorkoutCard variant="previous">
-              <WorkoutCard.Header
-                workoutName={
-                  previousWorkout.name +
-                  ' ' +
-                  new Date(createdOn).toLocaleDateString()
-                }
-              />
-              {Object.values(previousWorkout.exercises).map((exercise, i) => (
-                <WorkoutCard.Exercises key={exercise.id}>
-                  <WorkoutCard.Exercise name={exercise.name} />
-                  <WorkoutCard.SetsContainer>
-                    {exercise.sets.map(
-                      (set: GroupedExerciseSet, index: number) => (
-                        <WorkoutCard.Set
-                          key={i + index + 1}
-                          reps={set.reps}
-                          weight={set.weight}
-                          performanceStatus={set.performanceStatus}
-                        ></WorkoutCard.Set>
-                      )
-                    )}
-                  </WorkoutCard.SetsContainer>
-                </WorkoutCard.Exercises>
-              ))}
-            </WorkoutCard>
+    <div className="flex flex-wrap justify-center gap-8">
+      {children}
+      <WorkoutCard variant="current" isEditMode={isEditMode}>
+        <WorkoutCard.Header workoutName={name} isEditMode={isEditMode}>
+          <div
+            className={`p-2 rounded transition-colors duration-200 ${
+              isEditMode ? 'bg-blue-100' : 'bg-gray-100'
+            } hover:bg-blue-200`}
+            onClick={() => setIsEditMode((state) => !state)}
+          >
+            <PencilIcon
+              className={`h-4 w-4 cursor-pointer transition-colors duration-200 ${
+                isEditMode ? 'text-blue-500' : 'text-gray-500'
+              }`}
+            />
           </div>
+        </WorkoutCard.Header>
+        {exerciseList?.map((exercise) => (
+          <WorkoutCard.Exercises key={exercise.id}>
+            <WorkoutCard.Exercise
+              name={exercise.name}
+              isEditMode={isEditMode}
+            />
+            <Sets
+              isEditMode={isEditMode}
+              addSet={addNewSet}
+              editSet={editSet}
+              sets={exercise.sets}
+              deleteSet={deleteSet}
+              submitSet={submitSet}
+              exerciseName={exercise.name}
+              id={exercise.id}
+              order={exercise.order}
+            />
+          </WorkoutCard.Exercises>
+        ))}
+        <div className="p-6">
+          <Button>Add exercise</Button>
         </div>
-      )}
-      <div className="self-start">
-        {previousWorkout && (
-          <h2 className="text-center  font-medium text-xl">
-            Today&apos;s plan
-          </h2>
-        )}
-        <WorkoutCard variant="current">
-          <WorkoutCard.Header workoutName={name} />
-          {currentExerciseList.map((exercise) => (
-            <WorkoutCard.Exercises key={exercise.id}>
-              <WorkoutCard.Exercise name={exercise.name} />
-              <Sets
-                sets={exercise.sets}
-                exerciseName={exercise.name}
-                submitSet={submitSet}
-                id={exercise.id}
-                order={exercise.order}
-              />
-              {/* <Button onClick={() => toggleAddSetInput(exercise.name)}>
-                Add set
-              </Button>
-              <div
-                className={`flex flex-col gap-4 max-w-48 m-auto ${
-                  addSetInputsMap[exercise.name]
-                    ? 'opacity-100'
-                    : 'opacity-0 h-0'
-                }`}
-              >
-                <p>Add your set</p>
-                <Label htmlFor="weight">Weight</Label>
-                <Input
-                  className="rounded-md pl-2 border border-solid border-gray-200"
-                  type="number"
-                  name="weight"
-                  id="weight"
-                  placeholder="weight"
-                  value={newSet.weight}
-                  onChange={handleSetChange}
-                />
-                <Label htmlFor="reps">Reps</Label>
-                <Input
-                  className="rounded-md pl-2 border border-solid border-gray-200"
-                  type="number"
-                  name="reps"
-                  id="reps"
-                  placeholder="reps"
-                  value={newSet.reps}
-                  onChange={handleSetChange}
-                />
-                <Button>Save</Button>
-              </div> */}
-            </WorkoutCard.Exercises>
-          ))}
-          <div className="p-6">
-            <Button>Add exercise</Button>
-          </div>
 
-          {isWorkoutCompleted.current && (
-            <Link className="flex justify-center pb-7" href="dashboard">
-              <Button>Go to dashboard</Button>
-            </Link>
-          )}
-        </WorkoutCard>
-      </div>
+        {isWorkoutCompleted.current && (
+          <Link className="flex justify-center pb-7" href="dashboard">
+            <Button>Go to dashboard</Button>
+          </Link>
+        )}
+      </WorkoutCard>
     </div>
   )
 }

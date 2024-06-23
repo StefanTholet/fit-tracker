@@ -1,9 +1,10 @@
 import { IconInterface } from '@/interfaces/icons'
 
-function PencilIcon({ onClick, className }: IconInterface) {
+function PencilIcon({ onClick, className, style = {} }: IconInterface) {
   return (
     <svg
       className={className}
+      style={style}
       onClick={onClick}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
