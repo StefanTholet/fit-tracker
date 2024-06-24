@@ -28,7 +28,7 @@ function WorkoutCard({
   return (
     <div
       ref={cardRef}
-      className={`w-full max-w-4xl mx-auto space-y-8 p-6 rounded-lg shadow-lg ${containerClassName}`}
+      className={`max-w-md mx-auto p-4 space-y-4 rounded-lg shadow-lg ${containerClassName}`}
     >
       <Card
         className={`${variantClassMapper[variant]} ${
@@ -53,13 +53,12 @@ const Header = ({
   titleClassName = '',
   className = '',
   workoutName,
-  children,
-  isEditMode = false // Default value
+  children
 }: HeaderProps) => (
   <CardHeader className={`${className}`}>
     <div className="flex items-center justify-between">
       <CardTitle
-        className={`${isEditMode ? 'text-blue-600' : ''} ${titleClassName}`}
+        className={`text-xl font-bold text-blue-500 ${titleClassName}`}
       >
         {workoutName}
       </CardTitle>
@@ -84,24 +83,17 @@ const Exercises = ({ children, isEditMode = false }: ExercisesProps) => (
 const Exercise = ({
   name,
   onClick,
-  children,
-  isEditMode = false // Default value
+  className = '',
+  children
 }: {
   name: string
   onClick?: () => void
+  className?: string
   children?: ReactNode
-  isEditMode?: boolean
 }) => (
-  <div
-    className={`space-y-2 ${isEditMode ? 'bg-gray-100 p-2 rounded' : ''}`}
-    onClick={onClick}
-  >
-    <div className="flex items-center justify-between">
-      <h3 className={`font-medium ${isEditMode ? 'text-blue-600' : ''}`}>
-        {name}
-      </h3>
-      {children}
-    </div>
+  <div className={`bg-gray-100 p-3 rounded-md ${className}`} onClick={onClick}>
+    <div className="w-full text-left self-center">{name}</div>
+    {children}
   </div>
 )
 
@@ -172,10 +164,14 @@ const Set = ({
       onClick={onClick}
     >
       {children}
-      <p className="text-sm text-gray-500 font-medium">{reps} reps</p>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{weight}kg</p>
+      <p className="text-sm text-gray-500 font-medium text-center">
+        {reps} reps
+      </p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+        {weight}kg
+      </p>
       {performanceStatus && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
           {performanceStatus}
         </p>
       )}

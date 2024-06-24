@@ -15,22 +15,28 @@ import {
   addExercise,
   addPerformedExercise,
   deletePlannedSet,
-  updatePlannedSet,
+  updatePlannedSet
 } from '@/server-actions/workout-actions'
 import {} from '@/lib/workouts'
 import InputGroup from './input-group'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import FilePenIcon from '@/assets/svg/file-pen-icon'
 
+// Define the SetInterface properly
 export interface SetInterface {
   weight: number
   reps: number
   performed_exercise_id?: string
   order: number
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
+  id?: string
+  created_on?: string | Date
+  exercise_id?: string
   [key: string]: any
 }
 
+// Define the Exercise interface
 export interface Exercise {
   sets: SetInterface[]
   order: number
@@ -56,23 +62,21 @@ const Training: React.FC<TrainingProps> = ({
   createdOn,
   exercises,
   name,
-
-  children,
+  children
 }) => {
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [exerciseList, setExerciseList] = useState(
+  const [exerciseList, setExerciseList] = useState<Exercise[]>(
     exercises
       ? Object.keys(exercises).map((exercise: string) => exercises[exercise])
       : []
   )
   const [showAddExercise, setShowAddExercise] = useState(false)
-  const [newExercise, setNewExercise] = useState({
+  const [newExercise, setNewExercise] = useState<Exercise>({
     name: '',
     id: uuidv4(),
     order: 0,
-    sets: [{ reps: 1, weight: 10, id: uuidv4(), order: 0 }],
+    sets: [{ reps: 1, weight: 10, id: uuidv4(), order: 0 }]
   })
 
   const getCompletedSets = () => {
@@ -112,7 +116,7 @@ const Training: React.FC<TrainingProps> = ({
       exerciseId: exercise.id,
       userId,
       workoutId,
-      order: Object.keys(getCompletedSets()).length,
+      order: Object.keys(getCompletedSets()).length
     }
 
     try {
@@ -120,7 +124,7 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `${exercise.name}`,
         description: `Set ${selectedSet + 1} successfully ${result}!`,
-        variant: 'success',
+        variant: 'success'
       })
       return id
     } catch (error) {
@@ -128,7 +132,7 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: 'Something went wrong...',
         description: 'Unable to save your completed set',
-        variant: 'destructive',
+        variant: 'destructive'
       })
       return null
     }
@@ -157,21 +161,21 @@ const Training: React.FC<TrainingProps> = ({
 
           newState[exerciseIndex].sets = [
             ...newState[exerciseIndex].sets,
-            createdSet,
+            createdSet
           ]
           return [...newState]
         })
         toast({
           title: `${exerciseName}`,
           description: 'Set successfully added!',
-          variant: 'success',
+          variant: 'success'
         })
       }
     } catch (error) {
       toast({
         title: `Something went wrong`,
         description: 'Failed to add set!',
-        variant: 'destructive',
+        variant: 'destructive'
       })
     }
   }
@@ -187,13 +191,13 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `Set changes`,
         description: 'Successfully saved!',
-        variant: 'success',
+        variant: 'success'
       })
       return true
     } catch (error) {
       toast({
         title: `Could not save your set changes`,
-        variant: 'destructive',
+        variant: 'destructive'
       })
       return null
     }
@@ -205,7 +209,7 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `Set`,
         description: 'Successfully deleted!',
-        variant: 'success',
+        variant: 'success'
       })
       setExerciseList((state) => {
         const newState = [...state]
@@ -221,7 +225,7 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `Could not delete set`,
         description: 'Please try again later',
-        variant: 'destructive',
+        variant: 'destructive'
       })
     } finally {
       return true
@@ -237,8 +241,9 @@ const Training: React.FC<TrainingProps> = ({
       if (name === 'name') {
         return { ...state, [name]: value }
       }
-      const sets = state.sets[0] as { [key: string]: any }
-      return { ...state, [sets[name]]: value }
+      const set = { ...state.sets[0] }
+      set[name] = value
+      return { ...state, sets: [{ ...set }] }
     })
   }
 
@@ -256,13 +261,12 @@ const Training: React.FC<TrainingProps> = ({
         newExercise.sets[0].reps,
         order
       )
-      console.log(insertedExercise)
-      console.log(exerciseList[0])
+
       if (insertedExercise && insertedExercise.id) {
         setExerciseList((state) => {
           const newState = [...state]
-          const { id, name, reps, weight, order } = insertedExercise
-          debugger
+          const { id, name, reps, weight, order, created_on } = insertedExercise
+
           const newExercise = {
             id,
             name,
@@ -272,12 +276,14 @@ const Training: React.FC<TrainingProps> = ({
                 reps,
                 weight,
                 order,
-                exercise_id: id,
-              },
-            ],
+                id,
+                created_on
+              }
+            ]
           }
           return [...newState, newExercise]
         })
+        setShowAddExercise(false)
       }
     } catch (error) {}
   }
@@ -287,29 +293,11 @@ const Training: React.FC<TrainingProps> = ({
   return (
     <div className="flex flex-wrap justify-center gap-8">
       {children}
-      <WorkoutCard variant="current" isEditMode={isEditMode}>
-        <WorkoutCard.Header workoutName={name} isEditMode={isEditMode}>
-          <div
-            className={`p-2 rounded transition-colors duration-200 ${
-              isEditMode ? 'bg-blue-100' : 'bg-gray-100'
-            } hover:bg-blue-200`}
-            onClick={() => setIsEditMode((state) => !state)}
-          >
-            <PencilIcon
-              className={`h-4 w-4 cursor-pointer transition-colors duration-200 ${
-                isEditMode ? 'text-blue-500' : 'text-gray-500'
-              }`}
-            />
-          </div>
-        </WorkoutCard.Header>
+      <WorkoutCard variant="current">
+        <WorkoutCard.Header workoutName={name}></WorkoutCard.Header>
         {exerciseList?.map((exercise) => (
           <WorkoutCard.Exercises key={exercise.id}>
-            <WorkoutCard.Exercise
-              name={exercise.name}
-              isEditMode={isEditMode}
-            />
             <Sets
-              isEditMode={isEditMode}
               addSet={addNewSet}
               editSet={editSet}
               sets={exercise.sets}
@@ -321,35 +309,46 @@ const Training: React.FC<TrainingProps> = ({
             />
           </WorkoutCard.Exercises>
         ))}
-        {isEditMode && (
-          <div className="p-6">
-            <Button onClick={toggleAddExercise}>Add exercise</Button>
-          </div>
-        )}
-        {isEditMode && (
-          <InputGroup
-            handleChange={handleExerciseChange}
-            set={newExercise.sets[0]}
-            showInput={showAddExercise}
-            topInputs={
-              <>
-                <Label>Exercise name</Label>
-                <Input
-                  onChange={handleExerciseChange}
-                  name="name"
-                  value={newExercise.name}
-                />
-              </>
-            }
+
+        <div className="p-6">
+          <Button
+            onClick={toggleAddExercise}
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-background h-10 px-4 py-2 w-full text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white"
           >
-            <Button onClick={saveNewExercise} disabled={!newExercise.name}>
-              Save exercise
-            </Button>
-          </InputGroup>
-        )}
+            Add exercise
+          </Button>
+        </div>
+
+        <InputGroup
+          className="p-6"
+          handleChange={handleExerciseChange}
+          set={newExercise.sets[0]}
+          showInput={showAddExercise}
+          topInputs={
+            <>
+              <Label>Exercise name</Label>
+              <Input
+                onChange={handleExerciseChange}
+                name="name"
+                value={newExercise.name}
+              />
+            </>
+          }
+        >
+          <Button
+            onClick={saveNewExercise}
+            disabled={!newExercise.name}
+            className="bg-green-500 text-white hover:bg-green-600"
+          >
+            Save exercise
+          </Button>
+        </InputGroup>
+
         {isWorkoutCompleted.current && (
           <Link className="flex justify-center pb-7" href="dashboard">
-            <Button>Go to dashboard</Button>
+            <Button className="bg-blue-500 text-white hover:bg-blue-600">
+              Go to dashboard
+            </Button>
           </Link>
         )}
       </WorkoutCard>

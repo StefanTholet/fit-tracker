@@ -11,6 +11,7 @@ interface InputGroupProps {
   topInputs?: React.ReactNode
   children?: React.ReactNode
   title?: string
+  className?: string
 }
 
 const InputGroup = ({
@@ -20,17 +21,23 @@ const InputGroup = ({
   handleChange,
   title,
   topInputs,
-  children,
+  className,
+  children
 }: InputGroupProps) => {
   return (
     <div
-      className={`flex flex-col gap-4 mb-5 max-w-48 m-auto relative overflow-hidden transition-all duration-300 ease-in-out ${
+      className={`flex flex-col gap-4 mb-5  m-auto relative overflow-hidden transition-all duration-300 ease-in-out ${className} ${
         showInput ? 'max-h-[1000px] z-10' : 'max-h-0 z-[-50]'
       }`}
     >
-      {title && <h3>{title}</h3>}
+      {title && <h3 className="font-bold">{title}</h3>}
       {topInputs}
-      <Label htmlFor="reps">Reps</Label>
+      <Label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        htmlFor="reps"
+      >
+        Reps
+      </Label>
       <Input
         className="rounded-md pl-2 border border-solid border-gray-200"
         type="number"

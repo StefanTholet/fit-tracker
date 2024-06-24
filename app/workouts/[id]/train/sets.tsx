@@ -7,13 +7,13 @@ import { getPerformanceStatus } from './trainingUtils'
 import { buildSearchParams } from './utils'
 import { Base64 } from 'js-base64'
 import InputGroup from './input-group'
+import FilePenIcon from '@/assets/svg/file-pen-icon'
 
 interface SetsProps {
   sets: GroupedExerciseSet[]
   exerciseName: string
   id: string | number
   order: number
-  isEditMode?: boolean
   submitSet: (...args: any) => Promise<string | null>
   addSet: (exerciseName: string, newSet: GroupedExerciseSet) => void
   editSet?: (
@@ -26,7 +26,6 @@ interface SetsProps {
 }
 
 const Sets = ({
-  isEditMode,
   addSet,
   editSet,
   deleteSet,
@@ -34,24 +33,24 @@ const Sets = ({
   sets,
   exerciseName,
   id,
-  order,
+  order
 }: SetsProps) => {
   const [exerciseData, setExerciseData] = useState({
     name: exerciseName,
     sets: [...sets.map((set) => structuredClone(set))],
     id,
-    order,
+    order
   })
   const [selectedSet, setSelectedSet] = useState(0)
   const [showInput, setShowInput] = useState(false)
   const [showAddSetInput, setShowAddSetInput] = useState(false)
   const [newSet, setNewSet] = useState({
-    exercise_id: exerciseData.id,
+    id: exerciseData.id,
     order: exerciseData.sets.length + 1,
     reps: 1,
-    weight: 10,
+    weight: 10
   })
-
+  const [isEditMode, setIsEditMode] = useState(false)
   const divRef = useRef<HTMLDivElement | null>(null)
   const showAddSetRef = useRef<HTMLDivElement | null>(null)
 
@@ -118,6 +117,23 @@ const Sets = ({
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exerciseData])
+
+  const toggleAddSetInput = () => setShowAddSetInput((state) => !state)
+
+  const newSetHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { target } = e
+    const { value, name } = target
+    setNewSet((state) => ({ ...state, [name]: value }))
+  }
+
+  const addNewSet = async () => {
+    await addSet(exerciseData.name, newSet)
+    setShowAddSetInput(false)
+  }
+
+  useEffect(() => {
     const url = searchParams.get('completedSets')
     const decodedUrl = url ? Base64.decode(url) : null
 
@@ -133,38 +149,37 @@ const Sets = ({
         setExerciseData((state) => {
           let newState = { ...state }
 
-          newState.sets = newState.sets.map((set) => {
-            if (set.order === completedSet.order) {
-              set.performed_exercise_id = completedSet.performed_exercise_id
-              set.performanceStatus = completedSet.performanceStatus
-            }
-            return set
-          })
+          newState.sets = [
+            ...sets.map((set) => {
+              if (set.id === completedSet.id) {
+                set.performanceStatus = completedSet.performanceStatus
+              }
+              return { ...set }
+            })
+          ]
           return newState
         })
       })
+    } else {
+      setExerciseData({ name: exerciseName, sets: [...sets], id, order })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const toggleAddSetInput = () => setShowAddSetInput((state) => !state)
-
-  const newSetHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = e
-    const { value, name } = target
-    setNewSet((state) => ({ ...state, [name]: value }))
-  }
-
-  const addNewSet = async () => {
-    await addSet(exerciseData.name, newSet)
-  }
-
-  useEffect(() => {
-    setExerciseData({ name: exerciseName, sets: [...sets], id, order })
   }, [sets, exerciseName, id, order])
 
   return (
     <>
+      <WorkoutCard.Exercise
+        name={exerciseName}
+        className="flex justify-between"
+      >
+        <Button
+          variant="ghost"
+          className="p-2"
+          onClick={() => setIsEditMode((state) => !state)}
+        >
+          <FilePenIcon className="h-5 w-5 text-blue-500" />
+        </Button>
+      </WorkoutCard.Exercise>
       <WorkoutCard.SetsContainer isEditMode={isEditMode}>
         {sets.map((set: GroupedExerciseSet, index: number) => {
           const isSelected = selectedSet === index && showInput
@@ -202,28 +217,32 @@ const Sets = ({
                     )
                 : handleSubmit
             }
-            className="btn w-full my-5"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-blue-500 text-white"
           >
             {isEditMode ? 'Save changes' : 'Complete set'}
           </Button>
           {isEditMode && deleteSet && (
             <Button
               onClick={() =>
-                deleteSet(
-                  exerciseData.sets[selectedSet].exercise_id,
-                  exerciseName
-                )
+                deleteSet(exerciseData.sets[selectedSet].id, exerciseName)
               }
-              className="bg-red-700 w-full"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-red-500 text-white"
             >
               Delete set
             </Button>
           )}
         </div>
       </InputGroup>
-      {isEditMode && (
+      {isEditMode && !showInput && (
         <>
-          <Button onClick={toggleAddSetInput}>Add set</Button>
+          {
+            <Button
+              onClick={toggleAddSetInput}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-background h-10 px-4 py-2 w-full text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white"
+            >
+              Add set
+            </Button>
+          }
           {showAddSetInput && <p>Add your new set below</p>}
           <InputGroup
             set={newSet}
@@ -231,7 +250,12 @@ const Sets = ({
             divRef={showAddSetRef}
             handleChange={newSetHandleChange}
           >
-            <Button onMouseDown={addNewSet}>Save new set</Button>
+            <Button
+              onMouseDown={addNewSet}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-blue-500 text-white"
+            >
+              Save new set
+            </Button>
           </InputGroup>
         </>
       )}

@@ -1,4 +1,3 @@
-// Import statements
 import { Exercise, InsertExerciseInterface } from '../interfaces/workout'
 import { FlatWorkout, GroupedWorkout } from '@/interfaces/workout'
 
@@ -12,7 +11,7 @@ export const flattenExercises = (
   exercises.reduce((array, exercise) => {
     const exerciseSets = exercise.sets.map((set) => ({
       name: exercise.name,
-      ...set,
+      ...set
     }))
     return array.concat(exerciseSets)
   }, [] as InsertExerciseInterface[])
@@ -24,28 +23,27 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
         workoutId: workout.workout_id,
         name: workout.workout_name,
         createdOn: workout.created_on,
-        exercises: {},
+        exercises: {}
       }
     }
 
     if (!acc[workout.workout_id].exercises[workout.exercise_name]) {
       acc[workout.workout_id].exercises[workout.exercise_name] = {
         name: workout.exercise_name,
-        exercise_id: workout.exercise_id,
+        id: workout.exercise_id,
         order: workout.order,
-        sets: [],
+        sets: []
       }
     }
     acc[workout.workout_id].exercises[workout.exercise_name].sets.push({
       reps: workout.reps,
       weight: workout.weight,
-      performanceStatus: workout.performance_status,
+      performanceStatus: workout.performance_status
     })
 
     return acc
   }, {} as GroupedWorkout)
 
-// Interfaces
 export interface ExerciseResp {
   exercise_id: string
   exercise_name: string
@@ -61,9 +59,8 @@ export type Set = {
   weight: number
   order: number
   created_on: Date
-  exercise_id: string
+  id: string
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
-  id?: string
   [key: string]: any
 }
 
@@ -87,7 +84,6 @@ export type TransformedExercises = {
   }
 }
 
-// Grouping function
 export const groupExercises = (
   acc: TransformedExercises,
   curr: ExerciseResp
@@ -102,38 +98,36 @@ export const groupExercises = (
       order: curr.order,
       sets: [
         {
+          id: curr.exercise_id,
           reps: curr.reps,
           weight: curr.weight,
           order: curr.order,
           created_on: curr.created_on,
-          exercise_id: curr.exercise_id,
-          performanceStatus: curr.performance_status,
-        },
-      ],
+          performanceStatus: curr.performance_status
+        }
+      ]
     }
   } else {
     acc[currentExerciseName].sets.push({
+      id: curr.exercise_id,
       reps: curr.reps,
       weight: curr.weight,
       order: curr.order,
       created_on: curr.created_on,
-      exercise_id: curr.exercise_id,
-      performanceStatus: curr.performance_status,
+      performanceStatus: curr.performance_status
     })
   }
 
   return acc
 }
 
-// Formatted workout interface
 export interface FormattedWorkout {
   id: number
   name: string
   created_on: string
-  exercises: TransformedExercises // Use ACC type for exercises
+  exercises: TransformedExercises
 }
 
-// Format workouts function
 export const formatWorkouts = (workouts: WorkoutResp[]): FormattedWorkout[] => {
   return workouts.map((workout) => {
     const groupedExercises = workout.exercises.reduce<TransformedExercises>(
@@ -145,7 +139,7 @@ export const formatWorkouts = (workouts: WorkoutResp[]): FormattedWorkout[] => {
       id: workout.id,
       name: workout.name,
       created_on: workout.created_on,
-      exercises: groupedExercises,
+      exercises: groupedExercises
     }
   })
 }
