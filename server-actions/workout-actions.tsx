@@ -13,7 +13,7 @@ import {
   selectWorkout,
   updatePerformedExercise,
   updatePlannedSet as updateSet,
-  deletePlannedSet as deleteSet
+  deletePlannedSet as deleteSet,
 } from '@/lib/workouts'
 import { Workout, QueryResponseMessage } from '@/interfaces/workout'
 import { WorkoutResp, flattenExercises } from '@/utils/exercise'
@@ -129,7 +129,7 @@ export interface AddPerformedExercise {
   name: string
   reps: string | number
   weight: string | number
-  exercise_order: number
+  order: number
 }
 
 export const addPerformedExercise = async ({
@@ -141,7 +141,7 @@ export const addPerformedExercise = async ({
   name,
   reps,
   weight,
-  exercise_order
+  order,
 }: AddPerformedExercise) => {
   const isPerformed = await selectPerformedExercise(id)
   if (!isPerformed) {
@@ -154,7 +154,7 @@ export const addPerformedExercise = async ({
       name,
       reps,
       weight,
-      exercise_order
+      order,
     })
     return 'edited'
   }
@@ -164,7 +164,7 @@ export const addPerformedExercise = async ({
     performanceStatus,
     reps,
     weight,
-    exercise_order
+    order,
   })
   return 'completed'
 }

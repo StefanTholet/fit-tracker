@@ -30,7 +30,7 @@ export const selectWorkout = async (workoutId: string) => {
       'exercise_name', exercises.name,
       'reps', exercises.reps,
       'weight', exercises.weight,
-      'exercise_order', exercises.exercise_order,
+      'order', exercises.exercise_order,
       'created_on', exercises.created_on
     ) ORDER BY exercises.exercise_order
   ) AS exercises
@@ -55,7 +55,7 @@ export const insertPerformedExercise = async ({
   name,
   reps,
   weight,
-  exercise_order
+  order,
 }: AddPerformedExercise) => {
   const result = await sql`INSERT INTO performed_exercises 
   ( 
@@ -78,7 +78,7 @@ VALUES(
   ${name},
   ${reps},
   ${weight},
-  ${exercise_order}
+  ${order}
 )`
 
   return result.rows
@@ -92,7 +92,7 @@ interface InsertWorkoutExercisesResponse {
   weight: number
   reps: number
   created_on: string
-  exercise_order: number
+  order: number
 }
 
 export const insertWorkoutExercises = async (
@@ -128,7 +128,7 @@ export const insertManyPerformedExercises = async (
       }, ${exercise.workout_id}, 
                               ${exercise.name}, ${exercise.reps}, ${
         exercise.weight
-      }, ${'met'}, ${exercise.exercise_order})`
+      }, ${'met'}, ${exercise.order})`
     })
   )
 }
@@ -147,7 +147,7 @@ export const selectLastPerformedWorkoutById = async (workout_id: number) => {
       'weight', performed_exercises.weight,
         'created_on', performed_exercises.created_on,
         'performance_status', performed_exercises.performance_status,
-        'exercise_order', performed_exercises.exercise_order
+        'order', performed_exercises.exercise_order
       ) ORDER BY performed_exercises.exercise_order
          ) as exercises
           FROM 
@@ -177,7 +177,7 @@ export const selectLastPerformedWorkout = async (userId: number | string) => {
       'exercise_name', performed_exercises.name,
       'reps', performed_exercises.reps,
       'weight', performed_exercises.weight,
-      'exercise_order', performed_exercises.exercise_order,
+      'order', performed_exercises.exercise_order,
       'created_on', performed_exercises.created_on,
       'performance_status', performed_exercises.performance_status
     ) ORDER BY performed_exercises.exercise_order
@@ -208,7 +208,7 @@ export const selectPlannedUserWorkouts = async (userId: number | string) => {
       'exercise_name', exercises.name,
       'reps', exercises.reps,
       'weight', exercises.weight,
-      'exercise_order', exercises.exercise_order,
+      'order', exercises.exercise_order,
       'created_on', exercises.created_on 
     ) ORDER BY exercises.exercise_order
   ) AS exercises
@@ -231,13 +231,13 @@ export const selectPlannedUserWorkouts = async (userId: number | string) => {
 
 export const selectPerformedExercisePerformanceDates = async (
   exerciseId: number | string,
-  exercise_order: number,
+  order: number,
   reps: string | number,
   weight: string | number
 ) => {
   //TODO - change insertPerformedExercise to attach its own ID instead of adding it automatically so that it can be used to make this request reliant
   const result = await sql`SELECT created_on FROM performed_exercises 
-    WHERE exercise_id = ${exerciseId} AND exercise_order = ${exercise_order} AND reps = ${reps} AND weight = ${weight}
+    WHERE exercise_id = ${exerciseId} AND exercise_order = ${order} AND reps = ${reps} AND weight = ${weight}
     ORDER BY created_on DESC
     LIMIT 1
 `
@@ -249,20 +249,20 @@ export const updatePerformedExercise = async ({
   performanceStatus,
   reps,
   weight,
-  exercise_order
+  order,
 }: {
   exerciseId: string | number
   performanceStatus: 'met' | 'not-met' | 'exceeded'
   reps: string | number
   weight: string | number
-  exercise_order: string | number
+  order: string | number
 }) => {
   const result = await sql` UPDATE performed_exercises 
 SET  
   performance_status = ${performanceStatus},
   reps=${reps},
   weight=${weight},
-  exercise_order=${exercise_order},
+  exercise_order=${order},
   created_on = CURRENT_TIMESTAMP
 WHERE exercise_id = ${exerciseId} AND DATE(created_on) = CURRENT_DATE;
 `
@@ -286,7 +286,7 @@ export const insertExercise = async (
   const { rows } =
     await sql`INSERT INTO exercises (exercise_id, user_id, workout_id, name, reps, weight, exercise_order) 
         VALUES (${uuidv4()}, ${userId}, ${workoutId}, ${name}, ${reps}, ${weight}, ${order})
-        RETURNING created_on, exercise_id, exercise_order, reps, weight`
+        RETURNING created_on, exercise_id AS id, exercise_order as order, reps, weight, name`
   return rows[0] as Set
 }
 

@@ -12,7 +12,7 @@ export const flattenExercises = (
   exercises.reduce((array, exercise) => {
     const exerciseSets = exercise.sets.map((set) => ({
       name: exercise.name,
-      ...set
+      ...set,
     }))
     return array.concat(exerciseSets)
   }, [] as InsertExerciseInterface[])
@@ -24,7 +24,7 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
         workoutId: workout.workout_id,
         name: workout.workout_name,
         createdOn: workout.created_on,
-        exercises: {}
+        exercises: {},
       }
     }
 
@@ -32,14 +32,14 @@ export const groupWorkouts = (workouts: FlatWorkout[]) =>
       acc[workout.workout_id].exercises[workout.exercise_name] = {
         name: workout.exercise_name,
         exercise_id: workout.exercise_id,
-        exercise_order: workout.exercise_order,
-        sets: []
+        order: workout.order,
+        sets: [],
       }
     }
     acc[workout.workout_id].exercises[workout.exercise_name].sets.push({
       reps: workout.reps,
       weight: workout.weight,
-      performanceStatus: workout.performance_status
+      performanceStatus: workout.performance_status,
     })
 
     return acc
@@ -51,7 +51,7 @@ export interface ExerciseResp {
   exercise_name: string
   reps: number
   weight: number
-  exercise_order: number
+  order: number
   created_on: Date
   performance_status?: 'met' | 'not-met' | 'exceeded'
 }
@@ -59,7 +59,7 @@ export interface ExerciseResp {
 export type Set = {
   reps: number
   weight: number
-  exercise_order: number
+  order: number
   created_on: Date
   exercise_id: string
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
@@ -99,26 +99,26 @@ export const groupExercises = (
     acc[currentExerciseName] = {
       id: curr.exercise_id,
       name: curr.exercise_name,
-      order: curr.exercise_order,
+      order: curr.order,
       sets: [
         {
           reps: curr.reps,
           weight: curr.weight,
-          exercise_order: curr.exercise_order,
+          order: curr.order,
           created_on: curr.created_on,
           exercise_id: curr.exercise_id,
-          performanceStatus: curr.performance_status
-        }
-      ]
+          performanceStatus: curr.performance_status,
+        },
+      ],
     }
   } else {
     acc[currentExerciseName].sets.push({
       reps: curr.reps,
       weight: curr.weight,
-      exercise_order: curr.exercise_order,
+      order: curr.order,
       created_on: curr.created_on,
       exercise_id: curr.exercise_id,
-      performanceStatus: curr.performance_status
+      performanceStatus: curr.performance_status,
     })
   }
 
@@ -145,7 +145,7 @@ export const formatWorkouts = (workouts: WorkoutResp[]): FormattedWorkout[] => {
       id: workout.id,
       name: workout.name,
       created_on: workout.created_on,
-      exercises: groupedExercises
+      exercises: groupedExercises,
     }
   })
 }

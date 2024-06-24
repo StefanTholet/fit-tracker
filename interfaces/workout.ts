@@ -66,7 +66,7 @@ export interface FlatWorkout {
   exercise_id: string
   userid: string
   created_on: string
-  exercise_order: number
+  order: number
   performance_status?: string
 }
 

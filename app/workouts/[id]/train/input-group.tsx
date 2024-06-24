@@ -5,9 +5,10 @@ import { GroupedExerciseSet } from '@/interfaces/workout'
 
 interface InputGroupProps {
   set: GroupedExerciseSet
-  divRef: React.ForwardedRef<HTMLDivElement>
+  divRef?: React.ForwardedRef<HTMLDivElement>
   showInput?: boolean
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  topInputs?: React.ReactNode
   children?: React.ReactNode
   title?: string
 }
@@ -18,15 +19,17 @@ const InputGroup = ({
   showInput = true,
   handleChange,
   title,
-  children
+  topInputs,
+  children,
 }: InputGroupProps) => {
   return (
     <div
-      className={`flex flex-col gap-4 max-w-48 m-auto relative overflow-hidden transition-all duration-300 ease-in-out ${
+      className={`flex flex-col gap-4 mb-5 max-w-48 m-auto relative overflow-hidden transition-all duration-300 ease-in-out ${
         showInput ? 'max-h-[1000px] z-10' : 'max-h-0 z-[-50]'
       }`}
     >
       {title && <h3>{title}</h3>}
+      {topInputs}
       <Label htmlFor="reps">Reps</Label>
       <Input
         className="rounded-md pl-2 border border-solid border-gray-200"

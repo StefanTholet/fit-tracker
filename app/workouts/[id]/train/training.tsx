@@ -9,21 +9,24 @@ import { Button } from '@/components/ui/button'
 import Sets from './sets'
 import PencilIcon from '@/assets/svg/pencil-icon'
 import { useToast } from '@/components/ui/use-toast'
-import { FormattedWorkout, TransformedExercises } from '@/utils/exercise'
+import { TransformedExercises } from '@/utils/exercise'
 import { GroupedExerciseSet } from '@/interfaces/workout'
 import {
   addExercise,
   addPerformedExercise,
   deletePlannedSet,
-  updatePlannedSet
+  updatePlannedSet,
 } from '@/server-actions/workout-actions'
 import {} from '@/lib/workouts'
+import InputGroup from './input-group'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 
 export interface SetInterface {
   weight: number
   reps: number
   performed_exercise_id?: string
-  exercise_order: number
+  order: number
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
   [key: string]: any
 }
@@ -54,7 +57,7 @@ const Training: React.FC<TrainingProps> = ({
   exercises,
   name,
 
-  children
+  children,
 }) => {
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -64,6 +67,13 @@ const Training: React.FC<TrainingProps> = ({
       ? Object.keys(exercises).map((exercise: string) => exercises[exercise])
       : []
   )
+  const [showAddExercise, setShowAddExercise] = useState(false)
+  const [newExercise, setNewExercise] = useState({
+    name: '',
+    id: uuidv4(),
+    order: 0,
+    sets: [{ reps: 1, weight: 10, id: uuidv4(), order: 0 }],
+  })
 
   const getCompletedSets = () => {
     const url = searchParams.get('completedSets')
@@ -102,7 +112,7 @@ const Training: React.FC<TrainingProps> = ({
       exerciseId: exercise.id,
       userId,
       workoutId,
-      exercise_order: Object.keys(getCompletedSets()).length
+      order: Object.keys(getCompletedSets()).length,
     }
 
     try {
@@ -110,7 +120,7 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `${exercise.name}`,
         description: `Set ${selectedSet + 1} successfully ${result}!`,
-        variant: 'success'
+        variant: 'success',
       })
       return id
     } catch (error) {
@@ -118,7 +128,7 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: 'Something went wrong...',
         description: 'Unable to save your completed set',
-        variant: 'destructive'
+        variant: 'destructive',
       })
       return null
     }
@@ -135,7 +145,7 @@ const Training: React.FC<TrainingProps> = ({
         exerciseName,
         newSet.weight,
         newSet.reps,
-        newSet.exercise_order
+        newSet.order
       )
 
       if (createdSet) {
@@ -147,21 +157,21 @@ const Training: React.FC<TrainingProps> = ({
 
           newState[exerciseIndex].sets = [
             ...newState[exerciseIndex].sets,
-            createdSet
+            createdSet,
           ]
           return [...newState]
         })
         toast({
           title: `${exerciseName}`,
           description: 'Set successfully added!',
-          variant: 'success'
+          variant: 'success',
         })
       }
     } catch (error) {
       toast({
         title: `Something went wrong`,
         description: 'Failed to add set!',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -177,13 +187,13 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `Set changes`,
         description: 'Successfully saved!',
-        variant: 'success'
+        variant: 'success',
       })
       return true
     } catch (error) {
       toast({
         title: `Could not save your set changes`,
-        variant: 'destructive'
+        variant: 'destructive',
       })
       return null
     }
@@ -195,7 +205,7 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `Set`,
         description: 'Successfully deleted!',
-        variant: 'success'
+        variant: 'success',
       })
       setExerciseList((state) => {
         const newState = [...state]
@@ -211,11 +221,65 @@ const Training: React.FC<TrainingProps> = ({
       toast({
         title: `Could not delete set`,
         description: 'Please try again later',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       return true
     }
+  }
+
+  const toggleAddExercise = () => setShowAddExercise((state) => !state)
+
+  const handleExerciseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { target } = e
+    const { name, value } = target
+    setNewExercise((state) => {
+      if (name === 'name') {
+        return { ...state, [name]: value }
+      }
+      const sets = state.sets[0] as { [key: string]: any }
+      return { ...state, [sets[name]]: value }
+    })
+  }
+
+  const saveNewExercise = async () => {
+    try {
+      const lastExerciseIndex = exerciseList.length - 1
+      const lastExercise = { ...exerciseList[lastExerciseIndex] }
+      const lastSetIndex = lastExercise.sets.length - 1
+      const order = lastExercise.sets[lastSetIndex].order
+      const insertedExercise = await addExercise(
+        workoutId,
+        userId,
+        newExercise.name,
+        newExercise.sets[0].weight,
+        newExercise.sets[0].reps,
+        order
+      )
+      console.log(insertedExercise)
+      console.log(exerciseList[0])
+      if (insertedExercise && insertedExercise.id) {
+        setExerciseList((state) => {
+          const newState = [...state]
+          const { id, name, reps, weight, order } = insertedExercise
+          debugger
+          const newExercise = {
+            id,
+            name,
+            order,
+            sets: [
+              {
+                reps,
+                weight,
+                order,
+                exercise_id: id,
+              },
+            ],
+          }
+          return [...newState, newExercise]
+        })
+      }
+    } catch (error) {}
   }
 
   let isWorkoutCompleted = useRef(false)
@@ -257,10 +321,32 @@ const Training: React.FC<TrainingProps> = ({
             />
           </WorkoutCard.Exercises>
         ))}
-        <div className="p-6">
-          <Button>Add exercise</Button>
-        </div>
-
+        {isEditMode && (
+          <div className="p-6">
+            <Button onClick={toggleAddExercise}>Add exercise</Button>
+          </div>
+        )}
+        {isEditMode && (
+          <InputGroup
+            handleChange={handleExerciseChange}
+            set={newExercise.sets[0]}
+            showInput={showAddExercise}
+            topInputs={
+              <>
+                <Label>Exercise name</Label>
+                <Input
+                  onChange={handleExerciseChange}
+                  name="name"
+                  value={newExercise.name}
+                />
+              </>
+            }
+          >
+            <Button onClick={saveNewExercise} disabled={!newExercise.name}>
+              Save exercise
+            </Button>
+          </InputGroup>
+        )}
         {isWorkoutCompleted.current && (
           <Link className="flex justify-center pb-7" href="dashboard">
             <Button>Go to dashboard</Button>

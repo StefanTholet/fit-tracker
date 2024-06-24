@@ -34,22 +34,22 @@ const Sets = ({
   sets,
   exerciseName,
   id,
-  order
+  order,
 }: SetsProps) => {
   const [exerciseData, setExerciseData] = useState({
     name: exerciseName,
     sets: [...sets.map((set) => structuredClone(set))],
     id,
-    order
+    order,
   })
   const [selectedSet, setSelectedSet] = useState(0)
   const [showInput, setShowInput] = useState(false)
   const [showAddSetInput, setShowAddSetInput] = useState(false)
   const [newSet, setNewSet] = useState({
     exercise_id: exerciseData.id,
-    exercise_order: exerciseData.sets.length + 1,
+    order: exerciseData.sets.length + 1,
     reps: 1,
-    weight: 10
+    weight: 10,
   })
 
   const divRef = useRef<HTMLDivElement | null>(null)
@@ -134,7 +134,7 @@ const Sets = ({
           let newState = { ...state }
 
           newState.sets = newState.sets.map((set) => {
-            if (set.exercise_order === completedSet.exercise_order) {
+            if (set.order === completedSet.order) {
               set.performed_exercise_id = completedSet.performed_exercise_id
               set.performanceStatus = completedSet.performanceStatus
             }
@@ -198,7 +198,7 @@ const Sets = ({
                       exerciseData.id,
                       exerciseData.sets[selectedSet].reps,
                       exerciseData.sets[selectedSet].weight,
-                      exerciseData.sets[selectedSet].exercise_order
+                      exerciseData.sets[selectedSet].order
                     )
                 : handleSubmit
             }
