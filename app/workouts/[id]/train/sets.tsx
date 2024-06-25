@@ -170,14 +170,15 @@ const Sets = ({
     <>
       <WorkoutCard.Exercise
         name={exerciseName}
-        className="flex justify-between"
+        className={`flex justify-between`}
+        isEditMode={isEditMode}
       >
         <Button
           variant="ghost"
-          className="p-2"
+          className={`p-2 ${isEditMode ? 'text-blue-500' : 'text-gray-500'}`}
           onClick={() => setIsEditMode((state) => !state)}
         >
-          <FilePenIcon className="h-5 w-5 text-blue-500" />
+          <FilePenIcon className="h-5 w-5" />
         </Button>
       </WorkoutCard.Exercise>
       <WorkoutCard.SetsContainer isEditMode={isEditMode}>
@@ -252,7 +253,7 @@ const Sets = ({
           >
             <Button
               onMouseDown={addNewSet}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-blue-500 text-white"
+              className="bg-green-500 text-white hover:bg-green-600"
             >
               Save new set
             </Button>

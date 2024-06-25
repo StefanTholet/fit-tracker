@@ -23,9 +23,11 @@ const Dashboard = async () => {
 
     if (dashboardData) {
       userWorkouts = formatWorkouts(dashboardData.userWorkouts)
-      lastPerformedWorkout = formatWorkouts([
-        dashboardData.lastPerformedWorkout
-      ])[0]
+      if (lastPerformedWorkout) {
+        lastPerformedWorkout = formatWorkouts([
+          dashboardData.lastPerformedWorkout
+        ])[0]
+      }
     }
   }
 

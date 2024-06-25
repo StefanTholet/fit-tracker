@@ -84,14 +84,21 @@ const Exercise = ({
   name,
   onClick,
   className = '',
+  isEditMode,
   children
 }: {
   name: string
   onClick?: () => void
   className?: string
-  children?: ReactNode
+  isEditMode?: boolean
+  children?: React.ReactNode
 }) => (
-  <div className={`bg-gray-100 p-3 rounded-md ${className}`} onClick={onClick}>
+  <div
+    className={`p-3 rounded-md cursor-pointer ${
+      isEditMode ? 'bg-blue-100' : 'bg-gray-100'
+    } ${className}`}
+    onClick={onClick}
+  >
     <div className="w-full text-left self-center">{name}</div>
     {children}
   </div>
