@@ -1,11 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { v4 as uuidv4 } from 'uuid'
 import WorkoutCard from '@/components/workout-card/workout-card'
-import { GroupedExerciseSet } from '@/interfaces/workout'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
 import { getPerformanceStatus } from './trainingUtils'
+import {
+  addExercise,
+  addPerformedExercise,
+  deletePlannedSet,
+  updatePlannedSet,
+} from '@/server-actions/workout-actions'
 import { buildSearchParams } from './utils'
 import { Base64 } from 'js-base64'
+import { GroupedExerciseSet } from '@/interfaces/workout'
+import { Exercise } from './training'
 import InputGroup from './input-group'
 import FilePenIcon from '@/assets/svg/file-pen-icon'
 
@@ -14,32 +23,27 @@ interface SetsProps {
   exerciseName: string
   id: string | number
   order: number
-  submitSet: (...args: any) => Promise<string | null>
-  addSet: (exerciseName: string, newSet: GroupedExerciseSet) => void
-  editSet?: (
-    exerciseId: string | number,
-    reps: number | string,
-    weight: number | string,
-    order: number
-  ) => Promise<boolean | null>
-  deleteSet?: (id: string, exerciseName: string) => Promise<boolean>
+  userId: string | number
+  workoutId: number
+}
+
+export interface CompletedSets {
+  [key: string]: Exercise
 }
 
 const Sets = ({
-  addSet,
-  editSet,
-  deleteSet,
-  submitSet,
+  userId,
+  workoutId,
   sets,
   exerciseName,
   id,
-  order
+  order,
 }: SetsProps) => {
   const [exerciseData, setExerciseData] = useState({
     name: exerciseName,
     sets: [...sets.map((set) => structuredClone(set))],
     id,
-    order
+    order,
   })
   const [selectedSet, setSelectedSet] = useState(0)
   const [showInput, setShowInput] = useState(false)
@@ -48,16 +52,17 @@ const Sets = ({
     id: exerciseData.id,
     order: exerciseData.sets.length + 1,
     reps: 1,
-    weight: 10
+    weight: 10,
   })
   const [isEditMode, setIsEditMode] = useState(false)
   const divRef = useRef<HTMLDivElement | null>(null)
   const showAddSetRef = useRef<HTMLDivElement | null>(null)
 
+  const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
-
+  // TODO Fix page refresh state
   const handleClickSet = (
     e: React.MouseEvent<HTMLButtonElement>,
     setIndex: number
@@ -89,13 +94,72 @@ const Sets = ({
     })
   }
 
+  const getCompletedSets = () => {
+    const url = searchParams.get('completedSets')
+    const decodedUrl = url ? Base64.decode(url) : null
+
+    if (decodedUrl) {
+      const exercises = decodedUrl
+        .split('exercise=')
+        .filter((el) => el !== '?' && el !== '')
+
+      const completedSets: CompletedSets = {}
+      exercises.forEach((set) => {
+        const setStringArray = set.split('=')
+        const exerciseName = setStringArray[0]
+        const setData = JSON.parse(setStringArray[1])
+        completedSets[exerciseName] = setData
+      })
+      return completedSets
+    }
+    return {}
+  }
+
+  const submitSet = async (
+    selectedSet: number,
+    performanceStatus: 'met' | 'not-met' | 'exceeded'
+  ) => {
+    const currentSet = { ...exerciseData.sets[selectedSet] }
+    const id = currentSet.performed_exercise_id || uuidv4()
+
+    const requestData = {
+      id: id,
+      name: exerciseName,
+      reps: currentSet.reps,
+      weight: currentSet.weight,
+      performanceStatus,
+      exerciseId: currentSet.id,
+      userId,
+      workoutId,
+      order: Object.keys(getCompletedSets()).length,
+    }
+
+    try {
+      const result = await addPerformedExercise(requestData)
+      toast({
+        title: `${exerciseData.name}`,
+        description: `Set ${selectedSet + 1} successfully ${result}!`,
+        variant: 'success',
+      })
+      return id
+    } catch (error) {
+      console.log(error)
+      toast({
+        title: 'Something went wrong...',
+        description: 'Unable to save your completed set',
+        variant: 'destructive',
+      })
+      return null
+    }
+  }
+
   const handleSubmit = async () => {
     const currentSet = exerciseData.sets[selectedSet]
     const performanceStatus = getPerformanceStatus(
       sets[selectedSet],
       currentSet
     )
-    const id = await submitSet(exerciseData, selectedSet, performanceStatus)
+    const id = await submitSet(selectedSet, performanceStatus)
     if (id) {
       setExerciseData((state) => {
         const newState = { ...state }
@@ -116,10 +180,6 @@ const Sets = ({
     }
   }
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [exerciseData])
-
   const toggleAddSetInput = () => setShowAddSetInput((state) => !state)
 
   const newSetHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,8 +189,86 @@ const Sets = ({
   }
 
   const addNewSet = async () => {
-    await addSet(exerciseData.name, newSet)
-    setShowAddSetInput(false)
+    try {
+      const createdSet = await addExercise(
+        workoutId,
+        userId,
+        exerciseName,
+        newSet.weight,
+        newSet.reps,
+        newSet.order
+      )
+      debugger
+      if (createdSet) {
+        setExerciseData((state) => {
+          debugger
+          const newState = structuredClone(state)
+          newState.sets = [...newState.sets, createdSet]
+          return { ...newState }
+        })
+        toast({
+          title: `${exerciseName}`,
+          description: 'Set successfully added!',
+          variant: 'success',
+        })
+      }
+    } catch (error) {
+      toast({
+        title: `Something went wrong`,
+        description: 'Failed to add set!',
+        variant: 'destructive',
+      })
+    } finally {
+      setShowAddSetInput(false)
+    }
+  }
+
+  const editSet = async (
+    exerciseId: string | number,
+    reps: number | string,
+    weight: number | string,
+    order: number
+  ) => {
+    try {
+      await updatePlannedSet(exerciseId, reps, weight, order)
+      toast({
+        title: `Set changes`,
+        description: 'Successfully saved!',
+        variant: 'success',
+      })
+      return true
+    } catch (error) {
+      console.log(error)
+
+      toast({
+        title: `Could not save your set changes`,
+        variant: 'destructive',
+      })
+    } finally {
+      setShowInput(false)
+    }
+  }
+
+  const deleteSet = async (exerciseId: string) => {
+    try {
+      const result = await deletePlannedSet(exerciseId)
+      toast({
+        title: `Set`,
+        description: 'Successfully deleted!',
+        variant: 'success',
+      })
+      setExerciseData((state) => {
+        const newState = structuredClone(state)
+        newState.sets = newState.sets.filter((set) => set.id !== exerciseId)
+        return newState
+      })
+    } catch (error) {
+      toast({
+        title: `Could not delete set`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      })
+    }
   }
 
   useEffect(() => {
@@ -144,7 +282,6 @@ const Sets = ({
 
       completedSetsUrl.forEach((set) => {
         const setData = set.split('=')
-
         const completedSet = JSON.parse(setData[1])
         setExerciseData((state) => {
           let newState = { ...state }
@@ -155,7 +292,7 @@ const Sets = ({
                 set.performanceStatus = completedSet.performanceStatus
               }
               return { ...set }
-            })
+            }),
           ]
           return newState
         })
@@ -182,7 +319,7 @@ const Sets = ({
         </Button>
       </WorkoutCard.Exercise>
       <WorkoutCard.SetsContainer isEditMode={isEditMode}>
-        {sets.map((set: GroupedExerciseSet, index: number) => {
+        {exerciseData.sets.map((set: GroupedExerciseSet, index: number) => {
           const isSelected = selectedSet === index && showInput
           return (
             <WorkoutCard.Set
@@ -224,9 +361,7 @@ const Sets = ({
           </Button>
           {isEditMode && deleteSet && (
             <Button
-              onClick={() =>
-                deleteSet(exerciseData.sets[selectedSet].id, exerciseName)
-              }
+              onClick={() => deleteSet(exerciseData.sets[selectedSet].id)}
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-red-500 text-white"
             >
               Delete set
@@ -252,7 +387,7 @@ const Sets = ({
             handleChange={newSetHandleChange}
           >
             <Button
-              onMouseDown={addNewSet}
+              onClick={addNewSet}
               className="bg-green-500 text-white hover:bg-green-600"
             >
               Save new set

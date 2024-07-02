@@ -55,7 +55,7 @@ export const insertPerformedExercise = async ({
   name,
   reps,
   weight,
-  order
+  order,
 }: AddPerformedExercise) => {
   const result = await sql`INSERT INTO performed_exercises 
   ( 
@@ -250,7 +250,7 @@ export const updatePerformedExercise = async ({
   performanceStatus,
   reps,
   weight,
-  order
+  order,
 }: {
   exerciseId: string | number
   performanceStatus: 'met' | 'not-met' | 'exceeded'
@@ -297,6 +297,7 @@ export const updatePlannedSet = async (
   weight: number | string,
   order: number
 ) => {
+  debugger
   const { rows } = await sql`
     UPDATE exercises 
       SET reps=${reps}, weight=${weight}, exercise_order=${order}

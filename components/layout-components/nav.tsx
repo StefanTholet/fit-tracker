@@ -53,7 +53,10 @@ const Nav = ({
             </li>
           ))}
           {userId && (
-            <li className="text-white text-lg hover:text-gray-200 transition-colors duration-200">
+            <li
+              className="text-white text-lg hover:text-gray-200 transition-colors duration-200"
+              onClick={() => setMenuOpen(false)}
+            >
               <LogoutForm />
             </li>
           )}

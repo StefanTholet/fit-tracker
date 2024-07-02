@@ -2,28 +2,24 @@
 import React, { ReactNode, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useSearchParams } from 'next/navigation'
-import { Base64 } from 'js-base64'
-import Link from 'next/link'
-import WorkoutCard from '@/components/workout-card/workout-card'
-import { Button } from '@/components/ui/button'
-import Sets from './sets'
-import PencilIcon from '@/assets/svg/pencil-icon'
-import { useToast } from '@/components/ui/use-toast'
-import { TransformedExercises } from '@/utils/exercise'
-import { GroupedExerciseSet } from '@/interfaces/workout'
 import {
   addExercise,
   addPerformedExercise,
   deletePlannedSet,
-  updatePlannedSet
+  updatePlannedSet,
 } from '@/server-actions/workout-actions'
+import Link from 'next/link'
+import WorkoutCard from '@/components/workout-card/workout-card'
+import { Button } from '@/components/ui/button'
+import Sets from './sets'
+import { useToast } from '@/components/ui/use-toast'
+import { TransformedExercises } from '@/utils/exercise'
+import { GroupedExerciseSet } from '@/interfaces/workout'
 import {} from '@/lib/workouts'
 import InputGroup from './input-group'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import FilePenIcon from '@/assets/svg/file-pen-icon'
 
-// Define the SetInterface properly
 export interface SetInterface {
   weight: number
   reps: number
@@ -44,9 +40,6 @@ export interface Exercise {
   id: string | number
 }
 
-export interface CompletedSets {
-  [key: string]: Exercise
-}
 interface TrainingProps {
   createdOn: string
   exercises: TransformedExercises
@@ -62,7 +55,7 @@ const Training: React.FC<TrainingProps> = ({
   createdOn,
   exercises,
   name,
-  children
+  children,
 }) => {
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -76,161 +69,8 @@ const Training: React.FC<TrainingProps> = ({
     name: '',
     id: uuidv4(),
     order: 0,
-    sets: [{ reps: 1, weight: 10, id: uuidv4(), order: 0 }]
+    sets: [{ reps: 1, weight: 10, id: uuidv4(), order: 0 }],
   })
-
-  const getCompletedSets = () => {
-    const url = searchParams.get('completedSets')
-    const decodedUrl = url ? Base64.decode(url) : null
-
-    if (decodedUrl) {
-      const exercises = decodedUrl
-        .split('exercise=')
-        .filter((el) => el !== '?' && el !== '')
-
-      const completedSets: CompletedSets = {}
-      exercises.forEach((set) => {
-        const setStringArray = set.split('=')
-        const exerciseName = setStringArray[0]
-        const setData = JSON.parse(setStringArray[1])
-        completedSets[exerciseName] = setData
-      })
-      return completedSets
-    }
-    return {}
-  }
-
-  const submitSet = async (
-    exercise: Exercise,
-    selectedSet: number,
-    performanceStatus: 'met' | 'not-met' | 'exceeded'
-  ) => {
-    const currentSet = { ...exercise.sets[selectedSet] }
-    const id = currentSet.performed_exercise_id || uuidv4()
-    const requestData = {
-      id: id,
-      name: exercise.name as string,
-      reps: currentSet.reps,
-      weight: currentSet.weight,
-      performanceStatus,
-      exerciseId: exercise.id,
-      userId,
-      workoutId,
-      order: Object.keys(getCompletedSets()).length
-    }
-
-    try {
-      const result = await addPerformedExercise(requestData)
-      toast({
-        title: `${exercise.name}`,
-        description: `Set ${selectedSet + 1} successfully ${result}!`,
-        variant: 'success'
-      })
-      return id
-    } catch (error) {
-      console.log(error)
-      toast({
-        title: 'Something went wrong...',
-        description: 'Unable to save your completed set',
-        variant: 'destructive'
-      })
-      return null
-    }
-  }
-
-  const addNewSet = async (
-    exerciseName: string,
-    newSet: GroupedExerciseSet
-  ) => {
-    try {
-      const createdSet = await addExercise(
-        workoutId,
-        userId,
-        exerciseName,
-        newSet.weight,
-        newSet.reps,
-        newSet.order
-      )
-
-      if (createdSet) {
-        setExerciseList((state) => {
-          const newState = [...state]
-          const exerciseIndex = newState.findIndex(
-            (ex) => ex.name === exerciseName
-          )
-
-          newState[exerciseIndex].sets = [
-            ...newState[exerciseIndex].sets,
-            createdSet
-          ]
-          return [...newState]
-        })
-        toast({
-          title: `${exerciseName}`,
-          description: 'Set successfully added!',
-          variant: 'success'
-        })
-      }
-    } catch (error) {
-      toast({
-        title: `Something went wrong`,
-        description: 'Failed to add set!',
-        variant: 'destructive'
-      })
-    }
-  }
-
-  const editSet = async (
-    exerciseId: string | number,
-    reps: number | string,
-    weight: number | string,
-    order: number
-  ) => {
-    try {
-      await updatePlannedSet(exerciseId, reps, weight, order)
-      toast({
-        title: `Set changes`,
-        description: 'Successfully saved!',
-        variant: 'success'
-      })
-      return true
-    } catch (error) {
-      toast({
-        title: `Could not save your set changes`,
-        variant: 'destructive'
-      })
-      return null
-    }
-  }
-
-  const deleteSet = async (exerciseId: string, exerciseName: string) => {
-    try {
-      const result = await deletePlannedSet(exerciseId)
-      toast({
-        title: `Set`,
-        description: 'Successfully deleted!',
-        variant: 'success'
-      })
-      setExerciseList((state) => {
-        const newState = [...state]
-        const exerciseIndex = newState.findIndex(
-          (exercise) => exercise.name === exerciseName
-        )
-        newState[exerciseIndex].sets = newState[exerciseIndex].sets.filter(
-          (set) => set.exercise_id !== exerciseId
-        )
-        return newState
-      })
-    } catch (error) {
-      toast({
-        title: `Could not delete set`,
-        description: 'Please try again later',
-        variant: 'destructive'
-      })
-    } finally {
-      return true
-    }
-  }
 
   const toggleAddExercise = () => setShowAddExercise((state) => !state)
 
@@ -277,9 +117,9 @@ const Training: React.FC<TrainingProps> = ({
                 weight,
                 order,
                 id,
-                created_on
-              }
-            ]
+                created_on,
+              },
+            ],
           }
           return [...newState, newExercise]
         })
@@ -298,11 +138,9 @@ const Training: React.FC<TrainingProps> = ({
         {exerciseList?.map((exercise) => (
           <WorkoutCard.Exercises key={exercise.id}>
             <Sets
-              addSet={addNewSet}
-              editSet={editSet}
+              userId={userId}
+              workoutId={workoutId}
               sets={exercise.sets}
-              deleteSet={deleteSet}
-              submitSet={submitSet}
               exerciseName={exercise.name}
               id={exercise.id}
               order={exercise.order}
