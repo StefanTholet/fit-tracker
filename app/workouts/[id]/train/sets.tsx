@@ -9,7 +9,7 @@ import {
   addExercise,
   addPerformedExercise,
   deletePlannedSet,
-  updatePlannedSet,
+  updatePlannedSet
 } from '@/server-actions/workout-actions'
 import { buildSearchParams } from './utils'
 import { Base64 } from 'js-base64'
@@ -17,6 +17,9 @@ import { GroupedExerciseSet } from '@/interfaces/workout'
 import { Exercise } from './training'
 import InputGroup from './input-group'
 import FilePenIcon from '@/assets/svg/file-pen-icon'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { set } from 'react-hook-form'
 
 interface SetsProps {
   sets: GroupedExerciseSet[]
@@ -37,13 +40,13 @@ const Sets = ({
   sets,
   exerciseName,
   id,
-  order,
+  order
 }: SetsProps) => {
   const [exerciseData, setExerciseData] = useState({
     name: exerciseName,
     sets: [...sets.map((set) => structuredClone(set))],
     id,
-    order,
+    order
   })
   const [selectedSet, setSelectedSet] = useState(0)
   const [showInput, setShowInput] = useState(false)
@@ -52,7 +55,11 @@ const Sets = ({
     id: exerciseData.id,
     order: exerciseData.sets.length + 1,
     reps: 1,
-    weight: 10,
+    weight: 10
+  })
+  const [editCheckboxes, setEditCheckboxes] = useState({
+    plannedSet: false,
+    performedSet: false
   })
   const [isEditMode, setIsEditMode] = useState(false)
   const divRef = useRef<HTMLDivElement | null>(null)
@@ -62,7 +69,7 @@ const Sets = ({
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  // TODO Fix page refresh state
+
   const handleClickSet = (
     e: React.MouseEvent<HTMLButtonElement>,
     setIndex: number
@@ -131,7 +138,7 @@ const Sets = ({
       exerciseId: currentSet.id,
       userId,
       workoutId,
-      order: Object.keys(getCompletedSets()).length,
+      order: Object.keys(getCompletedSets()).length
     }
 
     try {
@@ -139,7 +146,7 @@ const Sets = ({
       toast({
         title: `${exerciseData.name}`,
         description: `Set ${selectedSet + 1} successfully ${result}!`,
-        variant: 'success',
+        variant: 'success'
       })
       return id
     } catch (error) {
@@ -147,7 +154,7 @@ const Sets = ({
       toast({
         title: 'Something went wrong...',
         description: 'Unable to save your completed set',
-        variant: 'destructive',
+        variant: 'destructive'
       })
       return null
     }
@@ -160,6 +167,7 @@ const Sets = ({
       currentSet
     )
     const id = await submitSet(selectedSet, performanceStatus)
+
     if (id) {
       setExerciseData((state) => {
         const newState = { ...state }
@@ -188,6 +196,11 @@ const Sets = ({
     setNewSet((state) => ({ ...state, [name]: value }))
   }
 
+  const handleEditCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target
+    setEditCheckboxes((state) => ({ ...state, [name]: checked }))
+  }
+
   const addNewSet = async () => {
     try {
       const createdSet = await addExercise(
@@ -198,10 +211,9 @@ const Sets = ({
         newSet.reps,
         newSet.order
       )
-      debugger
+
       if (createdSet) {
         setExerciseData((state) => {
-          debugger
           const newState = structuredClone(state)
           newState.sets = [...newState.sets, createdSet]
           return { ...newState }
@@ -209,14 +221,14 @@ const Sets = ({
         toast({
           title: `${exerciseName}`,
           description: 'Set successfully added!',
-          variant: 'success',
+          variant: 'success'
         })
       }
     } catch (error) {
       toast({
         title: `Something went wrong`,
         description: 'Failed to add set!',
-        variant: 'destructive',
+        variant: 'destructive'
       })
     } finally {
       setShowAddSetInput(false)
@@ -234,7 +246,7 @@ const Sets = ({
       toast({
         title: `Set changes`,
         description: 'Successfully saved!',
-        variant: 'success',
+        variant: 'success'
       })
       return true
     } catch (error) {
@@ -242,7 +254,7 @@ const Sets = ({
 
       toast({
         title: `Could not save your set changes`,
-        variant: 'destructive',
+        variant: 'destructive'
       })
     } finally {
       setShowInput(false)
@@ -255,7 +267,7 @@ const Sets = ({
       toast({
         title: `Set`,
         description: 'Successfully deleted!',
-        variant: 'success',
+        variant: 'success'
       })
       setExerciseData((state) => {
         const newState = structuredClone(state)
@@ -266,7 +278,7 @@ const Sets = ({
       toast({
         title: `Could not delete set`,
         description: 'Please try again later',
-        variant: 'destructive',
+        variant: 'destructive'
       })
     }
   }
@@ -292,7 +304,7 @@ const Sets = ({
                 set.performanceStatus = completedSet.performanceStatus
               }
               return { ...set }
-            }),
+            })
           ]
           return newState
         })
@@ -302,6 +314,7 @@ const Sets = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sets, exerciseName, id, order])
+  console.log(exerciseData)
 
   return (
     <>
@@ -343,9 +356,48 @@ const Sets = ({
         title={isEditMode ? 'Edit set' : ''}
       >
         <div className="flex gap-1 justify-center flex-wrap">
+          {isEditMode && (
+            <div className="w-full flex justify-start">
+              <div
+                className={`flex w-${
+                  !exerciseData.sets[selectedSet]?.performanceStatus
+                    ? 'full'
+                    : '1/2'
+                } items-center gap-2`}
+              >
+                <Label htmlFor="plannedSet">Edit planned set</Label>
+                <Input
+                  className="w-4"
+                  name="plannedSet"
+                  id="plannedSet"
+                  type="checkbox"
+                  checked={editCheckboxes.plannedSet}
+                  onChange={handleEditCheckboxChange}
+                />
+              </div>
+              {exerciseData.sets[selectedSet]?.performanceStatus && (
+                <div className="flex w-1/2 items-center gap-2">
+                  <Label htmlFor="performedSet">Edit performed set</Label>
+                  <Input
+                    className="w-4"
+                    name="performedSet"
+                    id="performedSet"
+                    type="checkbox"
+                    checked={editCheckboxes.performedSet}
+                    onChange={handleEditCheckboxChange}
+                  />
+                </div>
+              )}
+            </div>
+          )}
           <Button
+            disabled={
+              isEditMode &&
+              !editCheckboxes.performedSet &&
+              !editCheckboxes.plannedSet
+            }
             onClick={
-              isEditMode && editSet
+              isEditMode
                 ? () =>
                     editSet(
                       exerciseData.id,
@@ -359,7 +411,7 @@ const Sets = ({
           >
             {isEditMode ? 'Save changes' : 'Complete set'}
           </Button>
-          {isEditMode && deleteSet && (
+          {isEditMode && (
             <Button
               onClick={() => deleteSet(exerciseData.sets[selectedSet].id)}
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-red-500 text-white"
