@@ -344,8 +344,12 @@ const Sets = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sets, exerciseName, id, order])
-  console.log(exerciseData)
 
+  const isSetComplete = () => {
+    return (
+      !isEditMode && Boolean(exerciseData.sets[selectedSet].performanceStatus)
+    )
+  }
   return (
     <>
       <WorkoutCard.Exercise
@@ -424,13 +428,29 @@ const Sets = ({
               )}
             </div>
           )}
+          {isSetComplete() && (
+            <div>
+              <p className="text-center mb-2">
+                You have already completed this set
+              </p>
+              <p className="text-center mb-2">
+                Press{' '}
+                <span
+                  onClick={() => setIsEditMode(true)}
+                  className="underline text-blue-500 cursor-pointer"
+                >
+                  here
+                </span>{' '}
+                to edit your result or your planned set for your next workout
+              </p>
+            </div>
+          )}
           <Button
             disabled={
               (isEditMode &&
                 !editCheckboxes.performedSet &&
                 !editCheckboxes.plannedSet) ||
-              (!isEditMode &&
-                Boolean(exerciseData.sets[selectedSet].performanceStatus))
+              isSetComplete()
             }
             onClick={isEditMode ? () => editSet() : handleSubmit}
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-blue-500 text-white"
