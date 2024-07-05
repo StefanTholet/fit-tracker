@@ -11,11 +11,16 @@ import {
   selectPerformedExercise,
   selectPlannedUserWorkouts,
   selectWorkout,
-  updatePerformedExercise,
-  updatePlannedSet as updateSet,
+  updatePerformedSet,
+  updateSet,
   deletePlannedSet as deleteSet,
+  InsertPerformedExercise
 } from '@/lib/workouts'
-import { Workout, QueryResponseMessage } from '@/interfaces/workout'
+import {
+  Workout,
+  QueryResponseMessage,
+  GroupedExerciseSet
+} from '@/interfaces/workout'
 import { WorkoutResp, flattenExercises } from '@/utils/exercise'
 
 export const addWorkoutName = async (
@@ -62,6 +67,32 @@ export const addExercise = async (
       order
     )
     return newExercise
+  } catch (error) {}
+}
+
+export const addPerformedExercise = async ({
+  id,
+  userId,
+  workoutId,
+  exerciseId,
+  performanceStatus,
+  name,
+  reps,
+  weight,
+  order
+}: InsertPerformedExercise) => {
+  try {
+    return await insertPerformedExercise({
+      id,
+      userId,
+      workoutId,
+      exerciseId,
+      performanceStatus,
+      name,
+      reps,
+      weight,
+      order
+    })
   } catch (error) {}
 }
 
@@ -120,53 +151,30 @@ export const getDashboardData = async (
   return { userWorkouts, lastPerformedWorkout } as DashboardDataInterface
 }
 
-export interface AddPerformedExercise {
-  id: string
-  userId: number | string
-  workoutId: number | string
-  exerciseId: string | number
+export interface PerformedExercise {
+  id: string | number
   performanceStatus: 'met' | 'not-met' | 'exceeded'
-  name: string
+  name?: string
   reps: string | number
   weight: string | number
   order: number
 }
 
-export const addPerformedExercise = async ({
+export const editPerformedSet = async ({
   id,
-  userId,
-  workoutId,
-  exerciseId,
   performanceStatus,
-  name,
   reps,
   weight,
-  order,
-}: AddPerformedExercise) => {
-  const isPerformed = await selectPerformedExercise(id)
-  if (!isPerformed) {
-    await insertPerformedExercise({
-      id,
-      userId,
-      workoutId,
-      exerciseId,
-      performanceStatus,
-      name,
-      reps,
-      weight,
-      order,
-    })
-    return 'edited'
-  }
-
-  await updatePerformedExercise({
-    exerciseId,
+  order
+}: PerformedExercise) => {
+  const result = await updatePerformedSet({
+    id,
     performanceStatus,
     reps,
     weight,
-    order,
+    order
   })
-  return 'completed'
+  return result as GroupedExerciseSet
 }
 
 export const getLastPerformedWorkoutById = async (workout_id: number) => {
@@ -174,7 +182,7 @@ export const getLastPerformedWorkoutById = async (workout_id: number) => {
   return result
 }
 
-export const updatePlannedSet = async (
+export const editPlannedSet = async (
   exerciseId: string | number,
   reps: number | string,
   weight: number | string,
@@ -184,7 +192,9 @@ export const updatePlannedSet = async (
     const result = await updateSet(exerciseId, reps, weight, order)
     return result
   } catch (error) {
-    return error
+    console.log(error)
+
+    // return {message: error?.message}
   }
 }
 

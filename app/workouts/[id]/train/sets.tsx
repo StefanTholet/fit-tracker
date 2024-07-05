@@ -5,12 +5,7 @@ import WorkoutCard from '@/components/workout-card/workout-card'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { getPerformanceStatus } from './trainingUtils'
-import {
-  addExercise,
-  addPerformedExercise,
-  deletePlannedSet,
-  updatePlannedSet
-} from '@/server-actions/workout-actions'
+
 import { buildSearchParams } from './utils'
 import { Base64 } from 'js-base64'
 import { GroupedExerciseSet } from '@/interfaces/workout'
@@ -19,7 +14,13 @@ import InputGroup from './input-group'
 import FilePenIcon from '@/assets/svg/file-pen-icon'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { set } from 'react-hook-form'
+import {
+  addExercise,
+  editPlannedSet,
+  editPerformedSet,
+  deletePlannedSet,
+  addPerformedExercise
+} from '@/server-actions/workout-actions'
 
 interface SetsProps {
   sets: GroupedExerciseSet[]
@@ -235,20 +236,47 @@ const Sets = ({
     }
   }
 
-  const editSet = async (
-    exerciseId: string | number,
-    reps: number | string,
-    weight: number | string,
-    order: number
-  ) => {
+  const editSet = async () => {
     try {
-      await updatePlannedSet(exerciseId, reps, weight, order)
+      const set = { ...exerciseData.sets[selectedSet] }
+      if (editCheckboxes.plannedSet) {
+        await editPlannedSet(exerciseData.id, set.reps, set.weight, set.order)
+      }
+      if (editCheckboxes.performedSet && set.performed_exercise_id) {
+        const updatedSet = await editPerformedSet({
+          id: set.performed_exercise_id,
+          performanceStatus: getPerformanceStatus(sets[selectedSet], set),
+          reps: set.reps,
+          weight: set.weight,
+          order: set.order
+        })
+
+        if (updatedSet) {
+          updatedSet.performanceStatus = updatedSet.performance_status
+          delete updatedSet.performance_status
+          setExerciseData((state) => {
+            const newState = structuredClone(state)
+            newState.sets[selectedSet] = { ...updatedSet }
+
+            return { ...newState }
+          })
+          const newParams = buildSearchParams(
+            searchParams.get('completedSets'),
+            pathname,
+            exerciseData.name,
+            updatedSet
+          )
+          router.replace(newParams, { scroll: false })
+        }
+      }
       toast({
         title: `Set changes`,
         description: 'Successfully saved!',
         variant: 'success'
       })
-      return true
+      if (editCheckboxes.plannedSet) {
+        router.refresh()
+      }
     } catch (error) {
       console.log(error)
 
@@ -300,8 +328,10 @@ const Sets = ({
 
           newState.sets = [
             ...sets.map((set) => {
+              debugger
               if (set.id === completedSet.id) {
                 set.performanceStatus = completedSet.performanceStatus
+                set.performed_exercise_id = completedSet.performed_exercise_id
               }
               return { ...set }
             })
@@ -354,6 +384,10 @@ const Sets = ({
         set={exerciseData.sets[selectedSet]}
         showInput={showInput}
         title={isEditMode ? 'Edit set' : ''}
+        disabled={
+          !isEditMode &&
+          Boolean(exerciseData.sets[selectedSet].performanceStatus)
+        }
       >
         <div className="flex gap-1 justify-center flex-wrap">
           {isEditMode && (
@@ -392,21 +426,13 @@ const Sets = ({
           )}
           <Button
             disabled={
-              isEditMode &&
-              !editCheckboxes.performedSet &&
-              !editCheckboxes.plannedSet
+              (isEditMode &&
+                !editCheckboxes.performedSet &&
+                !editCheckboxes.plannedSet) ||
+              (!isEditMode &&
+                Boolean(exerciseData.sets[selectedSet].performanceStatus))
             }
-            onClick={
-              isEditMode
-                ? () =>
-                    editSet(
-                      exerciseData.id,
-                      exerciseData.sets[selectedSet].reps,
-                      exerciseData.sets[selectedSet].weight,
-                      exerciseData.sets[selectedSet].order
-                    )
-                : handleSubmit
-            }
+            onClick={isEditMode ? () => editSet() : handleSubmit}
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-blue-500 text-white"
           >
             {isEditMode ? 'Save changes' : 'Complete set'}

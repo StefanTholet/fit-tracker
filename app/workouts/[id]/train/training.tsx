@@ -2,20 +2,13 @@
 import React, { ReactNode, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useSearchParams } from 'next/navigation'
-import {
-  addExercise,
-  addPerformedExercise,
-  deletePlannedSet,
-  updatePlannedSet,
-} from '@/server-actions/workout-actions'
+import { addExercise } from '@/server-actions/workout-actions'
 import Link from 'next/link'
 import WorkoutCard from '@/components/workout-card/workout-card'
 import { Button } from '@/components/ui/button'
 import Sets from './sets'
 import { useToast } from '@/components/ui/use-toast'
 import { TransformedExercises } from '@/utils/exercise'
-import { GroupedExerciseSet } from '@/interfaces/workout'
-import {} from '@/lib/workouts'
 import InputGroup from './input-group'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -55,10 +48,8 @@ const Training: React.FC<TrainingProps> = ({
   createdOn,
   exercises,
   name,
-  children,
+  children
 }) => {
-  const searchParams = useSearchParams()
-  const { toast } = useToast()
   const [exerciseList, setExerciseList] = useState<Exercise[]>(
     exercises
       ? Object.keys(exercises).map((exercise: string) => exercises[exercise])
@@ -69,7 +60,7 @@ const Training: React.FC<TrainingProps> = ({
     name: '',
     id: uuidv4(),
     order: 0,
-    sets: [{ reps: 1, weight: 10, id: uuidv4(), order: 0 }],
+    sets: [{ reps: 1, weight: 10, id: uuidv4(), order: 0 }]
   })
 
   const toggleAddExercise = () => setShowAddExercise((state) => !state)
@@ -117,9 +108,9 @@ const Training: React.FC<TrainingProps> = ({
                 weight,
                 order,
                 id,
-                created_on,
-              },
-            ],
+                created_on
+              }
+            ]
           }
           return [...newState, newExercise]
         })

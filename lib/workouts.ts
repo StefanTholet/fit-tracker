@@ -3,7 +3,7 @@
 import { QueryResultRow, sql } from '@vercel/postgres'
 import { v4 as uuidv4 } from 'uuid'
 import { InsertExerciseInterface } from '@/interfaces/workout'
-import { AddPerformedExercise } from '@/server-actions/workout-actions'
+import { PerformedExercise } from '@/server-actions/workout-actions'
 import { Set, WorkoutResp } from '@/utils/exercise'
 
 export const insertWorkout = async (
@@ -46,6 +46,11 @@ GROUP BY
   return workout.rows
 }
 
+export interface InsertPerformedExercise extends PerformedExercise {
+  userId: string | number
+  workoutId: string | number
+  exerciseId: string
+}
 export const insertPerformedExercise = async ({
   id,
   userId,
@@ -55,8 +60,8 @@ export const insertPerformedExercise = async ({
   name,
   reps,
   weight,
-  order,
-}: AddPerformedExercise) => {
+  order
+}: InsertPerformedExercise) => {
   const result = await sql`INSERT INTO performed_exercises 
   ( 
   user_id,
@@ -245,14 +250,14 @@ export const selectPerformedExercisePerformanceDates = async (
   return result.rows[0]?.created_on
 }
 
-export const updatePerformedExercise = async ({
-  exerciseId,
+export const updatePerformedSet = async ({
+  id,
   performanceStatus,
   reps,
   weight,
-  order,
+  order
 }: {
-  exerciseId: string | number
+  id: string | number
   performanceStatus: 'met' | 'not-met' | 'exceeded'
   reps: string | number
   weight: string | number
@@ -265,9 +270,17 @@ SET
   weight=${weight},
   exercise_order=${order},
   created_on = CURRENT_TIMESTAMP
-WHERE exercise_id = ${exerciseId} AND DATE(created_on) = CURRENT_DATE;
+WHERE id = ${id} AND DATE(created_on) = CURRENT_DATE
+RETURNING created_on,
+exercise_id AS id,
+exercise_order AS order,
+performance_status,
+id AS performed_exercise_id,
+reps,
+weight
+
 `
-  return result.rows
+  return result.rows[0]
 }
 
 export const selectPerformedExercise = async (id: string) => {
@@ -291,17 +304,16 @@ export const insertExercise = async (
   return rows[0] as Set
 }
 
-export const updatePlannedSet = async (
+export const updateSet = async (
   exerciseId: string | number,
   reps: number | string,
   weight: number | string,
   order: number
 ) => {
-  debugger
   const { rows } = await sql`
-    UPDATE exercises 
+    UPDATE exercises
       SET reps=${reps}, weight=${weight}, exercise_order=${order}
-      WHERE exercises.exercise_id=${exerciseId}
+      WHERE exercise_id=${exerciseId}
       RETURNING *
     `
   return rows[0]

@@ -12,6 +12,7 @@ interface InputGroupProps {
   children?: React.ReactNode
   title?: string
   className?: string
+  disabled?: boolean
 }
 
 const InputGroup = ({
@@ -22,6 +23,7 @@ const InputGroup = ({
   title,
   topInputs,
   className,
+  disabled,
   children
 }: InputGroupProps) => {
   return (
@@ -46,6 +48,7 @@ const InputGroup = ({
         placeholder="reps"
         value={set?.reps}
         onChange={handleChange}
+        disabled={disabled}
       />
       <Label htmlFor="weight">Weight</Label>
       <Input
@@ -56,6 +59,7 @@ const InputGroup = ({
         placeholder="weight"
         value={set?.weight}
         onChange={handleChange}
+        disabled={disabled}
       />
       {children}
     </div>

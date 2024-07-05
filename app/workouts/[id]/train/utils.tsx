@@ -1,5 +1,5 @@
 'use client'
-import { CompletedSets } from './training'
+import { CompletedSets } from './sets'
 import { Base64 } from 'js-base64'
 
 const getDecodedParams = (params: string | null) => {
@@ -13,6 +13,7 @@ export const buildSearchParams = (
   exerciseName: string,
   completedSet: CompletedSets
 ) => {
+  debugger
   const decodedParams = getDecodedParams(params)
   let exercises
   if (decodedParams) {
