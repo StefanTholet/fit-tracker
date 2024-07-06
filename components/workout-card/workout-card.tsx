@@ -28,7 +28,7 @@ function WorkoutCard({
   return (
     <div
       ref={cardRef}
-      className={`max-w-md mx-auto p-4 space-y-4 rounded-lg shadow-lg ${containerClassName}`}
+      className={`max-w-80 mx-auto p-4 space-y-4 rounded-lg shadow-lg ${containerClassName}`}
     >
       <Card
         className={`${variantClassMapper[variant]} ${
@@ -124,7 +124,7 @@ const SetsContainer = ({
 }) => (
   <div
     className={`grid grid-cols-3 gap-2 ${
-      isEditMode ? 'bg-gray-100 p-2 rounded' : ''
+      isEditMode ? 'bg-gray-100 rounded' : ''
     }`}
   >
     {children}

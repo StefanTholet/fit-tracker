@@ -9,7 +9,7 @@ import { getPerformanceStatus } from './trainingUtils'
 import { buildSearchParams } from './utils'
 import { Base64 } from 'js-base64'
 import { GroupedExerciseSet } from '@/interfaces/workout'
-import { Exercise } from './training'
+import { Exercise, SetInterface } from './training'
 import InputGroup from './input-group'
 import FilePenIcon from '@/assets/svg/file-pen-icon'
 import { Input } from '@/components/ui/input'
@@ -19,13 +19,14 @@ import {
   editPlannedSet,
   editPerformedSet,
   deletePlannedSet,
-  addPerformedExercise
+  addPerformedExercise,
+  deletePerformedSet
 } from '@/server-actions/workout-actions'
 
 interface SetsProps {
-  sets: GroupedExerciseSet[]
+  sets: SetInterface[]
   exerciseName: string
-  id: string | number
+  id: string
   order: number
   userId: string | number
   workoutId: number
@@ -41,14 +42,16 @@ const Sets = ({
   sets,
   exerciseName,
   id,
+
   order
 }: SetsProps) => {
-  const [exerciseData, setExerciseData] = useState({
+  const [exerciseData, setExerciseData] = useState<Exercise>({
     name: exerciseName,
-    sets: [...sets.map((set) => structuredClone(set))],
+    sets: [...sets.map((set) => ({ ...set }))],
     id,
     order
   })
+
   const [selectedSet, setSelectedSet] = useState(0)
   const [showInput, setShowInput] = useState(false)
   const [showAddSetInput, setShowAddSetInput] = useState(false)
@@ -58,6 +61,7 @@ const Sets = ({
     reps: 1,
     weight: 10
   })
+
   const [editCheckboxes, setEditCheckboxes] = useState({
     plannedSet: false,
     performedSet: false
@@ -97,7 +101,7 @@ const Sets = ({
     const { value, name } = target
     setExerciseData((state) => {
       const exercise = { ...state }
-      exercise.sets[selectedSet][name] = value
+      exercise.sets[selectedSet][name] = value || 0
       return { ...exercise }
     })
   }
@@ -163,6 +167,7 @@ const Sets = ({
 
   const handleSubmit = async () => {
     const currentSet = exerciseData.sets[selectedSet]
+
     const performanceStatus = getPerformanceStatus(
       sets[selectedSet],
       currentSet
@@ -240,7 +245,19 @@ const Sets = ({
     try {
       const set = { ...exerciseData.sets[selectedSet] }
       if (editCheckboxes.plannedSet) {
-        await editPlannedSet(exerciseData.id, set.reps, set.weight, set.order)
+        const updatedSet = await editPlannedSet(
+          exerciseData.id,
+          set.reps,
+          set.weight,
+          set.order
+        )
+        if (updatedSet) {
+          toast({
+            title: `Set changes`,
+            description: 'Planned set successfully saved!',
+            variant: 'success'
+          })
+        }
       }
       if (editCheckboxes.performedSet && set.performed_exercise_id) {
         const updatedSet = await editPerformedSet({
@@ -267,13 +284,13 @@ const Sets = ({
             updatedSet
           )
           router.replace(newParams, { scroll: false })
+          toast({
+            title: `Set changes`,
+            description: 'Performed set successfully saved!',
+            variant: 'success'
+          })
         }
       }
-      toast({
-        title: `Set changes`,
-        description: 'Successfully saved!',
-        variant: 'success'
-      })
       if (editCheckboxes.plannedSet) {
         router.refresh()
       }
@@ -289,19 +306,56 @@ const Sets = ({
     }
   }
 
-  const deleteSet = async (exerciseId: string) => {
+  const deleteSet = async () => {
     try {
-      const result = await deletePlannedSet(exerciseId)
-      toast({
-        title: `Set`,
-        description: 'Successfully deleted!',
-        variant: 'success'
-      })
-      setExerciseData((state) => {
-        const newState = structuredClone(state)
-        newState.sets = newState.sets.filter((set) => set.id !== exerciseId)
-        return newState
-      })
+      const set = { ...exerciseData.sets[selectedSet] }
+      if (editCheckboxes.performedSet) {
+        const result = await deletePerformedSet(set.performed_exercise_id)
+
+        if (result) {
+          setExerciseData((state) => {
+            const newState = structuredClone(state)
+            const originalSet = sets.find(
+              (currSet) => currSet.id === newState.sets[selectedSet].id
+            )
+            if (originalSet) {
+              newState.sets[selectedSet] = { ...originalSet }
+            }
+            return { ...newState }
+          })
+        }
+        toast({
+          title: `Performed set`,
+          description: 'Successfully deleted!',
+          variant: 'success'
+        })
+        buildSearchParams(
+          searchParams.get('completedSets'),
+          pathname,
+          exerciseName,
+          exerciseData.sets[selectedSet],
+          true
+        )
+      }
+
+      if (editCheckboxes.plannedSet) {
+        const result = await deletePlannedSet(set.id)
+        if (result) {
+          setExerciseData((state) => {
+            const newState = structuredClone(state)
+            newState.sets = newState.sets.filter(
+              (currSet) => currSet.id !== set.id
+            )
+            return newState
+          })
+          toast({
+            title: `Planned set`,
+            description: 'Successfully deleted!',
+            variant: 'success'
+          })
+          router.refresh()
+        }
+      }
     } catch (error) {
       toast({
         title: `Could not delete set`,
@@ -328,7 +382,6 @@ const Sets = ({
 
           newState.sets = [
             ...sets.map((set) => {
-              debugger
               if (set.id === completedSet.id) {
                 set.performanceStatus = completedSet.performanceStatus
                 set.performed_exercise_id = completedSet.performed_exercise_id
@@ -395,15 +448,8 @@ const Sets = ({
       >
         <div className="flex gap-1 justify-center flex-wrap">
           {isEditMode && (
-            <div className="w-full flex justify-start">
-              <div
-                className={`flex w-${
-                  !exerciseData.sets[selectedSet]?.performanceStatus
-                    ? 'full'
-                    : '1/2'
-                } items-center gap-2`}
-              >
-                <Label htmlFor="plannedSet">Edit planned set</Label>
+            <div className="w-full flex justify-start flex-wrap">
+              <div className={`flex w-full items-center gap-2`}>
                 <Input
                   className="w-4"
                   name="plannedSet"
@@ -412,10 +458,10 @@ const Sets = ({
                   checked={editCheckboxes.plannedSet}
                   onChange={handleEditCheckboxChange}
                 />
+                <Label htmlFor="plannedSet">Edit planned set</Label>
               </div>
               {exerciseData.sets[selectedSet]?.performanceStatus && (
-                <div className="flex w-1/2 items-center gap-2">
-                  <Label htmlFor="performedSet">Edit performed set</Label>
+                <div className="flex w-full items-center gap-2">
                   <Input
                     className="w-4"
                     name="performedSet"
@@ -424,6 +470,7 @@ const Sets = ({
                     checked={editCheckboxes.performedSet}
                     onChange={handleEditCheckboxChange}
                   />
+                  <Label htmlFor="performedSet">Edit performed set</Label>
                 </div>
               )}
             </div>
@@ -431,7 +478,7 @@ const Sets = ({
           {isSetComplete() && (
             <div>
               <p className="text-center mb-2">
-                You have already completed this set
+                You have already completed this set.
               </p>
               <p className="text-center mb-2">
                 Press{' '}
@@ -441,7 +488,7 @@ const Sets = ({
                 >
                   here
                 </span>{' '}
-                to edit your result or your planned set for your next workout
+                to edit your result or your planned set for your next workout.
               </p>
             </div>
           )}
@@ -459,7 +506,10 @@ const Sets = ({
           </Button>
           {isEditMode && (
             <Button
-              onClick={() => deleteSet(exerciseData.sets[selectedSet].id)}
+              disabled={
+                !editCheckboxes.performedSet && !editCheckboxes.plannedSet
+              }
+              onClick={() => deleteSet()}
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-red-500 text-white"
             >
               Delete set

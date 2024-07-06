@@ -1,25 +1,23 @@
 'use client'
-import React, { ReactNode, useRef, useState } from 'react'
+import React, { ReactNode, useMemo, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { useSearchParams } from 'next/navigation'
 import { addExercise } from '@/server-actions/workout-actions'
 import Link from 'next/link'
 import WorkoutCard from '@/components/workout-card/workout-card'
 import { Button } from '@/components/ui/button'
 import Sets from './sets'
-import { useToast } from '@/components/ui/use-toast'
 import { TransformedExercises } from '@/utils/exercise'
 import InputGroup from './input-group'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 
 export interface SetInterface {
-  weight: number
-  reps: number
+  weight: number | string
+  reps: number | string
   performed_exercise_id?: string
   order: number
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
-  id?: string
+  id: string
   created_on?: string | Date
   exercise_id?: string
   [key: string]: any
@@ -30,7 +28,7 @@ export interface Exercise {
   sets: SetInterface[]
   order: number
   name: string
-  id: string | number
+  id: string
 }
 
 interface TrainingProps {
@@ -120,13 +118,29 @@ const Training: React.FC<TrainingProps> = ({
   }
 
   let isWorkoutCompleted = useRef(false)
+  const exercisesCopy = useMemo(
+    () =>
+      exercises
+        ? [
+            ...Object.keys(structuredClone(exercises)).map(
+              (exercise: string) => {
+                const setsCopy = exercises[exercise].sets.map((set) => ({
+                  ...set
+                }))
+                return { ...exercises[exercise], sets: setsCopy }
+              }
+            )
+          ]
+        : [],
+    [exerciseList]
+  )
 
   return (
     <div className="flex flex-wrap justify-center gap-8">
       {children}
       <WorkoutCard variant="current">
         <WorkoutCard.Header workoutName={name}></WorkoutCard.Header>
-        {exerciseList?.map((exercise) => (
+        {exercisesCopy?.map((exercise, i) => (
           <WorkoutCard.Exercises key={exercise.id}>
             <Sets
               userId={userId}

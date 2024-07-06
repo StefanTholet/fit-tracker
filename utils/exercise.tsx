@@ -78,7 +78,7 @@ export interface WorkoutResp {
 export type TransformedExercises = {
   [key: string]: {
     name: string
-    id: number | string
+    id: string
     order: number
     sets: Set[]
   }

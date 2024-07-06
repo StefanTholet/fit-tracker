@@ -74,12 +74,15 @@ export interface GroupedExerciseSet {
   reps: number | string
   weight: number | string
   performanceStatus?: 'met' | 'not-met' | 'exceeded'
+  order: number
+  id: string
   [key: string]: any
 }
 export interface GroupedExercise {
   name: string
   exercise_id: string | number
   sets: GroupedExerciseSet[]
+  performed_exercise_id?: string
   [key: string]: any
 }
 export interface GroupedWorkout {

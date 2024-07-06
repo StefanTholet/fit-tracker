@@ -257,7 +257,7 @@ export const updatePerformedSet = async ({
   weight,
   order
 }: {
-  id: string | number
+  id: string
   performanceStatus: 'met' | 'not-met' | 'exceeded'
   reps: string | number
   weight: string | number
@@ -318,10 +318,17 @@ export const updateSet = async (
     `
   return rows[0]
 }
-
+//TODO FIX FOREIGN KEY PROBLEM
 export const deletePlannedSet = async (id: string) => {
   const { rows } =
-    await sql`DELETE FROM exercises WHERE exercises.exercise_id=${id}`
+    await sql`DELETE FROM exercises WHERE exercises.exercise_id=${id} RETURNING *`
+
+  return rows[0]
+}
+
+export const deletePerformedSet = async (id: string) => {
+  const { rows } =
+    await sql`DELETE FROM performed_exercises WHERE performed_exercises.id=${id} RETURNING *`
 
   return rows[0]
 }

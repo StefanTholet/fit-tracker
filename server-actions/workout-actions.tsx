@@ -14,6 +14,7 @@ import {
   updatePerformedSet,
   updateSet,
   deletePlannedSet as deleteSet,
+  deletePerformedSet as deletePerfSet,
   InsertPerformedExercise
 } from '@/lib/workouts'
 import {
@@ -152,7 +153,7 @@ export const getDashboardData = async (
 }
 
 export interface PerformedExercise {
-  id: string | number
+  id: string
   performanceStatus: 'met' | 'not-met' | 'exceeded'
   name?: string
   reps: string | number
@@ -204,7 +205,16 @@ export const deletePlannedSet = async (id: string) => {
     return result
   } catch (error) {
     console.log(error)
+  }
+}
 
-    return error
+export const deletePerformedSet = async (id?: string) => {
+  try {
+    debugger
+    if (!id) return false
+    const result = await deletePerfSet(id)
+    return result
+  } catch (error) {
+    console.log(error)
   }
 }

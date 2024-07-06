@@ -11,9 +11,9 @@ export const buildSearchParams = (
   params: string | null,
   pathname: string,
   exerciseName: string,
-  completedSet: CompletedSets
+  completedSet: CompletedSets,
+  deleteSet?: boolean
 ) => {
-  debugger
   const decodedParams = getDecodedParams(params)
   let exercises
   if (decodedParams) {
@@ -28,7 +28,9 @@ export const buildSearchParams = (
         completedSet.performed_exercise_id === setData.performed_exercise_id
       )
     })
-    if (completedSetIndex >= 0) {
+    if (completedSetIndex >= 0 && deleteSet) {
+      delete exercises[completedSetIndex]
+    } else if (completedSetIndex >= 0) {
       exercises[completedSetIndex] = `${exerciseName}=${JSON.stringify(
         completedSet
       )}`
